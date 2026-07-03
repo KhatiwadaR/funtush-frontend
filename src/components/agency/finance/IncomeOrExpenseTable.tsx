@@ -1,6 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+import { exportToCsv } from '@/lib/exportToCsv';
+import { Button } from '@/components/ui/button';
 
 type Transaction = {
   id: string;
@@ -157,6 +159,12 @@ export default function IncomeOrexpenseTable({ data, type }: Props) {
           })}
         </tbody>
       </table>
+      <Button
+        variant="secondary"
+        onClick={() => exportToCsv(filteredData, type === 'income' ? 'income_data' : 'expense_data')}
+      >
+        Export CSV
+      </Button>
     </div>
   );
 }
