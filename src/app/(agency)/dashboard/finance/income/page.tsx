@@ -1,9 +1,19 @@
-import React from 'react';
+'use client';
 
-export default function Page() {
+import finance from '../../../../../../data/finance.json';
+import IncomeOrExpenseTable from '@/components/agency/finance/IncomeOrExpenseTable';
+import AddIncomeOrExpenseModal from '@/components/agency/finance/AddIncomeOrExpenseModal';
+
+const agencyId = 'ag-001';
+
+const incomeArr = finance.income.filter((inc) => inc.agency_id === agencyId);
+
+export default function IncomePage() {
   return (
-    <div className="min-h-screen flex items-center justify-center p-8 text-center text-slate-700">
-      Placeholder for app/(agency)/dashboard/finance/income/page.tsx
+    <div className="space-y-6 p-6">
+      <h2 className="text-2xl font-bold text-neutral-900">Income</h2>
+      <IncomeOrExpenseTable data={incomeArr} type="income" />
+      <AddIncomeOrExpenseModal type="income" />
     </div>
   );
 }
