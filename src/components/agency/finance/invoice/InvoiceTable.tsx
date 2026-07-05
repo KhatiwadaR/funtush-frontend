@@ -1,7 +1,11 @@
 'use client';
 
+import Link from 'next/link';
+import { Button } from '@/components/ui';
+
 type InvoiceArr = {
   id: string;
+  invoice_number: string;
   trekker_name: string;
   package_name: string;
   amount: number;
@@ -27,18 +31,18 @@ export default function InvoiceTable({ invoices }: Props) {
         <table className="w-full border-collapse">
           <thead>
             <tr>
-              <th className={tableClass}>Invoice ID</th>
+              <th className={tableClass}>Invoice #</th>
               <th className={tableClass}>Trekker Name</th>
               <th className={tableClass}>Package Name</th>
               <th className={tableClass}>Amount</th>
               <th className={tableClass}>Status</th>
             </tr>
           </thead>
-          <tbody className="gap-4">
+          <tbody>
             {invoices.map((invoice) => {
               return (
                 <tr key={invoice.id}>
-                  <td className={tableClass}>{invoice.id}</td>
+                  <td className={tableClass}>{invoice.invoice_number}</td>
                   <td className={tableClass}>{invoice.trekker_name}</td>
                   <td className={tableClass}>{invoice.package_name}</td>
                   <td className={tableClass}>{invoice.amount}</td>
@@ -46,6 +50,13 @@ export default function InvoiceTable({ invoices }: Props) {
                     className={`${tableClass} ${statusStyles[invoice.status.toLowerCase() as keyof typeof statusStyles]}`}
                   >
                     {invoice.status}
+                  </td>
+                  <td className={tableClass}>
+                    <Link href={`/dashboard/finance/invoices/${invoice.id}`}>
+                      <Button variant="secondary" title="genrate invoice detail for current invoice">
+                        Generate
+                      </Button>
+                    </Link>
                   </td>
                 </tr>
               );
