@@ -38,7 +38,7 @@ interface AddOnItem {
   perPerson: boolean;
 }
 
-interface PackageForm {
+export interface PackageForm {
   id?: string;
   title: string;
   destination: string;
@@ -80,11 +80,6 @@ const initialFormState: PackageForm = {
   video: "",
   addons: [],
 };
-
-interface PackageBuilderFormProps {
-  initialData?: PackageForm | null;
-  packageId?: string;
-}
 
 export default function PackageBuilderForm({
   initialData,
