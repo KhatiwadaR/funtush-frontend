@@ -1,4 +1,5 @@
 // src/components/shared/forms/FileUpload.tsx
+"use client";
 import React, { useState, useRef } from 'react';
 
 interface FileUploadProps {

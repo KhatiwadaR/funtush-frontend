@@ -1,4 +1,5 @@
 // src/components/shared/forms/Select.tsx
+"use client";
 import React, { forwardRef, useState } from 'react';
 
 interface Option {

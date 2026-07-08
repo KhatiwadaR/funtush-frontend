@@ -1,4 +1,5 @@
 // src/components/shared/forms/Textarea.tsx
+"use client";
 import React, { forwardRef, useEffect, useRef, useState } from 'react';
 
 interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {

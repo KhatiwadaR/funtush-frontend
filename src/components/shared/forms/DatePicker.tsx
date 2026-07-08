@@ -1,4 +1,5 @@
 // src/components/shared/forms/DatePicker.tsx
+"use client";
 import React, { forwardRef } from 'react';
 
 interface DatePickerProps {

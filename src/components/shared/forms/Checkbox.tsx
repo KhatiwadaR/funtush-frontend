@@ -1,4 +1,5 @@
 // src/components/shared/forms/Checkbox.tsx
+"use client";
 import React, { forwardRef, useEffect, useRef } from 'react';
 
 interface CheckboxProps extends React.InputHTMLAttributes<HTMLInputElement> {
