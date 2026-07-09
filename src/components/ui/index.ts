@@ -11,3 +11,8 @@ export * from './modal';
 export * from './dropdown';
 export * from './tabs';
 export * from './pagination';
+
+export * from '../shared/forms/Select';
+export * from '../shared/forms/Checkbox';
+export * from '../shared/forms/Textarea';
+export * from '../shared/forms/DatePicker';
