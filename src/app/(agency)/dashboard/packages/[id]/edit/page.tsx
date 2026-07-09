@@ -1,9 +1,49 @@
-import React from 'react';
+"use client";
 
-export default function Page() {
+import { useParams, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import PackageBuilderForm, {
+  type PackageForm,
+} from "@/components/PackageBuilderForm";
+
+export default function EditPackagePage() {
+  const params = useParams();
+  const router = useRouter();
+  const id = params?.id as string;
+
+  const [initialData] = useState<PackageForm | null>(() => {
+    if (typeof window === "undefined" || !id) return null;
+
+    const stored = localStorage.getItem("packages");
+
+    if (!stored) return null;
+
+    const allPackages = JSON.parse(stored) as PackageForm[];
+
+    const foundPackage = allPackages.find((p) => String(p.id) === String(id));
+
+    return foundPackage ?? null;
+  });
+
+  useEffect(() => {
+    if (!initialData) {
+      router.push("/dashboard/packages");
+    }
+  }, [initialData, router]);
+
+  if (!initialData) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-sm text-gray-500 animate-pulse">
+          Loading package specifications...
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen flex items-center justify-center p-8 text-center text-slate-700">
-      Placeholder for app/(agency)/dashboard/packages/[id]/edit/page.tsx
+    <div className="max-w-5xl mx-auto p-4 sm:p-6">
+      <PackageBuilderForm initialData={initialData} packageId={id} />
     </div>
   );
 }
