@@ -33,7 +33,7 @@ export default function AgencyFinancePage() {
         netProfit={netProfit}
         outstandingInvoices={ouststandingInvoice}
       />
-      <MonthlyChart incomeArr={incomeArr} expensesArr={expensesArr} />
+      <MonthlyChart agencyId={agencyId} />
       <RecentTransactions incomeArr={incomeArr} expensesArr={expensesArr} />
       <QuickLinks />
     </div>
