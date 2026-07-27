@@ -22,6 +22,18 @@ export const Navbar: React.FC<NavbarProps> = ({
   const theme = useTheme();
   const effectiveIsDark = typeof isDarkMode === 'boolean' ? isDarkMode : theme.isDark;
   const effectiveToggle = onDarkModeToggle ?? theme.toggle;
+  const baseBtnClass = effectiveIsDark
+    ? 'border-slate-800 bg-slate-900 text-slate-200 hover:bg-slate-800'
+    : 'border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-50';
+  const searchBgClass = effectiveIsDark
+    ? 'border-slate-800 bg-slate-900/95 text-slate-200 placeholder:text-slate-500 shadow-sm'
+    : 'border-neutral-200 bg-white text-neutral-900 placeholder:text-neutral-500 shadow-sm';
+  const searchFocusClass = effectiveIsDark
+    ? 'focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20'
+    : 'focus:border-slate-700 focus:ring-2 focus:ring-slate-700/20';
+  const subtitleColorClass = effectiveIsDark ? 'text-slate-100' : 'text-slate-700';
+  const iconBtnWrapper = 'inline-flex p-2 rounded focus:outline-none';
+  const iconColorClass = effectiveIsDark ? 'text-slate-200 hover:text-white' : 'text-neutral-700 hover:text-neutral-900';
 
   const navLinks = [
     { label: 'Dashboard', href: '/dashboard' },
@@ -30,7 +42,13 @@ export const Navbar: React.FC<NavbarProps> = ({
   ];
 
   return (
-    <nav className="fixed inset-x-0 top-0 z-50 border-b border-slate-800 bg-slate-950/95 backdrop-blur-xl">
+    <nav
+      className={`fixed inset-x-0 top-0 z-50 border-b backdrop-blur-xl ${
+        effectiveIsDark
+          ? 'border-slate-800 bg-slate-950/95'
+          : 'border-neutral-200 bg-white/95'
+      }`}
+    >
       <div className="mx-auto flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
         <div className="flex items-center gap-3">
           {canToggleSidebar && (
@@ -38,15 +56,20 @@ export const Navbar: React.FC<NavbarProps> = ({
               type="button"
               onClick={onSidebarToggle}
               aria-label={sidebarOpen ? 'Close sidebar' : 'Open sidebar'}
-              className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-800 bg-slate-900 text-slate-200 transition hover:bg-slate-800 focus:outline-none"
+              className={iconBtnWrapper}
             >
-              {sidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              {sidebarOpen ? <X className={`h-5 w-5 ${iconColorClass}`} /> : <Menu className={`h-5 w-5 ${iconColorClass}`} />}
             </button>
           )}
 
           <div className="flex flex-col">
-            <span className="text-xs font-semibold uppercase tracking-[0.4em] text-cyan-300">Green Agency</span>
-            <span className="text-sm font-semibold text-slate-100">Digital Marketing Dashboard</span>
+            <span
+              className="inline-flex items-center rounded-full border border-[#1c3762] px-2 py-1 text-xs font-semibold uppercase tracking-[0.4em] text-[#0077ff]"
+              style={{ fontFamily: 'VAG Round Next Shine, Arial, Helvetica, sans-serif' }}
+            >
+              FUNTUSh
+            </span>
+            <span className={`text-sm font-semibold ${subtitleColorClass}`}>Digital Marketing Dashboard</span>
           </div>
         </div>
 
@@ -56,7 +79,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             <input
               type="search"
               placeholder="Search for anything..."
-              className="w-full rounded-full border border-slate-800 bg-slate-900/95 py-3 pl-12 pr-4 text-sm text-slate-200 placeholder:text-slate-500 outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20"
+              className={`w-full rounded-full py-3 pl-12 pr-4 text-sm outline-none transition ${searchBgClass} ${searchFocusClass}`}
             />
           </label>
         </div>
@@ -64,9 +87,9 @@ export const Navbar: React.FC<NavbarProps> = ({
         <div className="flex items-center gap-2">
           <button
             type="button"
-            className="relative inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-800 bg-slate-900 text-slate-200 transition hover:bg-slate-800"
+            className={`${iconBtnWrapper} relative`}
           >
-            <Bell className="h-5 w-5" />
+            <Bell className={`h-5 w-5 ${iconColorClass}`} />
             <span className="absolute -right-1 -top-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-rose-500 px-1.5 text-[10px] font-semibold text-white">
               3
             </span>
@@ -74,9 +97,9 @@ export const Navbar: React.FC<NavbarProps> = ({
 
           <button
             type="button"
-            className="relative inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-800 bg-slate-900 text-slate-200 transition hover:bg-slate-800"
+            className={`${iconBtnWrapper} relative`}
           >
-            <MessageCircle className="h-5 w-5" />
+            <MessageCircle className={`h-5 w-5 ${iconColorClass}`} />
             <span className="absolute -right-1 -top-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-emerald-500 px-1.5 text-[10px] font-semibold text-white">
               2
             </span>
@@ -84,10 +107,10 @@ export const Navbar: React.FC<NavbarProps> = ({
 
           <button
             type="button"
-            onClick={onDarkModeToggle}
-            className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-800 bg-slate-900 text-slate-200 transition hover:bg-slate-800"
+            onClick={effectiveToggle}
+            className={iconBtnWrapper}
           >
-            {effectiveIsDark ? <Moon className="h-5 w-5" /> : <SunMedium className="h-5 w-5" />}
+            {effectiveIsDark ? <Moon className={`h-5 w-5 ${iconColorClass}`} /> : <SunMedium className={`h-5 w-5 ${iconColorClass}`} />}
           </button>
 
           <div className="relative">
@@ -120,10 +143,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             )}
           </div>
 
-          <div className="hidden md:flex items-center gap-2 rounded-full border border-slate-800 bg-slate-900 px-3 py-2 text-xs text-slate-400">
-            <span className="inline-flex h-2.5 w-2.5 rounded-full bg-emerald-400" />
-            Online
-          </div>
+          {/* Online status removed per request */}
         </div>
       </div>
 

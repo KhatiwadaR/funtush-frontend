@@ -115,14 +115,20 @@ export default function PackagesPage() {
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          <Button variant="outline" size="sm" className="inline-flex items-center gap-2">
-            <Download className="h-4 w-4" />
+          <button
+            type="button"
+            className="inline-flex items-center gap-2 rounded-2xl bg-neutral-900 px-3 py-2.5 text-sm font-semibold text-white transition hover:bg-neutral-800 shadow-sm"
+          >
+            <Download className="h-4 w-4 text-current" />
             Import
-          </Button>
-          <Button variant="primary" size="sm" className="inline-flex items-center gap-2">
-            <Add className="h-4 w-4" />
+          </button>
+          <button
+            type="button"
+            className="inline-flex items-center gap-2 rounded-2xl bg-neutral-900 px-3 py-2.5 text-sm font-semibold text-white transition hover:bg-neutral-800 shadow-sm"
+          >
+            <Add className="h-4 w-4 text-current" />
             Create Package
-          </Button>
+          </button>
         </div>
       </div>
 
