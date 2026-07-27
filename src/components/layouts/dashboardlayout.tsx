@@ -1,26 +1,29 @@
+//src/components/layouts/dashboardlayout.tsx
+
+'use client';
+
 import React from 'react';
 import { Sidebar } from '../navigation/sidebar';
-import { Navbar } from '../navigation/navbar';
+import Navbar from '@/components/navigation/navbar';
+import { useTheme } from '@/context/theme';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
 }
 
 export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
+  const { isDark } = useTheme();
+  const [isSidebarOpen, setIsSidebarOpen] = React.useState(true);
+
   return (
-    <div className="min-h-screen bg-neutral-50">
-      <Navbar />
-      <div className="flex">
-        {/* Left Drawer Container Panel Shell */}
-        <Sidebar />
-        
-        {/* Right Main Panel Body Wrapper */}
-        <main className="flex-1 pl-64 pt-16 min-h-[calc(100vh-4rem)]">
-          <div className="p-8 max-w-7xl mx-auto">
-            {children}
-          </div>
-        </main>
-      </div>
+    <div className={`min-h-screen transition-colors duration-300 ${isDark ? 'bg-slate-950 text-slate-100' : 'bg-neutral-50 text-slate-900'}`}>
+      <Navbar sidebarOpen={isSidebarOpen} onSidebarToggle={() => setIsSidebarOpen((prev) => !prev)} />
+      <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+      <main className={`min-h-screen pt-16 transition-all duration-300 ${isSidebarOpen ? 'md:ml-72' : 'md:ml-0'}`}>
+        <div className="w-full px-4 py-4 sm:px-6">
+          {children}
+        </div>
+      </main>
     </div>
   );
 };

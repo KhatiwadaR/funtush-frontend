@@ -3,6 +3,7 @@
 import { ReactNode } from 'react';
 import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
 import { Toaster } from 'react-hot-toast';
+import { ThemeProvider } from '@/context/theme';
 
 /**
  * Initialize React Query client
@@ -25,21 +26,23 @@ const queryClient = new QueryClient({
 export function Providers({ children }: { children: ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
-      {children}
+      <ThemeProvider>
+        {children}
 
-      {/* ── Toast notifications (top-right) ── */}
-      <Toaster
-        position="top-right"
-        toastOptions={{
-          duration: 3000,
-          style: {
-            background: '#fff',
-            color: '#171717',
-            border: '1px solid #e5e5e5',
-            fontSize: '14px',
-          },
-        }}
-      />
+        {/* ── Toast notifications (top-right) ── */}
+        <Toaster
+          position="top-right"
+          toastOptions={{
+            duration: 3000,
+            style: {
+              background: '#fff',
+              color: '#171717',
+              border: '1px solid #e5e5e5',
+              fontSize: '14px',
+            },
+          }}
+        />
+      </ThemeProvider>
     </QueryClientProvider>
   );
 }
