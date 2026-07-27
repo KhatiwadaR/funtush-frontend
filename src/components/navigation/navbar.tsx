@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Bell, Menu, MessageCircle, Moon, Search, SunMedium, User, X } from 'lucide-react';
 import Link from 'next/link';
+import { useTheme } from '@/context/theme';
 
 type NavbarProps = {
   sidebarOpen?: boolean;
@@ -12,12 +13,15 @@ type NavbarProps = {
 export const Navbar: React.FC<NavbarProps> = ({
   sidebarOpen = false,
   onSidebarToggle,
-  isDarkMode = true,
+  isDarkMode,
   onDarkModeToggle,
 }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
   const canToggleSidebar = typeof onSidebarToggle === 'function';
+  const theme = useTheme();
+  const effectiveIsDark = typeof isDarkMode === 'boolean' ? isDarkMode : theme.isDark;
+  const effectiveToggle = onDarkModeToggle ?? theme.toggle;
 
   const navLinks = [
     { label: 'Dashboard', href: '/dashboard' },
@@ -83,7 +87,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             onClick={onDarkModeToggle}
             className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-800 bg-slate-900 text-slate-200 transition hover:bg-slate-800"
           >
-            {isDarkMode ? <Moon className="h-5 w-5" /> : <SunMedium className="h-5 w-5" />}
+            {effectiveIsDark ? <Moon className="h-5 w-5" /> : <SunMedium className="h-5 w-5" />}
           </button>
 
           <div className="relative">
@@ -123,22 +127,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         </div>
       </div>
 
-      <div className="border-t border-slate-800 bg-slate-950/95 px-4 py-3 sm:px-6">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-3 rounded-3xl border border-slate-800 bg-slate-900 px-4 py-3">
-            <Bell className="h-4 w-4 text-cyan-300" />
-            <div>
-              <p className="text-sm font-semibold text-slate-100">You have 3 new notifications</p>
-              <p className="text-xs text-slate-500">Review the latest bookings and message requests.</p>
-            </div>
-          </div>
-          <div className="flex flex-wrap items-center gap-2 text-xs text-slate-400">
-            <span className="rounded-full bg-slate-900 px-3 py-2">7 active packages</span>
-            <span className="rounded-full bg-slate-900 px-3 py-2">5 pending approvals</span>
-            <span className="rounded-full bg-slate-900 px-3 py-2">24 total bookings</span>
-          </div>
-        </div>
-      </div>
+      {/* Notification summary removed per UX request */}
 
       {isMobileMenuOpen && (
         <div className="md:hidden border-t border-slate-800 bg-slate-950 px-4 pb-4 pt-3">
@@ -153,10 +142,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               </Link>
             ))}
           </div>
-          <div className="mt-4 rounded-3xl border border-slate-800 bg-slate-900 p-4">
-            <p className="text-sm font-semibold text-slate-100">3 new notifications</p>
-            <p className="mt-1 text-xs text-slate-500">Check bookings and client messages.</p>
-          </div>
+          {/* mobile notification summary removed */}
         </div>
       )}
     </nav>
