@@ -12,7 +12,7 @@ const SafetyMap = dynamic(() => import("@/components/agency/safety/SafetyMap"), 
 
   ssr: false,
   loading: () => (
-    <div className="w-full h-full min-h-[400px] bg-slate-50 border border-dashed rounded-xl flex flex-col items-center justify-center text-slate-400 gap-2 animate-pulse">
+    <div className="w-full h-full min-h-100 bg-slate-50 border border-dashed rounded-xl flex flex-col items-center justify-center text-slate-400 gap-2 animate-pulse">
       <div className="w-6 h-6 border-2 border-slate-300 border-t-slate-500 rounded-full animate-spin" />
       <span className="text-xs font-medium">Mounting Live Telemetry Canvas...</span>
     </div>
@@ -80,19 +80,17 @@ Live Overview            </span>
 
       <SOSAlertBanner activeSosCount={activeSosCount} />
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-
-
-        <div className="lg:col-span-2 h-[420px]">
-          <SafetyMap treks={mockActiveTreks} />
-        </div>
-
-        <div className="space-y-4 lg:col-span-2">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="space-y-4 lg:col-span-1">
           <ActiveTrekList
             treks={mockActiveTreks}
             selectedTrekId={selectedTrek}
             onSelectTrek={setSelectedTrek}
           />
+        </div>
+
+        <div className="lg:col-span-2 h-[420px]">
+          <SafetyMap treks={mockActiveTreks} />
         </div>
       </div>
 
