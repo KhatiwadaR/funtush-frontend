@@ -43,7 +43,7 @@ export function BlogEditorSection({
         {/* Blog Title */}
         <div className="space-y-1.5">
           <div className="flex justify-between items-center">
-            <label className="font-bold">Blog title</label>
+            <label className="font-bold">Blog Title</label>
           </div>
           <input
             type="text"
