@@ -5,6 +5,9 @@ import Image from 'next/image';
 import { useStaff } from '@/hooks/useStaff';
 import AddStaffModal from '@/components/agency/staff/AddStaffModal';
 import rolesData from '../../../../../data/roles.json';
+import Link from 'next/link';
+import { AnalyticsSummaryCard } from '@/components/shared/AnalyticsSummaryCard';
+import { CheckCircle2, Shield, Users } from 'lucide-react';
 
 // Helper to format time
 const formatTime = (timestamp: string) => {
@@ -29,20 +32,20 @@ export default function StaffPage() {
   }
 
   return (
-    <div className="p-4 text-black">
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold">Staff</h1>
+    <div className="space-y-4">
+      <div className="flex items-end justify-between gap-3"><div><div className="flex items-center gap-2 text-sm text-neutral-500"><Link href="/dashboard">Dashboard</Link><span>/</span><span className="font-semibold text-neutral-900">Staff</span></div><h1 className="mt-2 text-2xl font-semibold text-neutral-900">Staff</h1><p className="mt-1 text-sm text-neutral-600">Manage your agency team and account access.</p></div>
         <button
           onClick={() => setIsModalOpen(true)}
-          className="bg-blue-600 text-white px-4 py-2 rounded text-sm hover:bg-blue-700"
+          className="rounded-2xl bg-primary-900 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-800"
         >
           + Add Staff
-        </button>
-      </div>
+        </button></div>
+
+      <div className="grid gap-3 sm:grid-cols-3"><AnalyticsSummaryCard label="Total Staff" value={staff.length} tone="primary" icon={Users} /><AnalyticsSummaryCard label="Active Staff" value={staff.filter((member) => member.active).length} tone="success" icon={CheckCircle2} /><AnalyticsSummaryCard label="Roles" value={new Set(staff.map((member) => member.role)).size} tone="warning" icon={Shield} /></div>
 
       {/* Staff Table */}
-      <div className="bg-white border border-neutral-200 rounded-lg overflow-hidden">
-        <table className="w-full">
+      <div className="overflow-x-auto rounded-2xl border border-neutral-200 bg-white shadow-sm">
+        <table className="min-w-full text-left">
           <thead className="bg-neutral-50 border-b border-neutral-200">
             <tr>
               <th className="text-left text-xs font-medium text-neutral-500 uppercase tracking-wider px-4 py-3">
@@ -68,11 +71,17 @@ export default function StaffPage() {
                 <td className="px-4 py-3">
                   <a
                     href={`/dashboard/staff/${member.id}`}
-                    className="flex items-center gap-3 hover:text-blue-600"
+                    className="flex items-center gap-3 hover:text-primary-900"
                   >
                     <div className="w-8 h-8 rounded-full bg-neutral-200 overflow-hidden shrink-0">
                       {member.avatar && (
-                        <Image src={member.avatar} alt={member.name} className="w-full h-full object-cover" />
+                        <Image
+                          src={member.avatar}
+                          alt={member.name}
+                          width={32}
+                          height={32}
+                          className="w-full h-full object-cover"
+                        />
                       )}
                     </div>
                     <span className="font-medium">{member.name}</span>
@@ -80,7 +89,7 @@ export default function StaffPage() {
                 </td>
                 <td className="px-4 py-3 text-sm text-neutral-600">{member.email}</td>
                 <td className="px-4 py-3">
-                  <span className="inline-block text-xs font-medium px-2 py-1 rounded-full bg-blue-100 text-blue-800">
+                  <span className="inline-block rounded-full bg-primary-50 px-2 py-1 text-xs font-medium text-primary-700">
                     {getRoleLabel(member.role)}
                   </span>
                 </td>

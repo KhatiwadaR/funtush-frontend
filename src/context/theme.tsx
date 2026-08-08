@@ -12,11 +12,16 @@ const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isDark, setIsDark] = useState<boolean>(() => {
+    // Avoid accessing `localStorage` during SSR where `window` is undefined.
     try {
-      const stored = localStorage.getItem("funtush-theme");
+      if (typeof window === "undefined" || typeof window.localStorage === "undefined") {
+        return false;
+      }
+
+      const stored = window.localStorage.getItem("funtush-theme");
       if (stored) return stored === "dark";
     } catch (e) {
-      /* ignore */
+      // Ignore errors (e.g., private mode, permissions)
       console.error("Error accessing localStorage:", e);
     }
     return false;

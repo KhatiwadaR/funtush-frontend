@@ -20,7 +20,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       primary: 'bg-primary-600 text-white hover:bg-primary-700 disabled:opacity-50',
       secondary: 'bg-neutral-200 text-neutral-900 hover:bg-neutral-300 disabled:opacity-50',
       danger: 'bg-danger-600 text-white hover:bg-danger-700 disabled:opacity-50',
-      outline: 'border border-neutral-300 text-neutral-900 hover:bg-neutral-50 disabled:opacity-50',
+      outline: 'border border-brand-border text-neutral-900 hover:bg-neutral-50 disabled:opacity-50',
     };
 
     const sizeStyles = {
