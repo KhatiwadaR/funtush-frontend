@@ -1,8 +1,78 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
+  --background: #f5f7fb;
   --foreground: #171717;
+
+  --color-primary-50: #eef7ff;
+  --color-primary-100: #dfeefb;
+  --color-primary-200: #bfdff8;
+  --color-primary-300: #8ec7ee;
+  --color-primary-400: #5eaee3;
+  --color-primary-500: #358CBD;
+  --color-primary-600: #1a5fa8;
+  --color-primary-700: #0d47a1;
+  --color-primary-800: #0a3d88;
+  --color-primary-900: #092e67;
+  --color-primary-950: #061e43;
+
+  --color-accent-50: #edf9ff;
+  --color-accent-100: #dff3ff;
+  --color-accent-200: #c3ebff;
+  --color-accent-300: #8dd4f7;
+  --color-accent-400: #4fb6ea;
+  --color-accent-500: #2fa8df;
+  --color-accent-600: #1d8ec8;
+  --color-accent-700: #1473a8;
+  --color-accent-800: #135d87;
+  --color-accent-900: #104c6e;
+
+  --color-success-50: #f0fdf4;
+  --color-success-100: #dcfce7;
+  --color-success-200: #bbf7d0;
+  --color-success-300: #86efac;
+  --color-success-400: #4ade80;
+  --color-success-500: #22c55e;
+  --color-success-600: #16a34a;
+  --color-success-700: #15803d;
+  --color-success-800: #166534;
+  --color-success-900: #145231;
+
+  --color-danger-50: #fef2f2;
+  --color-danger-100: #fee2e2;
+  --color-danger-200: #fecaca;
+  --color-danger-300: #fca5a5;
+  --color-danger-400: #f87171;
+  --color-danger-500: #ef4444;
+  --color-danger-600: #dc2626;
+  --color-danger-700: #b91c1c;
+  --color-danger-800: #991b1b;
+  --color-danger-900: #7f1d1d;
+
+  --color-warning-50: #fefce8;
+  --color-warning-100: #fef3c7;
+  --color-warning-200: #fde68a;
+  --color-warning-300: #fcd34d;
+  --color-warning-400: #fbbf24;
+  --color-warning-500: #f59e0b;
+  --color-warning-600: #d97706;
+  --color-warning-700: #b45309;
+  --color-warning-800: #92400e;
+  --color-warning-900: #78350f;
+
+  --color-neutral-50: #f9fafb;
+  --color-neutral-100: #f3f4f6;
+  --color-neutral-200: #e5e7eb;
+  --color-neutral-300: #d1d5db;
+  --color-neutral-400: #9ca3af;
+  --color-neutral-500: #6b7280;
+  --color-neutral-600: #4b5563;
+  --color-neutral-700: #374151;
+  --color-neutral-800: #1f2937;
+  --color-neutral-900: #111827;
+
+  --color-brand-border: #358CBD;
+  --color-brand-tint: #EAF4FB;
 }
 
 @theme inline {
@@ -10,6 +80,76 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  --color-primary-50: #eef7ff;
+  --color-primary-100: #dfeefb;
+  --color-primary-200: #bfdff8;
+  --color-primary-300: #8ec7ee;
+  --color-primary-400: #5eaee3;
+  --color-primary-500: #358CBD;
+  --color-primary-600: #1a5fa8;
+  --color-primary-700: #0d47a1;
+  --color-primary-800: #0a3d88;
+  --color-primary-900: #092e67;
+  --color-primary-950: #061e43;
+
+  --color-accent-50: #edf9ff;
+  --color-accent-100: #dff3ff;
+  --color-accent-200: #c3ebff;
+  --color-accent-300: #8dd4f7;
+  --color-accent-400: #4fb6ea;
+  --color-accent-500: #2fa8df;
+  --color-accent-600: #1d8ec8;
+  --color-accent-700: #1473a8;
+  --color-accent-800: #135d87;
+  --color-accent-900: #104c6e;
+
+  --color-success-50: #f0fdf4;
+  --color-success-100: #dcfce7;
+  --color-success-200: #bbf7d0;
+  --color-success-300: #86efac;
+  --color-success-400: #4ade80;
+  --color-success-500: #22c55e;
+  --color-success-600: #16a34a;
+  --color-success-700: #15803d;
+  --color-success-800: #166534;
+  --color-success-900: #145231;
+
+  --color-danger-50: #fef2f2;
+  --color-danger-100: #fee2e2;
+  --color-danger-200: #fecaca;
+  --color-danger-300: #fca5a5;
+  --color-danger-400: #f87171;
+  --color-danger-500: #ef4444;
+  --color-danger-600: #dc2626;
+  --color-danger-700: #b91c1c;
+  --color-danger-800: #991b1b;
+  --color-danger-900: #7f1d1d;
+
+  --color-warning-50: #fefce8;
+  --color-warning-100: #fef3c7;
+  --color-warning-200: #fde68a;
+  --color-warning-300: #fcd34d;
+  --color-warning-400: #fbbf24;
+  --color-warning-500: #f59e0b;
+  --color-warning-600: #d97706;
+  --color-warning-700: #b45309;
+  --color-warning-800: #92400e;
+  --color-warning-900: #78350f;
+
+  --color-neutral-50: #f9fafb;
+  --color-neutral-100: #f3f4f6;
+  --color-neutral-200: #e5e7eb;
+  --color-neutral-300: #d1d5db;
+  --color-neutral-400: #9ca3af;
+  --color-neutral-500: #6b7280;
+  --color-neutral-600: #4b5563;
+  --color-neutral-700: #374151;
+  --color-neutral-800: #1f2937;
+  --color-neutral-900: #111827;
+
+  --color-brand-border: #358CBD;
+  --color-brand-tint: #EAF4FB;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -22,5 +162,5 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: Poppins, Arial, Helvetica, sans-serif;
 }

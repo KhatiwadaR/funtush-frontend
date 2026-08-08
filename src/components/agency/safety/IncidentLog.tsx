@@ -25,19 +25,19 @@ export function IncidentLog({ incidents }: IncidentLogProps) {
   return (
     <div 
       id="incident-log-table" 
-      className={`rounded-xl border shadow-sm overflow-hidden transition-colors ${
+      className={`overflow-hidden rounded-2xl border shadow-sm transition-colors ${
         isDark 
           ? "bg-slate-900 border-slate-800 text-slate-100" 
-          : "bg-white border-slate-200/60 text-slate-800"
+          : "bg-white border-neutral-200 text-neutral-800"
       }`}
     >
       <div className={`p-4 border-b ${
         isDark 
           ? "border-slate-800 bg-slate-900/50" 
-          : "border-slate-200/60 bg-slate-50/80"
+          : "border-neutral-200 bg-neutral-50"
       }`}>
         <div className="flex items-center justify-between">
-          <h3 className={`font-bold text-sm ${isDark ? "text-slate-100" : "text-slate-800"}`}>
+          <h3 className={`text-sm font-semibold ${isDark ? "text-slate-100" : "text-neutral-900"}`}>
             Incident Log
           </h3>
           <span className={`text-xs ${isDark ? "text-slate-500" : "text-slate-400"}`}>
