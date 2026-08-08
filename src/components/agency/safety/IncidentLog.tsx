@@ -32,6 +32,7 @@ export function IncidentLog({ incidents }: IncidentLogProps) {
       }
       toast.success(`Successfully generated PDF report for Incident ${id}.`);
     } catch (err) {
+      console.error(`Error exporting PDF for Incident ${id}:`, err);
       toast.error(`Failed to export PDF for Incident ${id}. Please try again.`);
     }
   };

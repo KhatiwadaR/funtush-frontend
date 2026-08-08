@@ -46,6 +46,7 @@ export default function SafetyPage() {
     try {
       toast.success("Successfully compiled and exported safety audit report.");
     } catch (err) {
+      console.error("Error exporting safety audit report:", err);
       toast.error("Failed to export safety audit report. Please try again.");
     }
   };

@@ -39,6 +39,7 @@ export function SOSAlertBanner({
       if (onAcknowledge) onAcknowledge();
       toast.success("SOS Alert successfully acknowledged. Response team deployed.");
     } catch (err) {
+      console.error("Error acknowledging SOS alert:", err);
       toast.error("Failed to acknowledge SOS alert. Please try again.");
     }
   };
@@ -48,6 +49,7 @@ export function SOSAlertBanner({
       if (onCallGuide) onCallGuide();
       toast.success(`Initiating secure voice link with ${guideName}...`);
     } catch (err) {
+      console.error("Error initiating call to guide:", err);
       toast.error("Failed to connect call. Please check the network.");
     }
   };
@@ -57,6 +59,7 @@ export function SOSAlertBanner({
       if (onWhatsApp) onWhatsApp();
       toast.success(`Opening emergency chat channel for ${guideName}.`);
     } catch (err) {
+        console.error("Error opening WhatsApp messaging channel:", err);
       toast.error("Failed to open WhatsApp messaging channel.");
     }
   };
