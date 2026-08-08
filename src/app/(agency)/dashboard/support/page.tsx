@@ -36,7 +36,7 @@ export default function SupportPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    let newErrors = { title: "", desc: "" };
+    const newErrors = { title: "", desc: "" };
     let hasError = false;
 
     if (!title.trim()) {
@@ -73,6 +73,7 @@ export default function SupportPage() {
       setScreenshot(null);
       toast.success("Bug reported successfully directly into Funtush support triage!");
     } catch (err) {
+      console.error("Error submitting bug report:", err);
       toast.error("Failed to submit bug report. Please try again.");
     }
   };
