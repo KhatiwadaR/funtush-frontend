@@ -1,14 +1,27 @@
+
 "use client";
+
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { TipTapEditor } from "./TipTapEditor";
-import Image from "next/image";
-import { Eye, Plus, Sparkles, Upload } from "lucide-react";
+import toast from "react-hot-toast";
+
+import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import AddIcon from "@mui/icons-material/Add";
+
+import { BlogEditorSection } from "./BlogEditorSection";
+import { BlogPublishSettings } from "./BlogPublishSettings";
 
 interface BlogPost {
   id: string;
   title: string;
+  subtitle?: string;
+  htmlContent?: string;
+  category?: string;
   status: "Published" | "Scheduled" | "Draft";
+  publishDate?: string;
+  tag?: string;
+  photoOption?: "local" | "gallery";
   date: string;
   views: number;
 }
@@ -17,296 +30,650 @@ interface BlogFormSharedProps {
   postId?: string;
 }
 
-export function BlogFormShared({ postId }: BlogFormSharedProps) {
+interface FormErrors {
+  title: string;
+  subtitle: string;
+  content: string;
+  category: string;
+  publishDate: string;
+  photo: string;
+
+}
+
+export function BlogFormShared({
+  postId,
+}: BlogFormSharedProps) {
   const router = useRouter();
+
+  /* --------------------------------------------------
+     Form State
+  -------------------------------------------------- */
 
   const [title, setTitle] = useState("");
   const [subtitle, setSubtitle] = useState("");
-  const [youtubeLink, setYoutubeLink] = useState("");
   const [htmlContent, setHtmlContent] = useState("");
   const [category, setCategory] = useState("");
   const [status, setStatus] = useState("Draft");
-  const [publishDate, setPublishDate] = useState("Jul 19, 2026 10:30 AM");
+
+  const [publishDate, setPublishDate] = useState(
+    "Jul 19, 2026 10:30 AM"
+  );
+
   const [tag, setTag] = useState("");
-  const [photoOption, setPhotoOption] = useState<"local" | "gallery">("local");
+
+  const [photoOption, setPhotoOption] = useState<
+    "local" | "gallery"
+  >("local");
+
+  /* --------------------------------------------------
+     Centralized Errors
+  -------------------------------------------------- */
+
+  const [errors, setErrors] = useState<FormErrors>({
+    title: "",
+    subtitle: "",
+    content: "",
+    category: "",
+    publishDate: "",
+    photo: "",
+
+  });
+
+  
 
   useEffect(() => {
-    if (!postId) return;
+  if (!postId) return;
 
-    const data = localStorage.getItem("funtush_blog_posts");
-    if (data) {
-      const posts: BlogPost[] = JSON.parse(data);
-      const target = posts.find((p) => p.id === postId);
-      if (target) {
-        setTimeout(() => {
-          setTitle(target.title);
-        }, 0);
+  const loadBlog = async () => {
+    try {
+      const data = localStorage.getItem("funtush_blog_posts");
+
+      if (!data) {
+        toast.error("Blog data could not be found.");
+        return;
       }
-    }
-  }, [postId]);
 
-  const handleSave = (e?: React.FormEvent, targetStatus?: string) => {
-    if (e) e.preventDefault();
-    if (!title.trim()) return;
+      const posts: BlogPost[] = JSON.parse(data);
 
-    const currentRecords = localStorage.getItem("funtush_blog_posts");
-    let recordsList: BlogPost[] = currentRecords ? JSON.parse(currentRecords) : [];
+      if (!Array.isArray(posts)) {
+        toast.error("Invalid blog data.");
+        return;
+      }
 
-    const finalStatus = targetStatus || status;
-    const dateValue = new Date().toISOString().split("T")[0];
-
-    if (postId) {
-      recordsList = recordsList.map((item) =>
-        item.id === postId ? { ...item, title, status: finalStatus as "Draft" | "Scheduled" | "Published", date: dateValue } : item
+      const target = posts.find(
+        (post) => String(post.id) === String(postId)
       );
-    } else {
-      const newPost: BlogPost = {
-        id: `post-${Math.floor(100 + Math.random() * 900)}`,
-        title,
-        status: finalStatus as "Draft" | "Scheduled" | "Published",
-        date: dateValue,
-        views: 0
-      };
-      recordsList = [newPost, ...recordsList];
-    }
 
-    localStorage.setItem("funtush_blog_posts", JSON.stringify(recordsList));
-    alert(postId ? "Post adjustments committed successfully!" : "New campaign article initialized successfully!");
-    router.push("/dashboard/blog");
+      if (!target) {
+        toast.error("Blog post could not be found.");
+        return;
+      }
+
+      setTitle(target.title || "");
+      setSubtitle(target.subtitle || "");
+      setHtmlContent(target.htmlContent || "");
+      setCategory(target.category || "");
+      setStatus(target.status || "Draft");
+
+      setPublishDate(
+        target.publishDate || "Jul 19, 2026 10:30 AM"
+      );
+
+      setTag(target.tag || "");
+      setPhotoOption(target.photoOption || "local");
+    } catch (error) {
+      console.error("Failed to load blog:", error);
+
+      toast.error(
+        "Failed to load blog details. Please try again."
+      );
+    }
   };
 
+  loadBlog();
+}, [postId]);
+
+  
+
+  const clearError = (
+    field: keyof FormErrors
+  ) => {
+    setErrors((prev) => ({
+      ...prev,
+      [field]: "",
+    }));
+  };
+
+  /* --------------------------------------------------
+     Validation
+  -------------------------------------------------- */
+
+  const validateForm = (
+    targetStatus: string
+  ) => {
+    const newErrors: FormErrors = {
+      title: "",
+      subtitle: "",
+      content: "",
+      category: "",
+      publishDate: "",
+      photo: "",
+    };
+
+    /* Title */
+
+    if (!title.trim()) {
+      newErrors.title =
+        "Blog title is required.";
+    }
+
+    /* Subtitle */
+
+    if (!subtitle.trim()) {
+      newErrors.subtitle =
+        "Subtitle is required.";
+    }
+
+    /* Content */
+
+    const plainContent = htmlContent
+      .replace(/<[^>]*>/g, "")
+      .replace(/&nbsp;/g, "")
+      .trim();
+
+    if (!plainContent) {
+      newErrors.content =
+        "Blog content is required.";
+    }
+
+    /* Category */
+
+    if (
+      targetStatus === "Published" &&
+      !category.trim()
+    ) {
+      newErrors.category =
+        "Category is required before publishing.";
+    }
+
+    /* Scheduled Date */
+
+    if (
+      targetStatus === "Scheduled" &&
+      !publishDate.trim()
+    ) {
+      newErrors.publishDate =
+        "Publish date is required for scheduled posts.";
+    }
+
+    setErrors(newErrors);
+
+    return !Object.values(newErrors).some(
+      (error) => error !== ""
+    );
+  };
+
+  /* --------------------------------------------------
+     Save / Publish / Schedule
+  -------------------------------------------------- */
+
+  const handleSave = (
+    e?: React.FormEvent,
+    targetStatus?: string
+  ) => {
+    if (e) {
+      e.preventDefault();
+    }
+
+    const finalStatus =
+      targetStatus || status;
+
+    if (!validateForm(finalStatus)) {
+      toast.error(
+        "Please fix the highlighted fields."
+      );
+      return;
+    }
+
+    try {
+      const currentRecords =
+        localStorage.getItem(
+          "funtush_blog_posts"
+        );
+
+      let recordsList: BlogPost[] = [];
+
+      /* Read existing records */
+
+      if (currentRecords) {
+        try {
+          const parsedRecords =
+            JSON.parse(currentRecords);
+
+          if (Array.isArray(parsedRecords)) {
+            recordsList = parsedRecords;
+          } else {
+            toast.error(
+              "Invalid saved blog data."
+            );
+            return;
+          }
+        } catch (error) {
+          console.error(
+            "Failed to parse saved blogs:",
+            error
+          );
+
+          toast.error(
+            "Unable to read saved blogs. Please try again."
+          );
+
+          return;
+        }
+      }
+
+      const dateValue = new Date()
+        .toISOString()
+        .split("T")[0];
+
+      /* --------------------------------------------------
+         UPDATE EXISTING BLOG
+      -------------------------------------------------- */
+
+      if (postId) {
+        const blogExists =
+          recordsList.some(
+            (item) =>
+              String(item.id) ===
+              String(postId)
+          );
+
+        if (!blogExists) {
+          toast.error(
+            "The blog you are trying to update could not be found."
+          );
+          return;
+        }
+
+        recordsList = recordsList.map(
+          (item) =>
+            String(item.id) ===
+              String(postId)
+              ? {
+                ...item,
+
+                title: title.trim(),
+
+                subtitle:
+                  subtitle.trim(),
+
+                htmlContent,
+
+                category,
+
+                status:
+                  finalStatus as
+                  | "Draft"
+                  | "Scheduled"
+                  | "Published",
+
+                publishDate,
+
+                tag,
+
+                photoOption,
+
+                date: dateValue,
+              }
+              : item
+        );
+
+        localStorage.setItem(
+          "funtush_blog_posts",
+          JSON.stringify(recordsList)
+        );
+
+        if (
+          finalStatus === "Published"
+        ) {
+          toast.success(
+            "Blog published successfully!"
+          );
+        } else if (
+          finalStatus === "Scheduled"
+        ) {
+          toast.success(
+            "Blog scheduled successfully!"
+          );
+        } else {
+          toast.success(
+            "Blog saved as draft successfully!"
+          );
+        }
+      }
+
+      /* --------------------------------------------------
+         CREATE NEW BLOG
+      -------------------------------------------------- */
+
+      else {
+        const newPost: BlogPost = {
+          id: `post-${Date.now()}`,
+
+          title: title.trim(),
+
+          subtitle:
+            subtitle.trim(),
+
+          htmlContent,
+
+          category,
+
+          status:
+            finalStatus as
+            | "Draft"
+            | "Scheduled"
+            | "Published",
+
+          publishDate,
+
+          tag,
+
+          photoOption,
+
+          date: dateValue,
+
+          views: 0,
+        };
+
+        recordsList = [
+          newPost,
+          ...recordsList,
+        ];
+
+        localStorage.setItem(
+          "funtush_blog_posts",
+          JSON.stringify(recordsList)
+        );
+
+        if (
+          finalStatus === "Published"
+        ) {
+          toast.success(
+            "Blog published successfully!"
+          );
+        } else if (
+          finalStatus === "Scheduled"
+        ) {
+          toast.success(
+            "Blog scheduled successfully!"
+          );
+        } else {
+          toast.success(
+            "Blog saved as draft successfully!"
+          );
+        }
+      }
+
+      router.push("/dashboard/blog");
+    } catch (error) {
+      console.error(
+        "Failed to save blog:",
+        error
+      );
+
+      toast.error(
+        "Failed to save the blog. Please try again."
+      );
+    }
+  };
+
+  /* --------------------------------------------------
+     Preview
+  -------------------------------------------------- */
+
+  const handlePreview = () => {
+    const newErrors: FormErrors = {
+      title: "",
+      subtitle: "",
+      content: "",
+      category: "",
+      publishDate: "",
+      photo: "",
+    };
+
+    /* Title */
+
+    if (!title.trim()) {
+      newErrors.title =
+        "Blog title is required.";
+    }
+
+    /* Subtitle */
+
+    if (!subtitle.trim()) {
+      newErrors.subtitle =
+        "Subtitle is required.";
+    }
+
+    /* Content */
+
+    const plainContent = htmlContent
+      .replace(/<[^>]*>/g, "")
+      .replace(/&nbsp;/g, "")
+      .trim();
+
+    if (!plainContent) {
+      newErrors.content =
+        "Blog content is required.";
+    }
+
+    setErrors(newErrors);
+
+    const hasErrors =
+      Object.values(newErrors).some(
+        (error) => error !== ""
+      );
+
+    if (hasErrors) {
+      toast.error(
+        "Please fix the highlighted fields before previewing."
+      );
+      return;
+    }
+
+    try {
+      localStorage.setItem(
+        "funtush_blog_preview",
+        JSON.stringify({
+          title,
+          subtitle,
+          htmlContent,
+          category,
+          status,
+          publishDate,
+          tag,
+          photoOption,
+        })
+      );
+
+      toast.success(
+        "Preview generated successfully!"
+      );
+
+      router.push(
+        "/dashboard/blog/preview"
+      );
+    } catch (error) {
+      console.error(
+        "Preview failed:",
+        error
+      );
+
+      toast.error(
+        "Unable to generate preview. Please try again."
+      );
+    }
+  };
+
+  /* --------------------------------------------------
+     Render
+  -------------------------------------------------- */
+
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-[#070e1b] text-gray-900 dark:text-slate-200 p-6 transition-colors">
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between max-w-7xl mx-auto mb-6 gap-4">
+    <div className="w-full space-y-6">
+      {/* Header & Actions */}
+
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <div className="flex items-center text-xs text-gray-500 dark:text-slate-400 gap-1.5 mb-2">
-            <span>Dashboard</span>
-            <Image src="/formkit_down.png" alt="sidearrow" width={12} height={12} className="object-contain opacity-60" />
-            <span>All Blogs</span>
-            <Image src="/formkit_down.png" alt="sidearrow" width={12} height={12} className="object-contain opacity-60" />
-            <span className="text-slate-200">Add Blogs</span>
+          {/* Breadcrumbs */}
+
+          <div className="flex items-center gap-1 text-sm">
+            <span className="text-neutral-500 dark:text-[#596583]">
+              Dashboard
+            </span>
+
+            <ChevronRightIcon
+              className="text-neutral-400"
+              style={{ fontSize: 18 }}
+            />
+
+            <span className="text-neutral-500 dark:text-[#596583]">
+              All Blogs
+            </span>
+
+            <ChevronRightIcon
+              className="text-neutral-400"
+              style={{ fontSize: 18 }}
+            />
+
+            <span className="text-neutral-900 dark:text-[#596583] font-medium">
+              {postId
+                ? "Edit Blog"
+                : "Add Blogs"}
+            </span>
           </div>
 
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">All Blogs</h1>
-          <p className="text-xs text-gray-500 dark:text-slate-400 mt-0.5">Create and Published a new blogs post</p>
-        </div> 
+          <h1 className="text-2xl font-bold text-neutral-900 dark:text-[#596583] tracking-tight mt-2">
+            All Blogs
+          </h1>
+
+          <p className="text-sm text-neutral-500 dark:text-[#596583]">
+            {postId
+              ? "Edit and update your blog post"
+              : "Create and publish a new blog post"}
+          </p>
+        </div>
+
+        {/* Actions */}
 
         <div className="flex items-center gap-3">
-          <button 
-            type="button" 
-            onClick={() => handleSave(undefined, "Draft")}
-            className="px-4 py-2 rounded-lg bg-[#0d1b32] hover:bg-[#132644] text-slate-200 text-xs font-semibold border border-[#1b2a47] transition-colors"
+          {/* Save Draft */}
+
+          <button
+            type="button"
+            onClick={() =>
+              handleSave(
+                undefined,
+                "Draft"
+              )
+            }
+            className="px-4 py-2.5 bg-[#111B3A] hover:bg-[#1a264a] text-white text-xs font-semibold border border-[#1E293B] transition-colors shadow-sm rounded-md"
           >
             Save as Draft
           </button>
-          <button 
-            type="button" 
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#0d1b32] hover:bg-[#132644] text-slate-200 text-xs font-semibold border border-[#1b2a47] transition-colors"
+
+          {/* Preview */}
+
+          <button
+            type="button"
+            onClick={handlePreview}
+            className="flex items-center gap-2 px-4 py-2.5 bg-[#111B3A] hover:bg-[#1a264a] text-white text-xs font-semibold border border-[#1E293B] transition-colors shadow-sm rounded-md"
           >
-            <Eye className="w-3.5 h-3.5" />
+            <VisibilityIcon
+              style={{ fontSize: 16 }}
+            />
+
             Preview
           </button>
-          <button 
-            type="button" 
-            onClick={(e) => handleSave(e, "Published")}
-            className="flex items-center gap-2 px-5 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-gray-900 dark:text-white text-xs font-semibold shadow-lg shadow-blue-600/20 transition-colors"
+
+          {/* Publish */}
+
+          <button
+            type="button"
+            onClick={() =>
+              handleSave(
+                undefined,
+                "Published"
+              )
+            }
+            className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold shadow-lg shadow-blue-600/20 transition-colors rounded-md"
           >
-            <Plus className="w-3.5 h-3.5" />
+            <AddIcon
+              style={{ fontSize: 16 }}
+            />
+
             Publish
           </button>
         </div>
       </div>
 
-      {/* Main Content Layout Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 max-w-7xl mx-auto gap-6">
-        
-        {/* Left Column: Form Inputs & Editor */}
-        <div className="lg:col-span-2 bg-white dark:bg-[#0d1b32] border border-gray-200 dark:border-[#1b2a47] rounded-xl p-6 shadow-xl">
-          <form onSubmit={handleSave} className="space-y-5 text-xs">
-            
-            {/* Blog Title */}
-            <div>
-              <div className="flex justify-between items-center mb-1">
-                <label className="font-bold text-gray-900 dark:text-white">Blog title</label>
-                <span className="text-[10px] text-slate-500">{title.length}/100</span>
-              </div>
-              <input
-                type="text"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                maxLength={100}
-                placeholder="Enter blog this here..."
-                className="w-full rounded-lg bg-[#111B3A] text-gray-900 dark:text-white border border-[#233a5e] px-3.5 py-2.5 placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500 text-xs"
-              />
-            </div>
+      {/* Main Content */}
 
-            {/* Sub Title */}
-            <div>
-              <div className="flex justify-between items-center mb-1">
-                <label className="font-bold text-gray-900 dark:text-white">Sub title</label>
-                <span className="text-[10px] text-slate-500">{subtitle.length}/100</span>
-              </div>
-              <input
-                type="text"
-                value={subtitle}
-                onChange={(e) => setSubtitle(e.target.value)}
-                maxLength={100}
-                placeholder="Enter sub title.."
-                className="w-full rounded-lg bg-[#111B3A] text-gray-900 dark:text-white border border-[#233a5e] px-3.5 py-2.5 placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500 text-xs"
-              />
-            </div>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 w-full items-start">
+        {/* Editor */}
 
-            {/* Content & TipTap Editor */}
-            <div>
-              <div className="flex justify-between items-center mb-1">
-                <label className="font-bold text-gray-900 dark:text-white">Content</label>
-                <button type="button" className="flex items-center gap-1.5 text-[11px] text-blue-400 hover:text-blue-300 font-medium">
-                  <Sparkles className="w-3 h-3" />
-                  Copy-writing tips
-                </button>
-              </div>
-              
-              <TipTapEditor content={htmlContent} onChange={setHtmlContent} />
-              
-              <div className="flex justify-between items-center mt-1.5 text-[11px] text-slate-500 px-1">
-                <span>0 Words</span>
-              </div>
-            </div>
+        <BlogEditorSection
+          title={title}
+          setTitle={(value) => {
+            setTitle(value);
+            clearError("title");
+          }}
+          subtitle={subtitle}
+          setSubtitle={(value) => {
+            setSubtitle(value);
+            clearError("subtitle");
+          }}
+          htmlContent={htmlContent}
+          setHtmlContent={(value) => {
+            setHtmlContent(value);
+            clearError("content");
+          }}
+          errors={{
+            title: errors.title,
+            subtitle: errors.subtitle,
+            content: errors.content,
+          }}
+        />
 
-            {/* YouTube Link */}
-            <div>
-              <div className="flex justify-between items-center mb-1">
-                <label className="font-bold text-gray-900 dark:text-white">YouTube Link</label>
-                <span className="text-[10px] text-slate-500">{youtubeLink.length}/100</span>
-              </div>
-              <input
-                type="text"
-                value={youtubeLink}
-                onChange={(e) => setYoutubeLink(e.target.value)}
-                maxLength={100}
-                placeholder="Your You Tube link here.."
-                className="w-full rounded-lg bg-[#111B3A] text-gray-900 dark:text-white border border-[#233a5e] px-3.5 py-2.5 placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500 text-xs"
-              />
-            </div>
+        {/* Publish Settings */}
 
-          </form>
-        </div>
+        <BlogPublishSettings
+          category={category}
+          setCategory={(value) => {
+            setCategory(value);
+            clearError("category");
+          }}
+          status={status}
+          setStatus={(value) => {
+            setStatus(value);
 
-        {/* Right Column: Publish Settings Sidebar */}
-        <div className="bg-white dark:bg-[#0d1b32] border border-gray-200 dark:border-[#1b2a47] rounded-xl p-6 shadow-xl space-y-5 h-fit">
-          <h3 className="font-bold text-gray-900 dark:text-white text-sm border-b border-[#1b2a47] pb-3">Publish Settings</h3>
-
-          {/* Select Category */}
-          <div className="space-y-1.5">
-            <label className="block font-bold text-gray-900 dark:text-white">Select Category</label>
-            <select
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              className="w-full rounded-lg border border-[#233a5e] px-3 py-2.5 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 bg-[#111B3A] text-slate-300 appearance-none"
-            >
-              <option value="" disabled>Select Category</option>
-              <option value="tech">Technology</option>
-              <option value="marketing">Marketing</option>
-              <option value="lifestyle">Lifestyle</option>
-            </select>
-          </div>
-
-          {/* Status */}
-          <div className="space-y-1.5">
-            <label className="block font-bold text-gray-900 dark:text-white">Status</label>
-            <select
-              value={status}
-              onChange={(e) => setStatus(e.target.value)}
-              className="w-full rounded-lg border border-[#233a5e] px-3 py-2.5 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 bg-[#111B3A] text-slate-300 appearance-none"
-            >
-              <option value="Draft">Draft</option>
-              <option value="Published">Published</option>
-              <option value="Scheduled">Scheduled</option>
-            </select>
-          </div>
-
-          {/* Publish Date */}
-          <div className="space-y-1.5">
-            <label className="block font-bold text-gray-900 dark:text-white">Publish Date</label>
-            <div className="relative">
-              <input
-                type="text"
-                value={publishDate}
-                onChange={(e) => setPublishDate(e.target.value)}
-                className="w-full rounded-lg bg-[#111B3A] text-gray-900 dark:text-white border border-[#233a5e] px-3.5 py-2.5 pr-10 placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500 text-xs"
-              />
-              <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500 dark:text-slate-400">
-                <Image src="/calendar.png" alt="date" width={16} height={16} />
-              </div>
-            </div>
-            <p className="text-[11px] text-slate-500 mt-1">Set the date and time to publish the blog.</p>
-          </div>
-
-          {/* Tag */}
-          <div className="space-y-1.5">
-            <label className="block font-bold text-gray-900 dark:text-white">Tag</label>
-            <select
-              value={tag}
-              onChange={(e) => setTag(e.target.value)}
-              className="w-full rounded-lg border border-[#233a5e] px-3 py-2.5 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 bg-[#111B3A] text-slate-300 appearance-none"
-            >
-              <option value="" disabled>Enter tags and press comma....</option>
-              <option value="marketing">Marketing</option>
-              <option value="seo">SEO</option>
-              <option value="tips">Tips</option>
-            </select>
-            <p className="text-[11px] text-slate-500 mt-1">Example: Marketing, SEO, tips</p>
-          </div>
-
-          {/* Photos Upload Section */}
-          <div className="space-y-2 pt-2">
-            <label className="block font-bold text-gray-900 dark:text-white">Photos</label>
-            
-            <div className="flex items-center gap-4 text-xs text-slate-300">
-              <label className="flex items-center gap-1.5 cursor-pointer">
-                <input 
-                  type="radio" 
-                  name="photoSource" 
-                  checked={photoOption === "local"} 
-                  onChange={() => setPhotoOption("local")}
-                  className="accent-blue-600"
-                />
-                Upload from Local Drive
-              </label>
-              <label className="flex items-center gap-1.5 cursor-pointer">
-                <input 
-                  type="radio" 
-                  name="photoSource" 
-                  checked={photoOption === "gallery"} 
-                  onChange={() => setPhotoOption("gallery")}
-                  className="accent-blue-600"
-                />
-                Add from Gallery
-              </label>
-            </div>
-
-            {/* Drag & Drop Box */}
-            <div className="border border-dashed border-[#233a5e] rounded-xl p-6 text-center bg-[#111B3A]/50 flex flex-col items-center justify-center gap-3">
-              <div className="w-12 h-12 rounded-full bg-[#162947] flex items-center justify-center text-gray-500 dark:text-slate-400">
-                <Upload className="w-5 h-5" />
-              </div>
-              <div className="space-y-1">
-                <p className="text-xs text-slate-300 font-medium">Drag & drop Image here</p>
-                <p className="text-[11px] text-slate-500">Or</p>
-              </div>
-              <button 
-                type="button"
-                className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-gray-900 dark:text-white font-medium text-xs transition-colors shadow-md shadow-blue-600/20"
-              >
-                Upload Image
-              </button>
-            </div>
-
-            <p className="text-[10px] text-slate-500 text-center mt-1">Recommended size: 1200*628px (Max, 2MB)</p>
-          </div>
-
-        </div>
-
+            if (value !== "Scheduled") {
+              clearError("publishDate");
+            }
+          }}
+          publishDate={publishDate}
+          setPublishDate={(value) => {
+            setPublishDate(value);
+            clearError("publishDate");
+          }}
+          tag={tag}
+          setTag={setTag}
+          photoOption={photoOption}
+          setPhotoOption={setPhotoOption}
+          errors={errors}
+          setErrors={setErrors}
+        />
       </div>
     </div>
   );
