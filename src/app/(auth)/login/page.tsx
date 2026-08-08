@@ -1,5 +1,9 @@
 'use client';
 
+/**
+ * Login Page
+ */
+
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -87,9 +91,7 @@ export default function LoginPage() {
   return (
     <div className="grid min-h-screen w-full grid-cols-1 bg-white md:grid-cols-2">
 
-      {/* ═══════════════════════════════════════════ */}
-      {/* LEFT — Mountain Image                       */}
-      {/* ═══════════════════════════════════════════ */}
+      {/* LEFT — Mountain Image*/}
       <div className="relative hidden min-h-screen md:block">
         <Image
           src="/mountain.png"
@@ -101,18 +103,16 @@ export default function LoginPage() {
         />
       </div>
 
-      {/* ═══════════════════════════════════════════ */}
-      {/* RIGHT — Sign In Form                        */}
-      {/* ═══════════════════════════════════════════ */}
+      {/* RIGHT — Sign In Form*/}
       <div className="flex min-h-screen items-center justify-center bg-white px-6 py-12 sm:px-12 lg:px-20">
 
         <div className="w-full max-w-md">
 
           {/* ── Brand ── */}
           <div className="text-center">
-            <h1 className="text-4xl font-bold" style={{ color: '#4F46E5' }}>
-  Green Agency
-</h1>
+            <h1 className="text-4xl font-bold text-primary-600">
+              Green Agency
+            </h1>
             <p className="mt-2 text-base text-neutral-500">
               Manage your treks with ease
             </p>
@@ -204,22 +204,20 @@ export default function LoginPage() {
 
             {/* Forgot password */}
             <div className="flex justify-end">
-             <Link
-              href={ROUTES.AUTH.FORGOT_PASSWORD}
-              className="text-xs font-medium hover:underline"
-              style={{ color: '#4F46E5' }}
+              <Link
+                href={ROUTES.AUTH.FORGOT_PASSWORD}
+                className="text-xs font-medium text-primary-600 hover:text-primary-700"
               >
-                 Forgot Password?
+                Forgot Password?
               </Link>
             </div>
 
             {/* Submit button */}
             <button
-             type="submit"
-             disabled={isLoading}
-             style={{ backgroundColor: '#4F46E5' }}
-             className="mt-6 w-full rounded-lg py-3 text-sm font-semibold text-white shadow-sm transition-all hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-60"
-             >
+              type="submit"
+              disabled={isLoading}
+              className="mt-6 w-full rounded-lg bg-primary-600 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-60"
+            >
               {isLoading ? 'Signing in...' : 'Sign in'}
             </button>
           </form>
