@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import toast from "react-hot-toast";
 
 interface BugReport {
   id: string;
@@ -26,28 +27,58 @@ export default function SupportPage() {
   const [steps, setSteps] = useState("");
   const [screenshot, setScreenshot] = useState<File | null>(null);
 
+  // Validation error states for each field
+  const [errors, setErrors] = useState({
+    title: "",
+    desc: ""
+  });
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title.trim() || !desc.trim()) return;
 
-    const newBug: BugReport = {
-      id: `BUG-${Math.floor(100 + Math.random() * 900)}`,
-      title,
-      status: "Submitted",
-      date: new Date().toISOString().split('T')[0],
-      notes: "Awaiting inspection triage allocation."
-    };
+    let newErrors = { title: "", desc: "" };
+    let hasError = false;
 
-    setReports([newBug, ...reports]);
-    setTitle("");
-    setDesc("");
-    setSteps("");
-    setScreenshot(null);
-    alert("Bug reported successfully directly into Funtush support triage!");
+    if (!title.trim()) {
+      newErrors.title = "Please fill the issue title below.";
+      hasError = true;
+    }
+
+    if (!desc.trim()) {
+      newErrors.desc = "Please provide a detailed description of the bug.";
+      hasError = true;
+    }
+
+    if (hasError) {
+      setErrors(newErrors);
+      toast.error("Please fix the validation errors before submitting.");
+      return;
+    }
+
+    setErrors({ title: "", desc: "" });
+
+    try {
+      const newBug: BugReport = {
+        id: `BUG-${Math.floor(100 + Math.random() * 900)}`,
+        title,
+        status: "Submitted",
+        date: new Date().toISOString().split('T')[0],
+        notes: "Awaiting inspection triage allocation."
+      };
+
+      setReports([newBug, ...reports]);
+      setTitle("");
+      setDesc("");
+      setSteps("");
+      setScreenshot(null);
+      toast.success("Bug reported successfully directly into Funtush support triage!");
+    } catch (err) {
+      toast.error("Failed to submit bug report. Please try again.");
+    }
   };
 
   return (
-    <div className="p-6 max-w-7xl mx-auto space-y-6">
+    <div className="space-y-4">
       <div>
         <h1 className="text-2xl font-bold text-slate-800 tracking-tight">Help Center & Bug Report Hub</h1>
         <p className="text-sm text-slate-500 mt-0.5">Submit technical bugs directly to the Funtush development engine and monitor engineering triage notes.</p>
@@ -66,29 +97,47 @@ export default function SupportPage() {
         {/* Bug Report Form */}
         <div className="bg-white p-5 rounded-xl border border-slate-200/60 shadow-xs lg:col-span-2">
           <h3 className="text-sm font-bold text-slate-800 border-b border-slate-100 pb-2.5 mb-4">Report an Operational System Bug</h3>
-          <form onSubmit={handleSubmit} className="space-y-4 text-xs">
+          <form onSubmit={handleSubmit} className="space-y-4 text-xs" noValidate>
             <div>
               <label className="block font-bold text-slate-700 mb-1">Issue Title *</label>
               <input
                 type="text"
-                required
                 placeholder="e.g., GPS telemetry track failing to push update coords"
                 value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                className="w-full border border-slate-200 rounded-lg p-2.5 text-slate-700 focus:outline-hidden focus:ring-1 focus:ring-blue-500 font-medium"
+                onChange={(e) => {
+                  setTitle(e.target.value);
+                  if (errors.title) setErrors(prev => ({ ...prev, title: "" }));
+                }}
+                className={`w-full border rounded-lg p-2.5 text-slate-700 focus:outline-hidden focus:ring-1 font-medium ${
+                  errors.title ? "border-red-500 focus:ring-red-500 bg-red-50/30" : "border-slate-200 focus:ring-blue-500"
+                }`}
               />
+              {errors.title && (
+                <p className="text-red-500 text-[11px] font-semibold mt-1">
+                  {errors.title}
+                </p>
+              )}
             </div>
 
             <div>
               <label className="block font-bold text-slate-700 mb-1">Detailed Description *</label>
               <textarea
                 rows={3}
-                required
                 placeholder="Describe what occurred, expected result, and system details..."
                 value={desc}
-                onChange={(e) => setDesc(e.target.value)}
-                className="w-full border border-slate-200 rounded-lg p-2.5 text-slate-700 focus:outline-hidden focus:ring-1 focus:ring-blue-500 font-medium"
+                onChange={(e) => {
+                  setDesc(e.target.value);
+                  if (errors.desc) setErrors(prev => ({ ...prev, desc: "" }));
+                }}
+                className={`w-full border rounded-lg p-2.5 text-slate-700 focus:outline-hidden focus:ring-1 font-medium ${
+                  errors.desc ? "border-red-500 focus:ring-red-500 bg-red-50/30" : "border-slate-200 focus:ring-blue-500"
+                }`}
               />
+              {errors.desc && (
+                <p className="text-red-500 text-[11px] font-semibold mt-1">
+                  {errors.desc}
+                </p>
+              )}
             </div>
 
             <div>
@@ -117,7 +166,7 @@ export default function SupportPage() {
 
             <button
               type="submit"
-              className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-xl transition-colors shadow-xs"
+              className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-xl transition-colors shadow-xs cursor-pointer"
             >
               Dispatch Ticket to Funtush Core
             </button>
