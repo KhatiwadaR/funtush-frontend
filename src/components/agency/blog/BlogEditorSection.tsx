@@ -1,4 +1,6 @@
+
 "use client";
+
 import { TipTapEditor } from "./TipTapEditor";
 import { Card } from "@/components/ui/card";
 import { useTheme } from "@/context/theme";
@@ -7,13 +9,18 @@ import SparklesIcon from "@mui/icons-material/AutoAwesome";
 interface BlogEditorSectionProps {
   title: string;
   setTitle: (val: string) => void;
+
   subtitle: string;
   setSubtitle: (val: string) => void;
-  youtubeLink: string;
-  setYoutubeLink: (val: string) => void;
+
   htmlContent: string;
   setHtmlContent: (val: string) => void;
-  handleSave: (e: React.FormEvent) => void;
+
+  errors: {
+    title: string;
+    subtitle: string;
+    content: string;
+  };
 }
 
 export function BlogEditorSection({
@@ -23,7 +30,7 @@ export function BlogEditorSection({
   setSubtitle,
   htmlContent,
   setHtmlContent,
-  handleSave,
+  errors,
 }: BlogEditorSectionProps) {
   const { isDark } = useTheme();
 
@@ -35,58 +42,101 @@ export function BlogEditorSection({
     ? "border-[#615B5B] bg-[#0d1b32] text-white placeholder-[#615B5B]"
     : "border-neutral-300 bg-white text-neutral-900 placeholder-neutral-500";
 
-  // const secondaryText = isDark ? "text-[#596583]" : "text-neutral-500";
-
   return (
-    <Card className={`lg:col-span-2 ${cardClass} rounded-2xl border p-6 shadow-sm`}>
-      <form onSubmit={handleSave} className="space-y-5 text-xs">
-        {/* Blog Title */}
-        <div className="space-y-1.5">
-          <div className="flex justify-between items-center">
-            <label className="font-bold">Blog Title</label>
-          </div>
-          <input
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            maxLength={100}
-            placeholder="Enter blog this here..."
-            className={`w-full rounded-xl border px-3.5 py-3 text-xs focus:outline-none focus:ring-2 shadow-sm ${inputClass}`}
+    <Card
+      className={`lg:col-span-2 ${cardClass} rounded-2xl border p-6 shadow-sm`}
+    >
+      {/* Blog Title */}
+      <div className="space-y-1.5">
+        <label className="font-bold">
+          Blog Title{" "}
+          <span className="text-red-500">*</span>
+        </label>
+
+        <input
+          type="text"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          placeholder="Enter blog title..."
+          className={`w-full rounded-xl border px-3.5 py-3 text-xs focus:outline-none focus:ring-2 shadow-sm ${
+            errors.title
+              ? "border-red-500 focus:ring-red-500"
+              : inputClass
+          }`}
+        />
+
+        {errors.title && (
+          <p className="text-xs text-red-500">
+            {errors.title}
+          </p>
+        )}
+      </div>
+
+      {/* Sub Title */}
+      <div className="space-y-1.5 mt-5">
+        <label className="font-bold">
+          Sub title{" "}
+          <span className="text-red-500">*</span>
+        </label>
+
+        <input
+          type="text"
+          value={subtitle}
+          onChange={(e) => setSubtitle(e.target.value)}
+          placeholder="Enter sub title..."
+          className={`w-full rounded-xl border px-3.5 py-3 text-xs focus:outline-none focus:ring-2 shadow-sm ${
+            errors.subtitle
+              ? "border-red-500 focus:ring-red-500"
+              : inputClass
+          }`}
+        />
+
+        {errors.subtitle && (
+          <p className="text-xs text-red-500">
+            {errors.subtitle}
+          </p>
+        )}
+      </div>
+
+      {/* Content */}
+      <div className="space-y-1.5 mt-5">
+        <div className="flex justify-between items-center">
+          <label className="font-bold">
+            Content{" "}
+            <span className="text-red-500">*</span>
+          </label>
+
+          <button
+            type="button"
+            className="flex items-center gap-1.5 text-[11px] text-blue-400 hover:text-blue-300 font-medium"
+          >
+            <SparklesIcon
+              style={{ fontSize: 14 }}
+            />
+            Copy-writing tips
+          </button>
+        </div>
+
+        <div
+          className={
+            errors.content
+              ? "rounded-xl border border-red-500"
+              : ""
+          }
+        >
+          <TipTapEditor
+            content={htmlContent}
+            onChange={setHtmlContent}
           />
         </div>
 
-        {/* Sub Title */}
-        <div className="space-y-1.5">
-          <div className="flex justify-between items-center">
-            <label className="font-bold">Sub title</label>
-          </div>
-          <input
-            type="text"
-            value={subtitle}
-            onChange={(e) => setSubtitle(e.target.value)}
-            maxLength={100}
-            placeholder="Enter sub title.."
-            className={`w-full rounded-xl border px-3.5 py-3 text-xs focus:outline-none focus:ring-2 shadow-sm ${inputClass}`}
-          />
-        </div>
-
-        {/* Content & TipTap Editor */}
-        <div className="space-y-1.5">
-          <div className="flex justify-between items-center">
-            <label className="font-bold">Content</label>
-            <button type="button" className="flex items-center gap-1.5 text-[11px] text-blue-400 hover:text-blue-300 font-medium">
-              <SparklesIcon style={{ fontSize: 14 }} />
-              Copy-writing tips
-            </button>
-          </div>
-          
-          <TipTapEditor content={htmlContent} onChange={setHtmlContent} />
-          
-          
-        </div>
-
-        
-      </form>
+        {errors.content && (
+          <p className="text-xs text-red-500">
+            {errors.content}
+          </p>
+        )}
+      </div>
     </Card>
   );
 }
+
