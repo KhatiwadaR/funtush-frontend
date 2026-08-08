@@ -1,8 +1,11 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Plus, AlertTriangle, Search } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Plus, AlertTriangle, Search, Compass, Footprints, CheckCircle2 } from "lucide-react";
 import { DeleteOutlined, EditOutlined, VisibilityOutlined } from "@mui/icons-material";
+import { Pagination } from "@/components/ui/pagination";
+import { AnalyticsSummaryCard } from "@/components/shared/AnalyticsSummaryCard";
 import guidesData from "../../../../../data/guides.json";
 
 const isExpiringSoon = (expiry: string) => {
@@ -37,9 +40,13 @@ const guideRows = guidesData.map((guide, index) => ({
 }));
 
 export default function GuidesPage() {
+  const router = useRouter();
+  const [guideRowsState, setGuideRowsState] = useState(guideRows);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [languageFilter, setLanguageFilter] = useState("all");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [dialog, setDialog] = useState<{ type: "edit" | "delete"; guide: (typeof guideRows)[number] } | null>(null);
 
   const allLanguages = useMemo(() => {
     const langs = new Set<string>();
@@ -56,13 +63,17 @@ export default function GuidesPage() {
   }, []);
 
   const filteredGuides = useMemo(() => {
-    return guideRows.filter((guide) => {
+    return guideRowsState.filter((guide) => {
       const matchesSearch = guide.name.toLowerCase().includes(search.toLowerCase());
       const matchesStatus = statusFilter === "all" || guide.status === statusFilter;
       const matchesLanguage = languageFilter === "all" || guide.languages.includes(languageFilter);
       return matchesSearch && matchesStatus && matchesLanguage;
     });
-  }, [search, statusFilter, languageFilter]);
+  }, [search, statusFilter, languageFilter, guideRowsState]);
+
+  const guidesPerPage = 8;
+  const totalPages = Math.max(1, Math.ceil(filteredGuides.length / guidesPerPage));
+  const paginatedGuides = filteredGuides.slice((currentPage - 1) * guidesPerPage, currentPage * guidesPerPage);
 
   const nextExpiry = guidesData
     .flatMap((guide) => guide.certifications.map((cert) => ({ guide: guide.name, ...cert })))
@@ -73,15 +84,13 @@ export default function GuidesPage() {
     <div className="space-y-4">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="space-y-1">
-          <p className="text-xs font-semibold uppercase tracking-[0.28em] text-neutral-500">Guides</p>
-          <div className="flex flex-col gap-1">
-            <h1 className="text-2xl font-semibold text-neutral-900">Agency Guides</h1>
-            <p className="text-sm leading-6 text-neutral-600">Manage guide profiles, certifications, and availability in one place.</p>
-          </div>
+          <div className="flex items-center gap-2 text-sm text-neutral-500"><button type="button" onClick={() => router.push("/dashboard")} className="hover:text-neutral-900">Dashboard</button><span className="text-neutral-300">/</span><span className="font-semibold text-neutral-900">All Guides</span></div>
+          <h1 className="mt-2 text-2xl font-semibold text-neutral-900">Agency Guides</h1>
+          <p className="text-sm leading-6 text-neutral-600">Manage guide profiles, certifications, and availability in one place.</p>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          <button className="inline-flex items-center gap-2 rounded-2xl bg-neutral-900 px-3 py-2.5 text-sm font-semibold text-white transition hover:bg-neutral-800 shadow-sm">
+          <button type="button" onClick={() => router.push("/dashboard/guides/new")} className="inline-flex items-center gap-2 rounded-2xl bg-primary-900 px-3 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-800 shadow-sm">
             <Plus className="h-4 w-4" />
             Add Guide
           </button>
@@ -108,17 +117,17 @@ export default function GuidesPage() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-4">
-        <SummaryCard title="Total Guides" value={stats.total} accent="text-violet-700" />
-        <SummaryCard title="On Trek" value={stats.onTrek} accent="text-sky-700" />
-        <SummaryCard title="Available" value={stats.available} accent="text-emerald-700" />
-        <SummaryCard title="Certs Expiring" value={stats.expiring} accent="text-rose-700" />
+        <AnalyticsSummaryCard label="Total Guides" value={stats.total} tone="primary" icon={Compass} />
+        <AnalyticsSummaryCard label="On Trek" value={stats.onTrek} tone="primary" icon={Footprints} />
+        <AnalyticsSummaryCard label="Available" value={stats.available} tone="success" icon={CheckCircle2} />
+        <AnalyticsSummaryCard label="Certs Expiring" value={stats.expiring} tone="danger" icon={AlertTriangle} />
       </div>
 
       <div className="grid gap-3 sm:grid-cols-[minmax(240px,1fr)_180px_180px]">
         <label className="relative block">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
           <input
-            className="w-full rounded-2xl border border-neutral-200 bg-white py-2.5 pl-10 pr-3 text-sm text-neutral-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
+            className="w-full rounded-2xl border border-neutral-200 bg-white py-2.5 pl-10 pr-3 text-sm text-neutral-900 outline-none transition focus:border-primary-400 focus:ring-2 focus:ring-primary-100"
             placeholder="Search guides"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -126,7 +135,7 @@ export default function GuidesPage() {
         </label>
 
         <select
-          className="rounded-2xl border border-neutral-200 bg-white px-3 py-2.5 text-sm text-neutral-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
+          className="rounded-2xl border border-neutral-200 bg-white px-3 py-2.5 text-sm text-neutral-900 outline-none transition focus:border-primary-400 focus:ring-2 focus:ring-primary-100"
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
         >
@@ -137,7 +146,7 @@ export default function GuidesPage() {
         </select>
 
         <select
-          className="rounded-2xl border border-neutral-200 bg-white px-3 py-2.5 text-sm text-neutral-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
+          className="rounded-2xl border border-neutral-200 bg-white px-3 py-2.5 text-sm text-neutral-900 outline-none transition focus:border-primary-400 focus:ring-2 focus:ring-primary-100"
           value={languageFilter}
           onChange={(e) => setLanguageFilter(e.target.value)}
         >
@@ -164,12 +173,12 @@ export default function GuidesPage() {
               </tr>
             </thead>
             <tbody>
-              {filteredGuides.map((guide, index) => {
+              {paginatedGuides.map((guide, index) => {
                 const statusInfo = statusMap[guide.status] || statusMap.unavailable;
                 const expiringCert = guide.certifications.find((cert) => isExpiringSoon(cert.expiry));
                 return (
                   <tr key={guide.id} className="border-b border-neutral-200 transition hover:bg-slate-50">
-                    <td className="px-4 py-4 font-semibold text-neutral-900">{String(index + 1).padStart(2, "0")}</td>
+                    <td className="px-4 py-4 font-semibold text-neutral-900">{String((currentPage - 1) * guidesPerPage + index + 1).padStart(2, "0")}</td>
                     <td className="px-4 py-4">
                       <div className="flex items-center gap-3">
                         <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-violet-600 text-sm font-bold text-white">
@@ -209,17 +218,17 @@ export default function GuidesPage() {
                     </td>
                     <td className="px-4 py-4">
                       <div className="flex items-center gap-2">
-                        <button className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-neutral-100 text-neutral-600 transition hover:bg-neutral-200">
+                        <button type="button" title="View guide" onClick={() => router.push(`/dashboard/guides/${guide.id}`)} className="inline-flex h-7.5 w-7.5 items-center justify-center rounded-md bg-primary-50 text-primary-700 transition hover:bg-primary-100">
                           <span className="sr-only">View</span>
-                          <VisibilityOutlined className="h-4 w-4" />
+                          <VisibilityOutlined sx={{ fontSize: 18 }} />
                         </button>
-                        <button className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-neutral-100 text-neutral-600 transition hover:bg-neutral-200">
+                        <button type="button" title="Edit guide" onClick={() => setDialog({ type: "edit", guide })} className="inline-flex h-7.5 w-7.5 items-center justify-center rounded-md bg-warning-50 text-warning-700 transition hover:bg-warning-100">
                           <span className="sr-only">Edit</span>
-                          <EditOutlined className="h-4 w-4" />
+                          <EditOutlined sx={{ fontSize: 18 }} />
                         </button>
-                        <button className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-neutral-100 text-neutral-600 transition hover:bg-neutral-200">
+                        <button type="button" title="Delete guide" onClick={() => setDialog({ type: "delete", guide })} className="inline-flex h-7.5 w-7.5 items-center justify-center rounded-md bg-danger-50 text-danger-700 transition hover:bg-danger-100">
                           <span className="sr-only">Delete</span>
-                          <DeleteOutlined className="h-4 w-4" />
+                          <DeleteOutlined sx={{ fontSize: 18 }} />
                         </button>
                       </div>
                     </td>
@@ -229,15 +238,10 @@ export default function GuidesPage() {
             </tbody>
           </table>
         </div>
+        <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
+
+        {dialog && <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4"><div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl"><h2 className="text-lg font-semibold text-neutral-900">{dialog.type === "delete" ? "Delete guide?" : "Edit guide?"}</h2><p className="mt-2 text-sm leading-6 text-neutral-600">{dialog.type === "delete" ? `Remove ${dialog.guide.name} from the guide list?` : `Open ${dialog.guide.name}'s profile to edit?`}</p><div className="mt-5 flex justify-end gap-2"><button type="button" onClick={() => setDialog(null)} className="rounded-2xl border border-neutral-200 px-4 py-2 text-sm font-semibold text-neutral-900">Cancel</button><button type="button" onClick={() => { if (dialog.type === "edit") router.push(`/dashboard/guides/${dialog.guide.id}`); else setGuideRowsState((rows) => rows.filter((guide) => guide.id !== dialog.guide.id)); setDialog(null); }} className={`rounded-2xl px-4 py-2 text-sm font-semibold text-white ${dialog.type === "delete" ? "bg-danger-600" : "bg-primary-900"}`}>{dialog.type === "delete" ? "Delete guide" : "Continue"}</button></div></div></div>}
     </div>
   );
 }
 
-function SummaryCard({ title, value, accent }: { title: string; value: number; accent: string }) {
-  return (
-    <div className="rounded-3xl border border-neutral-200 bg-white p-5 shadow-sm">
-      <div className={`text-3xl font-bold ${accent}`}>{value}</div>
-      <div className="mt-2 text-sm text-neutral-500">{title}</div>
-    </div>
-  );
-}

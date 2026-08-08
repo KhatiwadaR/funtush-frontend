@@ -12,30 +12,30 @@ const config: Config = {
       colors: {
         // Brand Primary - Funtush Deep Blue
         primary: {
-          50: '#f0f7ff',
-          100: '#e0f0ff',
-          200: '#bfe0ff',
-          300: '#7ec1ff',
-          400: '#4da3ff',
-          500: '#2b7dd8',
+          50: '#eef7ff',
+          100: '#dfeefb',
+          200: '#bfdff8',
+          300: '#8ec7ee',
+          400: '#5eaee3',
+          500: '#358CBD',
           600: '#1a5fa8',
           700: '#0d47a1',
-          800: '#083a87',
-          900: '#062d6d',
-          950: '#041e4a',
+          800: '#0a3d88',
+          900: '#092e67',
+          950: '#061e43',
         },
         // Accent - Funtush Sky Blue
         accent: {
-          50: '#f0f9ff',
-          100: '#e3f2fd',
-          200: '#bbdefb',
-          300: '#90caf9',
-          400: '#64b5f6',
-          500: '#4db8e8',
-          600: '#2196f3',
-          700: '#1976d2',
-          800: '#1565c0',
-          900: '#0d47a1',
+          50: '#edf9ff',
+          100: '#dff3ff',
+          200: '#c3ebff',
+          300: '#8dd4f7',
+          400: '#4fb6ea',
+          500: '#2fa8df',
+          600: '#1d8ec8',
+          700: '#1473a8',
+          800: '#135d87',
+          900: '#104c6e',
         },
         // Success
         success: {
@@ -102,6 +102,8 @@ const config: Config = {
         'border-secondary': 'hsl(var(--border-secondary))',
         ring: 'hsl(var(--ring))',
         'ring-offset': 'hsl(var(--ring-offset))',
+        'brand-border': '#358CBD',
+        'brand-tint': '#EAF4FB',
       },
       spacing: {
         // Extended spacing scale
