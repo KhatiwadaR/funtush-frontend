@@ -29,9 +29,9 @@ export function ActiveTrekList({ treks, selectedTrekId, onSelectTrek }: ActiveTr
 
   return (
     <div className={`p-4 rounded-xl border shadow-sm h-full transition-colors ${
-      isDark 
-        ? "bg-slate-900 border-slate-800 text-slate-100" 
-        : "bg-white border-slate-200/60 text-slate-800"
+          isDark 
+            ? "bg-slate-900 border-slate-800 text-slate-100" 
+            : "bg-white border-slate-200 text-slate-800"
     }`}>
       <h3 className={`font-bold text-sm mb-3 flex items-center justify-between ${
         isDark ? "text-slate-100" : "text-slate-800"
@@ -44,7 +44,7 @@ export function ActiveTrekList({ treks, selectedTrekId, onSelectTrek }: ActiveTr
         </span>
       </h3>
       
-      <div className="space-y-2 max-h-[360px] overflow-y-auto pr-1">
+      <div className="max-h-90 space-y-2 overflow-y-auto pr-1">
         {treks.map((trek) => {
           const isSelected = selectedTrekId === trek.id;
           
@@ -71,14 +71,14 @@ export function ActiveTrekList({ treks, selectedTrekId, onSelectTrek }: ActiveTr
                   {/* Icon badge using lucide-react */}
                   <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 border ${
                     trek.has_sos
-                      ? isDark ? "bg-red-950 border-red-800 text-red-400 animate-pulse" : "bg-red-50 border-red-200 text-red-600 animate-pulse"
-                      : isDark ? "bg-slate-800 border-slate-700 text-emerald-400" : "bg-emerald-50 border-emerald-200 text-emerald-600"
+                      ? isDark ? "bg-danger-950 border-danger-800 text-danger-400 animate-pulse" : "bg-danger-50 border-danger-200 text-danger-600 animate-pulse"
+                      : isDark ? "bg-slate-800 border-slate-700 text-emerald-400" : "bg-success-50 border-success-200 text-success-600"
                   }`}>
                     {trek.has_sos ? <AlertTriangle className="w-4 h-4" /> : <Compass className="w-4 h-4" />}
                   </div>
 
                   <div>
-                    <h4 className={`font-bold text-xs truncate max-w-[180px] ${
+                    <h4 className={`max-w-45 truncate text-xs font-bold ${
                       trek.has_sos 
                         ? isDark ? "text-red-400" : "text-red-600"
                         : isDark ? "text-slate-100" : "text-slate-800"
@@ -112,7 +112,7 @@ export function ActiveTrekList({ treks, selectedTrekId, onSelectTrek }: ActiveTr
                 }`}>
                   <div 
                     className={`h-full rounded-full ${
-                      trek.has_sos ? "bg-red-500" : "bg-blue-600"
+                      trek.has_sos ? "bg-danger-500" : "bg-primary-600"
                     }`}
                     style={{ width: `${trek.progressPercentage || 65}%` }}
                   ></div>

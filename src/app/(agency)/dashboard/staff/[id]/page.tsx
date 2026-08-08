@@ -62,7 +62,15 @@ export default function StaffDetailPage() {
       <div className="bg-white border border-neutral-200 rounded-lg p-6 space-y-6">
         <div className="flex items-start gap-4">
           <div className="w-20 h-20 rounded-full bg-neutral-200 overflow-hidden shrink-0">
-            {staff.avatar && <Image src={staff.avatar} alt={staff.name} className="w-full h-full object-cover" />}
+            {staff.avatar && (
+              <Image
+                src={staff.avatar}
+                alt={staff.name}
+                width={80}
+                height={80}
+                className="w-full h-full object-cover"
+              />
+            )}
           </div>
           <div className="flex-1">
             <h1 className="text-2xl font-bold text-black">{staff.name}</h1>
