@@ -4,21 +4,22 @@ import StarterKit from "@tiptap/starter-kit";
 import Link from "@tiptap/extension-link";
 import Image from "@tiptap/extension-image";
 import Youtube from "@tiptap/extension-youtube";
-import { 
-    Bold, 
-    Italic, 
-    Strikethrough, 
-    List, 
-    ListOrdered, 
-    Quote, 
-    Link as LinkIcon, 
-    Image as ImageIcons, 
-    Undo2, 
-    Redo2, 
-    ChevronDown, 
-    MoreVertical 
-} from "lucide-react";
+import { useTheme } from "@/context/theme";
 import { useState, useRef, useEffect } from "react";
+
+// Material UI Icons
+import FormatBoldIcon from "@mui/icons-material/FormatBold";
+import FormatItalicIcon from "@mui/icons-material/FormatItalic";
+import FormatStrikethroughIcon from "@mui/icons-material/FormatStrikethrough";
+import FormatListBulletedIcon from "@mui/icons-material/FormatListBulleted";
+import FormatListNumberedIcon from "@mui/icons-material/FormatListNumbered";
+import FormatQuoteIcon from "@mui/icons-material/FormatQuote";
+import LinkIcon from "@mui/icons-material/Link";
+import ImageIcon from "@mui/icons-material/Image";
+import UndoIcon from "@mui/icons-material/Undo";
+import RedoIcon from "@mui/icons-material/Redo";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
 
 interface TipTapEditorProps {
     content: string;
@@ -26,6 +27,7 @@ interface TipTapEditorProps {
 }
 
 export function TipTapEditor({ content, onChange }: TipTapEditorProps) {
+    const { isDark } = useTheme();
     const [isParagraphOpen, setIsParagraphOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -84,10 +86,38 @@ export function TipTapEditor({ content, onChange }: TipTapEditorProps) {
         return "Paragraphs";
     };
 
+    // Dynamic classes based on theme
+    const containerClass = isDark
+        ? "border-[#1E293B] bg-[#0d1b32] text-slate-200"
+        : "border-neutral-200 bg-white text-neutral-800";
+
+    const toolbarContainerClass = isDark
+        ? "bg-[#111B3A] border-[#1E293B]"
+        : "bg-neutral-50 border-neutral-200";
+
+    const dropdownButtonClass = isDark
+        ? "bg-[#162947] hover:bg-[#1f365c] text-slate-300 border-[#233a5e]"
+        : "bg-white hover:bg-neutral-100 text-neutral-700 border-neutral-300 shadow-sm";
+
+    const dropdownMenuClass = isDark
+        ? "bg-[#162947] border-[#233a5e]"
+        : "bg-white border-neutral-200 shadow-md";
+
+    const dropdownItemClass = isDark
+        ? "text-slate-300 hover:bg-[#1f365c]"
+        : "text-neutral-700 hover:bg-neutral-100";
+
+    const dividerClass = isDark ? "bg-[#233a5e]" : "bg-neutral-200";
+
+    const activeToolClass = isDark ? "bg-[#1f365c] text-white" : "bg-neutral-200 text-neutral-900";
+    const inactiveToolClass = isDark
+        ? "text-slate-400 hover:bg-[#162947] hover:text-slate-200"
+        : "text-neutral-500 hover:bg-neutral-100 hover:text-neutral-900";
+
     return (
-        <div className="border border-[#1b2a47] rounded-xl overflow-hidden bg-[#0d1b32] text-slate-200 shadow-lg">
+        <div className={`border rounded-xl overflow-hidden shadow-lg transition-colors duration-200 ${containerClass}`}>
             {/* Toolbar Container */}
-            <div className="bg-[#10223d] border-b border-[#1b2a47] p-2 flex flex-wrap gap-1.5 items-center justify-between select-none">
+            <div className={`border-b p-2 flex flex-wrap gap-1.5 items-center justify-between select-none ${toolbarContainerClass}`}>
                 
                 {/* Left side formatting controls */}
                 <div className="flex flex-wrap gap-1.5 items-center">
@@ -97,39 +127,39 @@ export function TipTapEditor({ content, onChange }: TipTapEditorProps) {
                         <button
                             type="button"
                             onClick={() => setIsParagraphOpen(!isParagraphOpen)}
-                            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#162947] hover:bg-[#1f365c] text-xs font-medium text-slate-300 transition-colors border border-[#233a5e]"
+                            className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors border ${dropdownButtonClass}`}
                         >
                             <span>{getCurrentBlockLabel()}</span>
-                            <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+                            <KeyboardArrowDownIcon style={{ fontSize: 16 }} className="text-neutral-400" />
                         </button>
 
                         {isParagraphOpen && (
-                            <div className="absolute left-0 mt-1 w-36 bg-[#162947] border border-[#233a5e] rounded-lg shadow-xl z-20 py-1">
+                            <div className={`absolute left-0 mt-1 w-36 border rounded-lg shadow-xl z-20 py-1 ${dropdownMenuClass}`}>
                                 <button
                                     type="button"
                                     onClick={() => { editor.chain().focus().setParagraph().run(); setIsParagraphOpen(false); }}
-                                    className={`w-full text-left px-3 py-1.5 text-xs hover:bg-[#1f365c] ${editor.isActive("paragraph") ? "text-blue-400 font-semibold" : "text-slate-300"}`}
+                                    className={`w-full text-left px-3 py-1.5 text-xs ${dropdownItemClass} ${editor.isActive("paragraph") ? "text-blue-500 font-semibold" : ""}`}
                                 >
                                     Paragraph
                                 </button>
                                 <button
                                     type="button"
                                     onClick={() => { editor.chain().focus().toggleHeading({ level: 1 }).run(); setIsParagraphOpen(false); }}
-                                    className={`w-full text-left px-3 py-1.5 text-xs font-bold hover:bg-[#1f365c] ${editor.isActive("heading", { level: 1 }) ? "text-blue-400" : "text-slate-300"}`}
+                                    className={`w-full text-left px-3 py-1.5 text-xs font-bold ${dropdownItemClass} ${editor.isActive("heading", { level: 1 }) ? "text-blue-500" : ""}`}
                                 >
                                     Heading 1
                                 </button>
                                 <button
                                     type="button"
                                     onClick={() => { editor.chain().focus().toggleHeading({ level: 2 }).run(); setIsParagraphOpen(false); }}
-                                    className={`w-full text-left px-3 py-1.5 text-xs font-bold hover:bg-[#1f365c] ${editor.isActive("heading", { level: 2 }) ? "text-blue-400" : "text-slate-300"}`}
+                                    className={`w-full text-left px-3 py-1.5 text-xs font-bold ${dropdownItemClass} ${editor.isActive("heading", { level: 2 }) ? "text-blue-500" : ""}`}
                                 >
                                     Heading 2
                                 </button>
                                 <button
                                     type="button"
                                     onClick={() => { editor.chain().focus().toggleHeading({ level: 3 }).run(); setIsParagraphOpen(false); }}
-                                    className={`w-full text-left px-3 py-1.5 text-xs font-bold hover:bg-[#1f365c] ${editor.isActive("heading", { level: 3 }) ? "text-blue-400" : "text-slate-300"}`}
+                                    className={`w-full text-left px-3 py-1.5 text-xs font-bold ${dropdownItemClass} ${editor.isActive("heading", { level: 3 }) ? "text-blue-500" : ""}`}
                                 >
                                     Heading 3
                                 </button>
@@ -137,96 +167,86 @@ export function TipTapEditor({ content, onChange }: TipTapEditorProps) {
                         )}
                     </div>
 
-                    <div className="w-[1px] h-5 bg-[#233a5e] mx-1" />
+                    <div className={`w-[1px] h-5 mx-1 ${dividerClass}`} />
 
                     {/* Bold */}
                     <button
                         type="button"
                         onClick={() => editor.chain().focus().toggleBold().run()}
-                        className={`p-1.5 rounded-lg transition-colors ${editor.isActive("bold") ? "bg-[#1f365c] text-white" : "text-slate-400 hover:bg-[#162947] hover:text-slate-200"}`}
+                        className={`p-1.5 rounded-lg transition-colors ${editor.isActive("bold") ? activeToolClass : inactiveToolClass}`}
                         title="Bold"
                     >
-                        <Bold className="w-4 h-4" />
+                        <FormatBoldIcon style={{ fontSize: 18 }} />
                     </button>
 
                     {/* Italic */}
                     <button
                         type="button"
                         onClick={() => editor.chain().focus().toggleItalic().run()}
-                        className={`p-1.5 rounded-lg transition-colors ${editor.isActive("italic") ? "bg-[#1f365c] text-white" : "text-slate-400 hover:bg-[#162947] hover:text-slate-200"}`}
+                        className={`p-1.5 rounded-lg transition-colors ${editor.isActive("italic") ? activeToolClass : inactiveToolClass}`}
                         title="Italic"
                     >
-                        <Italic className="w-4 h-4" />
+                        <FormatItalicIcon style={{ fontSize: 18 }} />
                     </button>
-
-                    {/* Underline */}
-                    {/* <button
-                        type="button"
-                        onClick={() => editor.chain().focus().toggleUnderline().run()}
-                        className={`p-1.5 rounded-lg transition-colors ${editor.isActive("underline") ? "bg-[#1f365c] text-white" : "text-slate-400 hover:bg-[#162947] hover:text-slate-200"}`}
-                        title="Underline"
-                    >
-                        <UnderlineIcon className="w-4 h-4" />
-                    </button> */}
 
                     {/* Strikethrough */}
                     <button
                         type="button"
                         onClick={() => editor.chain().focus().toggleStrike().run()}
-                        className={`p-1.5 rounded-lg transition-colors ${editor.isActive("strike") ? "bg-[#1f365c] text-white" : "text-slate-400 hover:bg-[#162947] hover:text-slate-200"}`}
+                        className={`p-1.5 rounded-lg transition-colors ${editor.isActive("strike") ? activeToolClass : inactiveToolClass}`}
                         title="Strikethrough"
                     >
-                        <Strikethrough className="w-4 h-4" />
+                        <FormatStrikethroughIcon style={{ fontSize: 18 }} />
                     </button>
 
                     {/* Bullet List */}
                     <button
                         type="button"
                         onClick={() => editor.chain().focus().toggleBulletList().run()}
-                        className={`p-1.5 rounded-lg transition-colors ${editor.isActive("bulletList") ? "bg-[#1f365c] text-white" : "text-slate-400 hover:bg-[#162947] hover:text-slate-200"}`}
+                        className={`p-1.5 rounded-lg transition-colors ${editor.isActive("bulletList") ? activeToolClass : inactiveToolClass}`}
                         title="Bullet List"
                     >
-                        <List className="w-4 h-4" />
+                        <FormatListBulletedIcon style={{ fontSize: 18 }} />
                     </button>
 
                     {/* Ordered List */}
                     <button
                         type="button"
                         onClick={() => editor.chain().focus().toggleOrderedList().run()}
-                        className={`p-1.5 rounded-lg transition-colors ${editor.isActive("orderedList") ? "bg-[#1f365c] text-white" : "text-slate-400 hover:bg-[#162947] hover:text-slate-200"}`}
+                        className={`p-1.5 rounded-lg transition-colors ${editor.isActive("orderedList") ? activeToolClass : inactiveToolClass}`}
                         title="Ordered List"
                     >
-                        <ListOrdered className="w-4 h-4" />
+                        <FormatListNumberedIcon style={{ fontSize: 18 }} />
                     </button>
 
                     {/* Blockquote */}
                     <button
                         type="button"
                         onClick={() => editor.chain().focus().toggleBlockquote().run()}
-                        className={`p-1.5 rounded-lg transition-colors ${editor.isActive("blockquote") ? "bg-[#1f365c] text-white" : "text-slate-400 hover:bg-[#162947] hover:text-slate-200"}`}
+                        className={`p-1.5 rounded-lg transition-colors ${editor.isActive("blockquote") ? activeToolClass : inactiveToolClass}`}
                         title="Blockquote"
                     >
-                        <Quote className="w-4 h-4" />
+                        <FormatQuoteIcon style={{ fontSize: 18 }} />
                     </button>
 
                     {/* Link */}
                     <button
                         type="button"
                         onClick={addLink}
-                        className={`p-1.5 rounded-lg transition-colors ${editor.isActive("link") ? "bg-[#1f365c] text-white" : "text-slate-400 hover:bg-[#162947] hover:text-slate-200"}`}
+                        className={`p-1.5 rounded-lg transition-colors ${editor.isActive("link") ? activeToolClass : inactiveToolClass}`}
                         title="Insert Link"
                     >
-                        <LinkIcon className="w-4 h-4" />
+                        <LinkIcon style={{ fontSize: 18 }} />
                     </button>
 
                     {/* Image */}
                     <button
                         type="button"
                         onClick={addImage}
-                        className={`p-1.5 rounded-lg transition-colors ${editor.isActive("image") ? "bg-[#1f365c] text-white" : "text-slate-400 hover:bg-[#162947] hover:text-slate-200"}`}
+                        className={`p-1.5 rounded-lg transition-colors ${editor.isActive("image") ? activeToolClass : inactiveToolClass}`}
                         title="Insert Image"
                     >
-                        <ImageIcons className="w-4 h-4" />
+                        <ImageIcon style={{ fontSize: 18 }} />
                     </button>
                 </div>
 
@@ -236,26 +256,26 @@ export function TipTapEditor({ content, onChange }: TipTapEditorProps) {
                         type="button"
                         onClick={() => editor.chain().focus().undo().run()}
                         disabled={!editor.can().undo()}
-                        className="p-1.5 rounded-lg text-slate-400 hover:bg-[#162947] hover:text-slate-200 disabled:opacity-40 disabled:hover:bg-transparent transition-colors"
+                        className={`p-1.5 rounded-lg transition-colors disabled:opacity-40 disabled:hover:bg-transparent ${inactiveToolClass}`}
                         title="Undo"
                     >
-                        <Undo2 className="w-4 h-4" />
+                        <UndoIcon style={{ fontSize: 18 }} />
                     </button>
                     <button
                         type="button"
                         onClick={() => editor.chain().focus().redo().run()}
                         disabled={!editor.can().redo()}
-                        className="p-1.5 rounded-lg text-slate-400 hover:bg-[#162947] hover:text-slate-200 disabled:opacity-40 disabled:hover:bg-transparent transition-colors"
+                        className={`p-1.5 rounded-lg transition-colors disabled:opacity-40 disabled:hover:bg-transparent ${inactiveToolClass}`}
                         title="Redo"
                     >
-                        <Redo2 className="w-4 h-4" />
+                        <RedoIcon style={{ fontSize: 18 }} />
                     </button>
                     <button
                         type="button"
-                        className="p-1.5 rounded-lg text-slate-400 hover:bg-[#162947] hover:text-slate-200 transition-colors"
+                        className={`p-1.5 rounded-lg transition-colors ${inactiveToolClass}`}
                         title="More options"
                     >
-                        <MoreVertical className="w-4 h-4" />
+                        <MoreVertIcon style={{ fontSize: 18 }} />
                     </button>
                 </div>
             </div>
@@ -263,7 +283,9 @@ export function TipTapEditor({ content, onChange }: TipTapEditorProps) {
             {/* Editor Content Area */}
             <EditorContent
                 editor={editor}
-                className="prose prose-invert prose-sm max-w-none p-4 min-h-[250px] outline-hidden text-slate-300 leading-relaxed font-normal [&_.is-editor-empty:first-child::before]:text-slate-500 [&_.is-editor-empty:first-child::before]:content-[attr(data-placeholder)] [&_.is-editor-empty:first-child::before]:float-left [&_.is-editor-empty:first-child::before]:pointer-events-none"
+                className={`prose prose-sm max-w-none p-4 min-h-[250px] outline-hidden leading-relaxed font-normal ${
+                    isDark ? "prose-invert text-slate-300" : "text-neutral-800"
+                } [&_.is-editor-empty:first-child::before]:text-neutral-400 [&_.is-editor-empty:first-child::before]:content-[attr(data-placeholder)] [&_.is-editor-empty:first-child::before]:float-left [&_.is-editor-empty:first-child::before]:pointer-events-none`}
             />
         </div>
     );
