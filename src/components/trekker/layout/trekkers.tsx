@@ -25,6 +25,7 @@ export function TrekkerTopbar() {
   const { user, logout } = useAuth();
 
   const [unreadCount, setUnreadCount] = useState(0);
+  const [mounted,setMounted] = useState(false);
 
   useEffect(() => {
     const updateCount = () => {
@@ -33,6 +34,7 @@ export function TrekkerTopbar() {
     };
 
     updateCount();
+    setMounted(true);
 
     window.addEventListener('focus', updateCount);
     return () => window.removeEventListener('focus', updateCount);
@@ -87,7 +89,7 @@ export function TrekkerTopbar() {
                         <User className="h-4 w-4 text-primary-600" />
                     </div>
                     <span className='text-sm font-medium text-neutral-700'>
-                        {user?.name ?? 'Guest'}
+                        {mounted ? (user?.name ?? 'Guest') : 'Loading...'}
                     </span>
                 </div>
 
