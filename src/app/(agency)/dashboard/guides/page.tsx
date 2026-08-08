@@ -408,14 +408,13 @@ export default function GuidesPage() {
   return (
     <div className="space-y-4 w-full">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between w-full">
+        <h1 className="mt-2 text-2xl font-semibold text-neutral-900">Guides</h1>
         <div className="space-y-1">
           <div className="flex items-center gap-2 text-sm text-neutral-500"><button type="button" onClick={() => router.push("/dashboard")} className="hover:text-neutral-900">Dashboard</button><span className="text-neutral-300">/</span><span className="font-semibold text-neutral-900">All Guides</span></div>
-          <h1 className="mt-2 text-2xl font-semibold text-neutral-900">Agency Guides</h1>
-          <p className="text-sm leading-6 text-neutral-600">Manage guide profiles, certifications, and availability in one place.</p>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          <button type="button" onClick={() => router.push("/dashboard/guides/new")} className="inline-flex items-center gap-2 rounded-2xl bg-primary-900 px-3 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-800 shadow-sm">
+          <button type="button" onClick={() => router.push("/dashboard/guides/new")} className="inline-flex items-center gap-2 rounded-xl bg-primary-800 px-3 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-800 shadow-sm">
             <Plus className="h-4 w-4" />
             Add Guide
           </button>
@@ -460,7 +459,7 @@ export default function GuidesPage() {
         <AnalyticsSummaryCard label="Certs Expiring" value={stats.expiring} tone="danger" icon={AlertTriangle} />
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-[minmax(240px,1fr)_180px_180px]">
+      {/* <div className="grid gap-3 sm:grid-cols-[minmax(240px,1fr)_180px_180px]">
         <label className="relative block">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
           <input
@@ -494,7 +493,7 @@ export default function GuidesPage() {
             </option>
           ))}
         </select>
-      </div>
+      </div> */}
 
       <div className="overflow-x-auto border-t border-neutral-200 bg-white/90 w-full">
           <table className="min-w-full w-full text-left text-sm text-neutral-700">
