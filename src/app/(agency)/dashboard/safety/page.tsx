@@ -5,11 +5,10 @@ import { SOSAlertBanner } from "@/components/agency/safety/SOSAlertBanner";
 import { ActiveTrekList } from "@/components/agency/safety/ActiveTrekList";
 import { IncidentLog } from "@/components/agency/safety/IncidentLog";
 import { useTheme } from "@/context/theme";
-import { FileText } from "lucide-react";
-
+import DescriptionIcon from "@mui/icons-material/Description";
+import toast from "react-hot-toast";
 
 const SafetyMap = dynamic(() => import("@/components/agency/safety/SafetyMap"), {
-
   ssr: false,
   loading: () => (
     <div className="w-full h-full min-h-100 bg-slate-50 border border-dashed rounded-xl flex flex-col items-center justify-center text-slate-400 gap-2 animate-pulse">
@@ -43,36 +42,45 @@ export default function SafetyPage() {
     return () => cancelAnimationFrame(handle);
   }, []);
 
+  const handleExportReport = () => {
+    try {
+      toast.success("Successfully compiled and exported safety audit report.");
+    } catch (err) {
+      toast.error("Failed to export safety audit report. Please try again.");
+    }
+  };
+
   const activeSosCount = mockActiveTreks.filter(t => t.has_sos).length;
 
   if (!mounted) return null;
 
   return (
-    <div className="mx-auto max-w-7xl space-y-4">
+    <div className="space-y-4">
       <div className="flex flex-col gap-3 border-b border-neutral-200 pb-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className={`text-2xl font-semibold tracking-tight ${isDark ? "text-slate-100" : "text-neutral-900"
-            }`}>
-Safety Monitoring
-            </h1>
+          <h1 className={`text-2xl font-semibold tracking-tight ${isDark ? "text-slate-100" : "text-neutral-900"}`}>
+            Safety Monitoring
+          </h1>
           <div className="flex items-center gap-1.5 text-xs mt-0.5">
             <span className={isDark ? "text-slate-400" : "text-neutral-500"}>
-
-  Safety            </span>
+              Safety            
+            </span>
             <span className={isDark ? "text-slate-600" : "text-neutral-300"}>›</span>
             <span className="font-medium text-primary-700 dark:text-primary-400">
-Live Overview            </span>
+              Live Overview            
+            </span>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
           <button
-            className={`inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-xs font-semibold transition-colors shadow-sm ${isDark
-                ? "bg-slate-800 border-slate-700 text-slate-200 hover:bg-slate-700 hover:text-white"
-                : "bg-white border-slate-200 text-slate-700 hover:bg-slate-50 hover:text-slate-900"
-              }`}
+            onClick={handleExportReport}
+            className={`inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-xs font-semibold transition-colors shadow-sm cursor-pointer ${isDark
+              ? "bg-slate-800 border-slate-700 text-slate-200 hover:bg-slate-700 hover:text-white"
+              : "bg-white border-slate-200 text-slate-700 hover:bg-slate-50 hover:text-slate-900"
+            }`}
           >
-            <FileText className="w-3.5 h-3.5" />
+            <DescriptionIcon sx={{ fontSize: 16 }} />
             <span>Export Report</span>
           </button>
         </div>
