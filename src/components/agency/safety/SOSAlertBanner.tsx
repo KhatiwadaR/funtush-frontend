@@ -65,14 +65,14 @@ export function SOSAlertBanner({
   };
 
   return (
-    <div className={`rounded-xl border p-4 shadow-sm ${
+    <div className={`w-full min-w-0 rounded-xl border p-4 shadow-sm ${
       isDark 
         ? "bg-red-950/40 border-red-900/60 text-red-200" 
         : "bg-red-50 border-red-200 text-red-900"
     }`}>
       {/* Top Header Row */}
-      <div className="flex items-center justify-between pb-3 border-b border-red-500/20">
-        <div className="flex items-center gap-2">
+      <div className="flex min-w-0 items-center justify-between pb-3 border-b border-red-500/20">
+        <div className="flex items-center min-w-0gap-2">
           <span className="w-2 h-2 rounded-full bg-red-600 animate-ping"></span>
           <div className="flex items-center gap-1.5 font-bold text-red-600 dark:text-red-400 text-xs tracking-wide uppercase">
             <ShieldAlertIcon sx={{ fontSize: 16 }} />
@@ -85,18 +85,18 @@ export function SOSAlertBanner({
       </div>
 
       {/* Details Grid & Actions Row */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-3 text-xs items-center">
-        <div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-3 text-xs sm:grid-cols-2 items-center">
+        <div className="min-w-0">
           <span className={`block text-[11px] ${isDark ? "text-red-400/70" : "text-red-700/70"}`}>Guide</span>
           <span className={`font-bold text-sm ${isDark ? "text-red-100" : "text-red-950"}`}>{guideName}</span>
         </div>
 
-        <div>
+        <div className="min-w-0">
           <span className={`block text-[11px] ${isDark ? "text-red-400/70" : "text-red-700/70"}`}>Trek</span>
           <span className={`font-bold text-sm ${isDark ? "text-red-100" : "text-red-950"}`}>{trekName}</span>
         </div>
 
-        <div>
+        <div className="min-w-0"> 
           <span className={`block text-[11px] ${isDark ? "text-red-400/70" : "text-red-700/70"}`}>GPS Coordinates</span>
           <span className={`font-mono font-bold ${isDark ? "text-red-200" : "text-red-900"}`}>{coordinates}</span>
         </div>
@@ -124,27 +124,29 @@ export function SOSAlertBanner({
             <CheckCircleIcon sx={{ fontSize: 14 }} /> Acknowledge
           </button>
           
-          <button 
-            onClick={handleCallGuide}
-            className={`inline-flex items-center gap-1.5 text-xs font-semibold py-1.5 px-3 rounded-lg border shadow-xs transition-colors cursor-pointer ${
-              isDark 
-                ? "bg-slate-800 border-slate-700 text-slate-200 hover:bg-slate-700" 
-                : "bg-white border-slate-200 text-slate-700 hover:bg-slate-50"
-            }`}
-          >
-            <PhoneIcon sx={{ fontSize: 14 }} className="text-emerald-600" /> Call Guide
-          </button>
+          <button
+  onClick={handleCallGuide}
+  className={`inline-flex w-full sm:w-auto items-center justify-center gap-1.5 text-xs font-semibold py-2 px-3 rounded-lg border shadow-xs transition-colors cursor-pointer ${
+    isDark
+      ? "bg-slate-800 border-slate-700 text-slate-200 hover:bg-slate-700"
+      : "bg-white border-slate-200 text-slate-700 hover:bg-slate-50"
+  }`}
+>
+  <PhoneIcon sx={{ fontSize: 14 }} className="text-emerald-600" />
+  Call Guide
+</button>
 
-          <button 
-            onClick={handleWhatsApp}
-            className={`inline-flex w-full sm:w-auto items-center gap-1.5 text-xs font-semibold py-1.5 px-3 rounded-lg border shadow-xs transition-colors cursor-pointer ${
-              isDark 
-                ? "bg-slate-800 border-slate-700 text-slate-200 hover:bg-slate-700" 
-                : "bg-white border-slate-200 text-slate-700 hover:bg-slate-50"
-            }`}
-          >
-            <ChatIcon sx={{ fontSize: 14 }} className="text-emerald-500" /> WhatsApp
-          </button>
+<button
+  onClick={handleWhatsApp}
+  className={`inline-flex w-full sm:w-auto items-center justify-center gap-1.5 text-xs font-semibold py-2 px-3 rounded-lg border shadow-xs transition-colors cursor-pointer ${
+    isDark
+      ? "bg-slate-800 border-slate-700 text-slate-200 hover:bg-slate-700"
+      : "bg-white border-slate-200 text-slate-700 hover:bg-slate-50"
+  }`}
+>
+  <ChatIcon sx={{ fontSize: 14 }} className="text-emerald-500" />
+  WhatsApp
+</button>
         </div>
       </div>
     </div>
