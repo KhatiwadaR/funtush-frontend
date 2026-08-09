@@ -8,7 +8,9 @@
     "certifications": [
       {"name":"Wilderness First Aid","number":"WFA-234","expiry":"2026-11-01"}
     ],
-    "rating": 4.8
+    "rating": 4.8,
+    "sex": "Male",
+    "phone": "+977 9801 234567"
   },
   {
     "id": "gd-002",
@@ -19,7 +21,9 @@
     "certifications": [
       {"name":"Mountaineering Level 1","number":"MNT-101","expiry":"2027-06-15"}
     ],
-    "rating": 4.7
+    "rating": 4.7,
+    "sex": "Male",
+    "phone": "+977 9801 234568"
   },
   {
     "id": "gd-003",
@@ -30,7 +34,9 @@
     "certifications": [
       {"name":"Guide License","number":"GL-908","expiry":"2026-08-20"}
     ],
-    "rating": 4.5
+    "rating": 4.5,
+    "sex": "Female",
+    "phone": "+977 9801 234569"
   },
   {
     "id": "gd-004",
@@ -39,7 +45,9 @@
     "languages": ["Nepali","English"],
     "status": "unavailable",
     "certifications": [],
-    "rating": 4.2
+    "rating": 4.2,
+    "sex": "Male",
+    "phone": "+977 9801 234570"
   },
   {
     "id": "gd-005",
@@ -50,7 +58,9 @@
     "certifications": [
       {"name":"Mountaineering Level 1","number":"MNT-109","expiry":"2026-10-21"}
     ],
-    "rating": 4.4
+    "rating": 4.4,
+    "sex": "Male",
+    "phone": "+977 9801 234571"
   },
   {
     "id": "gd-006",
@@ -59,7 +69,9 @@
     "languages": ["Nepali","English","Spanish", "German"],
     "status": "on_trek",
     "certifications": [],
-    "rating": 3.7
+    "rating": 3.7,
+    "sex": "Male",
+    "phone": "+977 9801 234572"
   },
   {
     "id": "gd-007",
@@ -70,7 +82,9 @@
     "certifications": [
       {"name":"Guide License","number":"GL-988","expiry":"2027-08-20"}
     ],
-    "rating": 4.5
+    "rating": 4.5,
+    "sex": "Female",
+    "phone": "+977 9801 234573"
   },
   {
     "id": "gd-008",
@@ -81,7 +95,9 @@
     "certifications": [
       {"name":"Guide License","number":"GL-958","expiry":"2026-09-02"}
     ],
-    "rating": 4.8
+    "rating": 4.8,
+    "sex": "Female",
+    "phone": "+977 9801 234574"
   },
   {
     "id": "gd-009",
@@ -92,7 +108,9 @@
     "certifications": [
       {"name":"Mountaineering Level 2","number":"MNT-199","expiry":"2026-10-20"}
     ],
-    "rating": 5
+    "rating": 5,
+    "sex": "Female",
+    "phone": "+977 9801 234575"
   },
  {
     "id": "gd-010",
@@ -103,6 +121,8 @@
     "certifications": [
       {"name":"Guide License","number":"GL-956","expiry":"2027-01-20"}
     ],
-    "rating": 4.6
+    "rating": 4.6,
+    "sex": "Male",
+    "phone": "+977 9801 234576"
   }
 ]
