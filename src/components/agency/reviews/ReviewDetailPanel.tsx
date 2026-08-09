@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from 'react';
+import { useState} from 'react';
 import { ReviewItem } from '@/app/(agency)/dashboard/reviews/page';
 import toast from 'react-hot-toast';
 import CloseIcon from '@mui/icons-material/Close';
@@ -25,16 +25,11 @@ export function ReviewDetailPanel({
   onSaveResponse,
   onFlag
 }: ReviewDetailPanelProps) {
-  // Prevent hydration mismatch by ensuring client-only rendering pass
-  const [isMounted, setIsMounted] = useState(false);
+const [isMounted] = useState(() => typeof window !== "undefined");
   const [responseText, setResponseText] = useState(existingResponse);
   const [showFlagModal, setShowFlagModal] = useState(false);
   const [flagReason, setFlagReason] = useState('Fake/Spam');
   const [flagNotes, setFlagNotes] = useState('');
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
 
   if (!isMounted) {
     return null;
@@ -43,7 +38,6 @@ export function ReviewDetailPanel({
   const submitResponse = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Proper Validation
     const trimmedResponse = responseText.trim();
     if (!trimmedResponse) {
       toast.error("Response text cannot be empty.");
