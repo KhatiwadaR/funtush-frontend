@@ -95,16 +95,14 @@ export default function BookingsPage() {
   const [toDate, setToDate] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
 
-  const [bookings, setBookings] = useState<Booking[]>(bookingsData as Booking[]);
-
-  useEffect(() => {
-    const stored = localStorage.getItem("bookings");
-    const nextBookings = stored
-      ? (JSON.parse(stored) as Booking[])
-      : (bookingsData as Booking[]);
-
-    setBookings(nextBookings);
-  }, []);
+  const [bookings, setBookings] = useState<Booking[]>(() => {
+    try {
+      const stored = typeof window !== "undefined" ? localStorage.getItem("bookings") : null;
+      return stored ? (JSON.parse(stored) as Booking[]) : (bookingsData as Booking[]);
+    } catch {
+      return bookingsData as Booking[];
+    }
+  });
 
   const inquiryCount = bookings.filter(
     (booking) => booking.status.toLowerCase() === "inquiry",
@@ -156,20 +154,16 @@ export default function BookingsPage() {
   const bookingsPerPage = 8;
   const totalPages = Math.max(1, Math.ceil(filteredBookings.length / bookingsPerPage));
 
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [activeTab, search, fromDate, toDate, bookings]);
+  // Reset page when filters change by updating handlers that change the filters (below)
 
-  useEffect(() => {
-    if (currentPage > totalPages) {
-      setCurrentPage(totalPages);
-    }
-  }, [currentPage, totalPages]);
+  // Avoid setting state inside effects; use safeCurrentPage when rendering/paginating instead.
+
+  const safeCurrentPage = Math.min(currentPage, totalPages);
 
   const paginatedBookings = useMemo(() => {
-    const startIndex = (currentPage - 1) * bookingsPerPage;
+    const startIndex = (safeCurrentPage - 1) * bookingsPerPage;
     return filteredBookings.slice(startIndex, startIndex + bookingsPerPage);
-  }, [filteredBookings, currentPage]);
+  }, [filteredBookings, safeCurrentPage]);
 
   return (
     <div className="space-y-4">
@@ -222,7 +216,7 @@ export default function BookingsPage() {
               <button
                 key={tab}
                 type="button"
-                onClick={() => setActiveTab(tab)}
+                onClick={() => { setActiveTab(tab); setCurrentPage(1); }}
                 className={`inline-flex items-center gap-2 border-b-2 px-1 py-3 text-sm font-semibold capitalize transition ${
                   activeTab === tab
                     ? "border-primary-900 text-primary-900"
@@ -245,14 +239,14 @@ export default function BookingsPage() {
             type="text"
             placeholder="Search bookings..."
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => { setSearch(e.target.value); setCurrentPage(1); }}
             className="w-full rounded-2xl border border-neutral-200 bg-white px-4 py-3 text-sm text-neutral-900 outline-none transition focus:border-primary-400 focus:ring-2 focus:ring-primary-100"
           />
         </label>
 
         <select
           value={activeTab}
-          onChange={(e) => setActiveTab(e.target.value as Tab)}
+          onChange={(e) => { setActiveTab(e.target.value as Tab); setCurrentPage(1); }}
           className="w-full rounded-2xl border border-neutral-200 bg-white px-4 py-3 text-sm text-neutral-900 outline-none transition focus:border-primary-400 focus:ring-2 focus:ring-primary-100"
         >
           {statusOptions.map((option) => (
@@ -265,14 +259,14 @@ export default function BookingsPage() {
         <input
           type="date"
           value={fromDate}
-          onChange={(e) => setFromDate(e.target.value)}
+          onChange={(e) => { setFromDate(e.target.value); setCurrentPage(1); }}
           className="w-full rounded-2xl border border-neutral-200 bg-white px-4 py-3 text-sm text-neutral-900 outline-none transition focus:border-primary-400 focus:ring-2 focus:ring-primary-100"
         />
 
         <input
           type="date"
           value={toDate}
-          onChange={(e) => setToDate(e.target.value)}
+          onChange={(e) => { setToDate(e.target.value); setCurrentPage(1); }}
           className="w-full rounded-2xl border border-neutral-200 bg-white px-4 py-3 text-sm text-neutral-900 outline-none transition focus:border-primary-400 focus:ring-2 focus:ring-primary-100"
         />
 
@@ -374,7 +368,7 @@ export default function BookingsPage() {
       </div>
 
       <Pagination
-        currentPage={currentPage}
+        currentPage={safeCurrentPage}
         totalPages={totalPages}
         onPageChange={setCurrentPage}
         className="border-t border-neutral-200"

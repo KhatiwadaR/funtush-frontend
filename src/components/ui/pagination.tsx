@@ -20,7 +20,7 @@ export const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages,
 
   return (
     <nav className={cn('flex items-center justify-between border-t border-neutral-200 px-4 py-3 sm:px-6 mt-4', className)}>
-      <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+      <div className="flex flex-1 flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="text-sm text-neutral-700">
             Showing page <span className="font-medium">{currentPage}</span> of{' '}
@@ -28,7 +28,7 @@ export const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages,
           </p>
         </div>
         <div>
-          <div className="relative inline-flex -space-x-px rounded-md shadow-sm">
+          <div className="relative inline-flex flex-wrap items-center justify-center gap-1 sm:gap-0 -space-x-px rounded-md shadow-sm">
             <button
               onClick={() => onPageChange(Math.max(currentPage - 1, 1))}
               disabled={currentPage === 1}

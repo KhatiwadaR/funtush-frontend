@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   Add,
@@ -79,54 +79,33 @@ export default function PackagesPage() {
   const [statusFilter, setStatusFilter] = useState<Package["status"] | "">("");
   const [sortBy, setSortBy] = useState<"latest" | "price" | "duration">("latest");
   const [currentPage, setCurrentPage] = useState(1);
-  const [packages, setPackages] = useState<Package[]>(packageRows);
+  const [packages, setPackages] = useState<Package[]>(() => {
+    try {
+      const stored = typeof window !== "undefined" ? localStorage.getItem("packages") : null;
+      if (!stored) return packageRows;
+      const storedPackages = JSON.parse(stored) as Array<Partial<Package> & {
+        destination?: string;
+        duration?: number;
+        maxGroup?: number;
+        basePrice?: number;
+        dates?: Array<{ date: string; slots: number }>;
+        addons?: Array<{ name: string }>;
+      }>;
+      return storedPackages.map((pkg) => ({
+        ...(pkg as Package),
+        destination: pkg.destination ?? pkg.destination_slug?.replace(/-/g, " ") ?? "",
+        price_npr: pkg.price_npr ?? Math.round(((pkg.price_usd ?? pkg.basePrice ?? 0) as number) * 133),
+      }));
+    } catch {
+      return packageRows;
+    }
+  });
   const [actionDialog, setActionDialog] = useState<{
     type: "edit" | "delete";
     package: Package;
   } | null>(null);
 
-  useEffect(() => {
-    const stored = localStorage.getItem("packages");
-    if (stored) {
-      try {
-        const storedPackages = JSON.parse(stored) as Array<Partial<Package> & {
-          destination?: string;
-          duration?: number;
-          maxGroup?: number;
-          basePrice?: number;
-          dates?: Array<{ date: string; slots: number }>;
-          addons?: Array<{ name: string }>;
-        }>;
-        setPackages(storedPackages.map((pkg) => {
-          const destination = pkg.destination ?? pkg.destination_slug?.replace(/-/g, " ") ?? "";
-          const duration = pkg.duration_days ?? pkg.duration ?? 0;
-          const maxGroup = pkg.group_size_max ?? pkg.maxGroup ?? 0;
-          const priceUsd = pkg.price_usd ?? (pkg.basePrice ? pkg.basePrice / 133 : 0);
-          const firstDate = pkg.start_date ?? pkg.dates?.[0]?.date ?? "";
-
-          return {
-            ...pkg,
-            id: pkg.id ?? `pkg-${Date.now()}`,
-            title: pkg.title ?? "Untitled package",
-            destination_slug: pkg.destination_slug ?? destination.replace(/\s+/g, "-"),
-            agency_id: pkg.agency_id ?? agencyId,
-            duration_days: duration,
-            price_usd: priceUsd,
-            group_size_max: maxGroup,
-            included: pkg.included ?? pkg.addons?.map((addon) => addon.name) ?? [],
-            start_date: firstDate,
-            status: pkg.status ?? "draft",
-            difficulty: pkg.difficulty ?? "Moderate",
-            available_slots: pkg.available_slots ?? pkg.dates?.[0]?.slots ?? 0,
-            destination,
-            price_npr: pkg.price_npr ?? Math.round(priceUsd * 133),
-          };
-        }));
-      } catch {
-        localStorage.removeItem("packages");
-      }
-    }
-  }, []);
+  // packages are initialized lazily above; no setState in effect required.
 
   const agencyPackages = useMemo(
     () => packages.filter((pkg) => pkg.agency_id === agencyId),
@@ -161,18 +140,14 @@ export default function PackagesPage() {
   const packagesPerPage = 8;
   const totalPages = Math.max(1, Math.ceil(filteredPackages.length / packagesPerPage));
 
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [search, statusFilter, sortBy, packages.length]);
+  // Reset page when filters change via handlers below
 
-  useEffect(() => {
-    if (currentPage > totalPages) setCurrentPage(totalPages);
-  }, [currentPage, totalPages]);
+  const safeCurrentPage = Math.min(currentPage, totalPages);
 
   const paginatedPackages = useMemo(() => {
-    const startIndex = (currentPage - 1) * packagesPerPage;
+    const startIndex = (safeCurrentPage - 1) * packagesPerPage;
     return filteredPackages.slice(startIndex, startIndex + packagesPerPage);
-  }, [currentPage, filteredPackages]);
+  }, [safeCurrentPage, filteredPackages]);
 
   return (
     <div className="space-y-4">
@@ -221,14 +196,14 @@ export default function PackagesPage() {
             className="w-full rounded-2xl border border-neutral-200 bg-white py-2.5 pl-10 pr-3 text-sm text-neutral-900 outline-none transition focus:border-primary-400 focus:ring-2 focus:ring-primary-100"
             placeholder="Search packages"
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => { setSearch(e.target.value); setCurrentPage(1); }}
           />
         </label>
 
         <select
           className="rounded-2xl border border-neutral-200 bg-white px-3 py-2.5 text-sm text-neutral-900 outline-none transition focus:border-primary-400 focus:ring-2 focus:ring-primary-100"
           value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value as Package["status"] | "")}
+          onChange={(e) => { setStatusFilter(e.target.value as Package["status"] | ""); setCurrentPage(1); }}
         >
           <option value="">All status</option>
           <option value="published">Published</option>
@@ -240,7 +215,7 @@ export default function PackagesPage() {
         <select
           className="rounded-2xl border border-neutral-200 bg-white px-3 py-2.5 text-sm text-neutral-900 outline-none transition focus:border-primary-400 focus:ring-2 focus:ring-primary-100"
           value={sortBy}
-          onChange={(e) => setSortBy(e.target.value as "latest" | "price" | "duration")}
+          onChange={(e) => { setSortBy(e.target.value as "latest" | "price" | "duration"); setCurrentPage(1); }}
         >
           <option value="latest">Newest</option>
           <option value="price">Price low to high</option>
@@ -254,7 +229,7 @@ export default function PackagesPage() {
           <button
             key={tab.label}
             type="button"
-            onClick={() => setStatusFilter(tab.value as Package["status"] | "")}
+            onClick={() => { setStatusFilter(tab.value as Package["status"] | ""); setCurrentPage(1); }}
             className={`inline-flex items-center gap-2 border-b-2 px-1 py-3 text-sm font-semibold transition ${
               statusFilter === tab.value
                 ? "border-primary-900 text-primary-900"
@@ -349,7 +324,7 @@ export default function PackagesPage() {
       </div>
 
       <Pagination
-        currentPage={currentPage}
+        currentPage={safeCurrentPage}
         totalPages={totalPages}
         onPageChange={setCurrentPage}
       />

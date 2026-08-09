@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import { Check, Globe2, Pencil, Save, UserRound } from "lucide-react";
 import usersData from "../../../../../data/users.json";
@@ -15,12 +15,20 @@ const admin = (usersData as User[]).find((user) => user.role === "agency_admin" 
 const initialProfile: Profile = { firstName: admin.name.split(" ")[0], middleName: "", lastName: admin.name.split(" ").slice(1).join(" "), phone: admin.phone, email: admin.email, dateOfBirth: "", sex: "", designation: "Agency Administrator", website: "", city: "Kathmandu", country: admin.country, zipCode: "" };
 
 export default function ProfilePage() {
-  const [profile, setProfile] = useState<Profile>(initialProfile);
+  const [profile, setProfile] = useState<Profile>(() => {
+    if (typeof window === "undefined") return initialProfile;
+    try {
+      const stored = localStorage.getItem("agency_profile");
+      return stored ? (JSON.parse(stored) as Profile) : initialProfile;
+    } catch {
+      return initialProfile;
+    }
+  });
   const [tab, setTab] = useState("Personal Details");
   const [editing, setEditing] = useState(false);
   const [saved, setSaved] = useState(false);
 
-  useEffect(() => { const stored = localStorage.getItem("agency_profile"); if (stored) setProfile(JSON.parse(stored) as Profile); }, []);
+  // profile is initialized lazily from localStorage above to avoid setState-in-effect
 
   const stats = useMemo(() => ({ bookings: bookingsData.filter((booking) => booking.agency_id === "ag-001").length, guides: guidesData.length, packages: packagesData.filter((pkg) => pkg.agency_id === "ag-001").length }), []);
   const completedItems = [Boolean(profile.email && profile.phone), Boolean(profile.website), Boolean(profile.dateOfBirth), Boolean(profile.zipCode)];
