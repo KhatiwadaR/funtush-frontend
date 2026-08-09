@@ -102,19 +102,17 @@ export default function BookingDetailPage() {
 
   const id = params.id as string;
 
-  const [booking, setBooking] = useState<Booking | null>(null);
-  const [isHydrated, setIsHydrated] = useState(false);
-
-  useEffect(() => {
-    const stored = localStorage.getItem("bookings");
-
-    const allBookings: Booking[] = stored
-      ? (JSON.parse(stored) as Booking[])
-      : (bookingsData as Booking[]);
-
-    setBooking(allBookings.find((item) => item.id === id) ?? null);
-    setIsHydrated(true);
-  }, [id]);
+  const [booking, setBooking] = useState<Booking | null>(() => {
+    try {
+      const stored = typeof window !== "undefined" ? localStorage.getItem("bookings") : null;
+      const allBookings: Booking[] = stored ? (JSON.parse(stored) as Booking[]) : (bookingsData as Booking[]);
+      return allBookings.find((item) => item.id === id) ?? null;
+    } catch (e) {
+      return null;
+    }
+  });
+  // booking is initialized lazily from localStorage (client-only) above,
+  // so no synchronous setState is required here.
 
   const [showReject, setShowReject] = useState(false);
   const [showDate, setShowDate] = useState(false);
@@ -131,16 +129,78 @@ export default function BookingDetailPage() {
   const [svcLodging, setSvcLodging] = useState(false);
   const [svcMeals, setSvcMeals] = useState(false);
   const [otherServicesText, setOtherServicesText] = useState("");
-  const [reviewRating, setReviewRating] = useState(0);
-  const [reviewTitle, setReviewTitle] = useState("");
-  const [reviewText, setReviewText] = useState("");
+  const [reviewRating, setReviewRating] = useState<number>(() => {
+    try {
+      if (!booking || booking.status.toLowerCase() !== "completed") return 0;
+      const storedReviews = typeof window !== "undefined" ? localStorage.getItem("reviews") : null;
+      const reviews: Review[] = storedReviews ? (JSON.parse(storedReviews) as Review[]) : (reviewsData as Review[]);
+      const existingReview = reviews.find((review) => review.booking_id === id);
+      return existingReview ? existingReview.rating : 0;
+    } catch {
+      return 0;
+    }
+  });
+  const [reviewTitle, setReviewTitle] = useState<string>(() => {
+    try {
+      if (!booking || booking.status.toLowerCase() !== "completed") return "";
+      const storedReviews = typeof window !== "undefined" ? localStorage.getItem("reviews") : null;
+      const reviews: Review[] = storedReviews ? (JSON.parse(storedReviews) as Review[]) : (reviewsData as Review[]);
+      const existingReview = reviews.find((review) => review.booking_id === id);
+      return existingReview ? existingReview.title : "";
+    } catch {
+      return "";
+    }
+  });
+  const [reviewText, setReviewText] = useState<string>(() => {
+    try {
+      if (!booking || booking.status.toLowerCase() !== "completed") return "";
+      const storedReviews = typeof window !== "undefined" ? localStorage.getItem("reviews") : null;
+      const reviews: Review[] = storedReviews ? (JSON.parse(storedReviews) as Review[]) : (reviewsData as Review[]);
+      const existingReview = reviews.find((review) => review.booking_id === id);
+      return existingReview ? existingReview.text : "";
+    } catch {
+      return "";
+    }
+  });
   const [showReviewModal, setShowReviewModal] = useState(false);
-  const [hasReview, setHasReview] = useState(false);
+  const [hasReview, setHasReview] = useState<boolean>(() => {
+    try {
+      if (!booking || booking.status.toLowerCase() !== "completed") return false;
+      const storedReviews = typeof window !== "undefined" ? localStorage.getItem("reviews") : null;
+      const reviews: Review[] = storedReviews ? (JSON.parse(storedReviews) as Review[]) : (reviewsData as Review[]);
+      return !!reviews.find((review) => review.booking_id === id);
+    } catch {
+      return false;
+    }
+  });
 
   // Undo toast state for accidental Cancel
-  const [showUndoToast, setShowUndoToast] = useState(false);
-  const [undoAction, setUndoAction] = useState<"assign" | "services" | null>(null);
-  const [undoData, setUndoData] = useState<any>(null);
+  const [showUndoToast, setShowUndoToast] = useState<boolean>(() => {
+    try {
+      const snapshotRaw = typeof window !== "undefined" ? localStorage.getItem(`booking_undo_snapshot_${id}`) : null;
+      return !!snapshotRaw;
+    } catch {
+      return false;
+    }
+  });
+  const [undoAction, setUndoAction] = useState<"assign" | "services" | null>(() => {
+    try {
+      const snapshotRaw = typeof window !== "undefined" ? localStorage.getItem(`booking_undo_snapshot_${id}`) : null;
+      const snap = snapshotRaw ? JSON.parse(snapshotRaw) : null;
+      return snap?.action ?? null;
+    } catch {
+      return null;
+    }
+  });
+  const [undoData, setUndoData] = useState<unknown>(() => {
+    try {
+      const snapshotRaw = typeof window !== "undefined" ? localStorage.getItem(`booking_undo_snapshot_${id}`) : null;
+      const snap = snapshotRaw ? JSON.parse(snapshotRaw) : null;
+      return snap?.data ?? null;
+    } catch {
+      return null;
+    }
+  });
   const undoTimerRef = useRef<number | null>(null);
   const router = useRouter();
   const [confirmAction, setConfirmAction] = useState<"back" | "payment" | "restore" | "cancel" | null>(null);
@@ -188,7 +248,7 @@ export default function BookingDetailPage() {
   };
 
   // trigger undo toast with data snapshot
-  function triggerUndo(action: "assign" | "services", data: any) {
+  function triggerUndo(action: "assign" | "services", data: unknown) {
     setUndoAction(action);
     setUndoData(data);
     setShowUndoToast(true);
@@ -208,40 +268,9 @@ export default function BookingDetailPage() {
   }, []);
 
   // load any existing snapshot for this booking (no expiry)
-  useEffect(() => {
-    try {
-      const snapshotRaw = localStorage.getItem(`booking_undo_snapshot_${id}`);
-      if (snapshotRaw) {
-        const snap = JSON.parse(snapshotRaw);
-        if (snap) {
-          setUndoAction(snap.action as any);
-          setUndoData(snap.data);
-          setShowUndoToast(true);
-        }
-      }
-    } catch (e) {
-      // ignore
-    }
-  }, [id]);
+  // Snapshot for undo is read during initial render (lazy initializers above).
 
-  useEffect(() => {
-    if (!booking || booking.status.toLowerCase() !== "completed") return;
-
-    const storedReviews = localStorage.getItem("reviews");
-    const reviews: Review[] = storedReviews
-      ? (JSON.parse(storedReviews) as Review[])
-      : (reviewsData as Review[]);
-    const existingReview = reviews.find((review) => review.booking_id === id);
-
-    if (existingReview) {
-      setReviewRating(existingReview.rating);
-      setReviewTitle(existingReview.title);
-      setReviewText(existingReview.text);
-      setHasReview(true);
-    }
-  }, [booking, id]);
-
-  if (!isHydrated || !booking) {
+  if (!booking) {
     return (
       <div className="p-6 text-sm text-neutral-500">
         Loading booking details...

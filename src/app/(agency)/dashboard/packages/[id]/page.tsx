@@ -31,15 +31,15 @@ export default function PackageDetailPage() {
   const params = useParams();
   const router = useRouter();
   const id = params.id as string;
-  const [packageData, setPackageData] = useState<Package | null>(null);
-
-  useEffect(() => {
-    const stored = localStorage.getItem("packages");
-    const allPackages = stored
-      ? (JSON.parse(stored) as Package[])
-      : (packagesJson as Package[]);
-    setPackageData(allPackages.find((item) => item.id === id) ?? null);
-  }, [id]);
+  const [packageData, setPackageData] = useState<Package | null>(() => {
+    try {
+      const stored = typeof window !== "undefined" ? localStorage.getItem("packages") : null;
+      const allPackages = stored ? (JSON.parse(stored) as Package[]) : (packagesJson as Package[]);
+      return allPackages.find((item) => item.id === id) ?? null;
+    } catch {
+      return null;
+    }
+  });
 
   if (!packageData) {
     return <div className="p-6 text-sm text-neutral-500">Package not found.</div>;
