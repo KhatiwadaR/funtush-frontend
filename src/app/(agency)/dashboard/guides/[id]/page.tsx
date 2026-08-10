@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui";
 import guidesData from "../../../../../../data/guides.json";
+import { Star } from "lucide-react";
 
 const statusMap: Record<string, { label: string; color: string }> = {
   available: { label: "Available", color: "bg-success-100 text-success-800" },
