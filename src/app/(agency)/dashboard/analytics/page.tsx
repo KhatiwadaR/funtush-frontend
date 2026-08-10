@@ -12,7 +12,7 @@ const metrics = [
   { label: "Avg. Revenue", value: "Rs. 84K", tone: "warning" as const, icon: BarChart3 },
 ];
 
-export default function AnalyticsPage() {
+export default function Page() {
   const [period, setPeriod] = useState("Monthly");
   const values = period === "Weekly" ? [35, 48, 42, 62, 58, 75, 68] : period === "Yearly" ? [35, 52, 48, 70, 62, 78, 72, 84, 76, 91, 86, 96] : [42, 56, 50, 68, 61, 78, 72, 88, 80, 94, 86, 98];
 
