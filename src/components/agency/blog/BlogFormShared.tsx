@@ -79,61 +79,61 @@ export function BlogFormShared({
 
   });
 
-  
+
 
   useEffect(() => {
-  if (!postId) return;
+    if (!postId) return;
 
-  const loadBlog = async () => {
-    try {
-      const data = localStorage.getItem("funtush_blog_posts");
+    const loadBlog = async () => {
+      try {
+        const data = localStorage.getItem("funtush_blog_posts");
 
-      if (!data) {
-        toast.error("Blog data could not be found.");
-        return;
+        if (!data) {
+          toast.error("Blog data could not be found.");
+          return;
+        }
+
+        const posts: BlogPost[] = JSON.parse(data);
+
+        if (!Array.isArray(posts)) {
+          toast.error("Invalid blog data.");
+          return;
+        }
+
+        const target = posts.find(
+          (post) => String(post.id) === String(postId)
+        );
+
+        if (!target) {
+          toast.error("Blog post could not be found.");
+          return;
+        }
+
+        setTitle(target.title || "");
+        setSubtitle(target.subtitle || "");
+        setHtmlContent(target.htmlContent || "");
+        setCategory(target.category || "");
+        setStatus(target.status || "Draft");
+
+        setPublishDate(
+          target.publishDate || "Jul 19, 2026 10:30 AM"
+        );
+
+        setTag(target.tag || "");
+        setPhotoOption(target.photoOption || "local");
+      } catch (error) {
+        console.error("Failed to load blog:", error);
+
+        toast.error(
+          "Failed to load blog details. Please try again."
+        );
       }
+    };
 
-      const posts: BlogPost[] = JSON.parse(data);
+    loadBlog();
+  }, [postId]);
 
-      if (!Array.isArray(posts)) {
-        toast.error("Invalid blog data.");
-        return;
-      }
 
-      const target = posts.find(
-        (post) => String(post.id) === String(postId)
-      );
-
-      if (!target) {
-        toast.error("Blog post could not be found.");
-        return;
-      }
-
-      setTitle(target.title || "");
-      setSubtitle(target.subtitle || "");
-      setHtmlContent(target.htmlContent || "");
-      setCategory(target.category || "");
-      setStatus(target.status || "Draft");
-
-      setPublishDate(
-        target.publishDate || "Jul 19, 2026 10:30 AM"
-      );
-
-      setTag(target.tag || "");
-      setPhotoOption(target.photoOption || "local");
-    } catch (error) {
-      console.error("Failed to load blog:", error);
-
-      toast.error(
-        "Failed to load blog details. Please try again."
-      );
-    }
-  };
-
-  loadBlog();
-}, [postId]);
-
-  
 
   const clearError = (
     field: keyof FormErrors
@@ -522,43 +522,42 @@ export function BlogFormShared({
 
   return (
     <div className="w-full space-y-6">
+
       {/* Header & Actions */}
 
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-        <div>
+        <div className="min-w-0">
           {/* Breadcrumbs */}
 
-          <div className="flex items-center gap-1 text-sm">
-            <span className="text-neutral-500 dark:text-[#596583]">
+          <div className="flex items-center gap-1 text-xs sm:text-sm overflow-hidden">
+            <span className="text-neutral-500 dark:text-[#596583] whitespace-nowrap">
               Dashboard
             </span>
 
             <ChevronRightIcon
-              className="text-neutral-400"
+              className="text-neutral-400 shrink-0"
               style={{ fontSize: 18 }}
             />
 
-            <span className="text-neutral-500 dark:text-[#596583]">
+            <span className="text-neutral-500 dark:text-[#596583] whitespace-nowrap">
               All Blogs
             </span>
 
             <ChevronRightIcon
-              className="text-neutral-400"
+              className="text-neutral-400 shrink-0"
               style={{ fontSize: 18 }}
             />
 
-            <span className="text-neutral-900 dark:text-[#596583] font-medium">
-              {postId
-                ? "Edit Blog"
-                : "Add Blogs"}
+            <span className="text-neutral-900 dark:text-[#596583] font-medium whitespace-nowrap">
+              {postId ? "Edit Blog" : "Add Blogs"}
             </span>
           </div>
 
-          <h1 className="text-2xl font-bold text-neutral-900 dark:text-[#596583] tracking-tight mt-2">
+          <h1 className="text-xl sm:text-2xl font-bold text-neutral-900 dark:text-[#596583] tracking-tight mt-2">
             All Blogs
           </h1>
 
-          <p className="text-sm text-neutral-500 dark:text-[#596583]">
+          <p className="text-xs sm:text-sm text-neutral-500 dark:text-[#596583]">
             {postId
               ? "Edit and update your blog post"
               : "Create and publish a new blog post"}
@@ -567,18 +566,15 @@ export function BlogFormShared({
 
         {/* Actions */}
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 w-full lg:w-auto">
           {/* Save Draft */}
 
           <button
             type="button"
             onClick={() =>
-              handleSave(
-                undefined,
-                "Draft"
-              )
+              handleSave(undefined, "Draft")
             }
-            className="px-4 py-2.5 bg-[#111B3A] hover:bg-[#1a264a] text-white text-xs font-semibold border border-[#1E293B] transition-colors shadow-sm rounded-md"
+            className="w-full sm:w-auto px-4 py-2.5 bg-[#111B3A] hover:bg-[#1a264a] text-white text-xs font-semibold border border-[#1E293B] transition-colors shadow-sm rounded-md whitespace-nowrap"
           >
             Save as Draft
           </button>
@@ -588,12 +584,9 @@ export function BlogFormShared({
           <button
             type="button"
             onClick={handlePreview}
-            className="flex items-center gap-2 px-4 py-2.5 bg-[#111B3A] hover:bg-[#1a264a] text-white text-xs font-semibold border border-[#1E293B] transition-colors shadow-sm rounded-md"
+            className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2.5 bg-[#111B3A] hover:bg-[#1a264a] text-white text-xs font-semibold border border-[#1E293B] transition-colors shadow-sm rounded-md whitespace-nowrap"
           >
-            <VisibilityIcon
-              style={{ fontSize: 16 }}
-            />
-
+            <VisibilityIcon style={{ fontSize: 16 }} />
             Preview
           </button>
 
@@ -602,17 +595,11 @@ export function BlogFormShared({
           <button
             type="button"
             onClick={() =>
-              handleSave(
-                undefined,
-                "Published"
-              )
+              handleSave(undefined, "Published")
             }
-            className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold shadow-lg shadow-blue-600/20 transition-colors rounded-md"
+            className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold shadow-lg shadow-blue-600/20 transition-colors rounded-md whitespace-nowrap"
           >
-            <AddIcon
-              style={{ fontSize: 16 }}
-            />
-
+            <AddIcon style={{ fontSize: 16 }} />
             Publish
           </button>
         </div>
