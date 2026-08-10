@@ -1,15 +1,14 @@
-import Image from "next/image";
-import Link from "next/link";
 import { notFound } from "next/navigation";
-
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui";
+import Image from "next/image";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui";
 import guidesData from "../../../../../../data/guides.json";
-import { Star } from "lucide-react";
+import Link from "next/link";
+
 
 const statusMap: Record<string, { label: string; color: string }> = {
-  available: { label: "Available", color: "bg-success-100 text-success-800" },
-  on_trek: { label: "On trek", color: "bg-warning-100 text-warning-800" },
-  unavailable: { label: "Unavailable", color: "bg-danger-100 text-danger-800" },
+  available: { label: "Available", color: "bg-green-100 text-green-800" },
+  on_trek: { label: "On Trek", color: "bg-yellow-100 text-yellow-800" },
+  unavailable: { label: "Unavailable", color: "bg-red-100 text-red-800" },
 };
 
 export default async function GuideDetailPage({
@@ -17,46 +16,40 @@ export default async function GuideDetailPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const { id } = await params;
-  const guide = guidesData.find((item) => item.id === id);
-
+  const { id } = await params;  
+  const guide = guidesData.find((g) => g.id === id);
   if (!guide) notFound();
 
-  const statusInfo = statusMap[guide.status] ?? statusMap.unavailable;
-  const initials = guide.name
-    .split(" ")
-    .map((part) => part[0])
-    .slice(0, 2)
-    .join("");
+
+  const statusInfo = statusMap[guide.status] || statusMap.unavailable;
 
   return (
-    <div className="p-4">
-       <Link href="/dashboard/guides" className="text-blue-600 hover:underline mt-4 inline-block">
+    <div className="p-4 max-w-3xl mx-auto">
+      {/* Back link */}
+      <Link
+        href="/dashboard/guides"
+        className="text-sm text-blue-600 hover:underline mb-4 inline-block"
+      >
         ← Back to Guides
       </Link>
 
-      <Card className="max-w-4xl space-y-5 rounded-2xl border-neutral-200 p-5 shadow-sm sm:p-6">
-        <CardHeader className="mb-0 border-b border-neutral-200 pb-5">
+      <Card className="space-y-4">
+        {/* Header */}
+        <CardHeader>
           <div className="flex items-center gap-4">
-            <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-full border-2 border-white bg-primary-100 text-xl font-bold text-primary-900 shadow-sm">
-              {guide.photo ? (
+            <div className="w-20 h-20 rounded-full bg-neutral-200 overflow-hidden shrink-0">
+              {guide.photo && (
                 <Image
                   src={guide.photo}
                   alt={guide.name}
-                  width={160}
-                  height={160}
-                  className="h-full w-full object-cover"
+                  className="w-full h-full object-cover"
                 />
-              ) : (
-                initials
               )}
             </div>
-            <div className="min-w-0">
-              <CardTitle className="truncate text-2xl leading-tight">
-                {guide.name}
-              </CardTitle>
+            <div>
+              <CardTitle className="text-2xl">{guide.name}</CardTitle>
               <span
-                className={`mt-2 inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ${statusInfo.color}`}
+                className={`inline-block text-sm font-medium px-2.5 py-1 rounded-full ${statusInfo.color}`}
               >
                 {statusInfo.label}
               </span>
@@ -64,35 +57,27 @@ export default async function GuideDetailPage({
           </div>
         </CardHeader>
 
-        <CardContent className="grid gap-5 sm:grid-cols-[minmax(0,1fr)_180px] sm:items-end">
+        <CardContent className="space-y-6">
+          {/* Languages */}
           <div>
-            <h3 className="mb-2 text-sm font-semibold text-neutral-700">
+            <h3 className="text-sm font-semibold text-neutral-700 mb-1">
               Languages
             </h3>
-            <div className="flex flex-wrap gap-2">
-              {guide.languages.map((language) => (
+            <div className="flex flex-wrap gap-1">
+              {guide.languages.map((lang) => (
                 <span
-                  key={language}
-                  className="rounded-full border border-primary-100 bg-primary-50 px-2.5 py-1 text-xs font-medium text-primary-800"
+                  key={lang}
+                  className="bg-neutral-100 text-neutral-800 text-xs px-2 py-1 rounded"
                 >
-                  {language}
+                  {lang}
                 </span>
               ))}
             </div>
           </div>
 
-          <div className="rounded-xl border border-neutral-200 bg-neutral-50 px-4 py-3 sm:text-center mt-2">
-            <div className="flex items-center gap-2 sm:justify-center">
-              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-warning-100 text-warning-700">
-                <Star className="h-4 w-4 fill-current" aria-hidden="true" />
-              </span>
-              <span className="text-xl font-bold text-neutral-900">
-                {guide.rating ?? "—"}
-              </span>
-            </div>
-            <p className="mt-1 text-xs font-medium text-neutral-500">
-              Guide rating
-            </p>
+          <div className="bg-neutral-50 p-3 rounded text-center border border-neutral-200">
+            <div className="text-xl font-bold text-black">★ {guide.rating ?? "—"}</div>
+            <div className="text-xs text-neutral-500">Rating</div>
           </div>
         </CardContent>
       </Card>
