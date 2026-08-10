@@ -1,4 +1,4 @@
-import finance from '../../../data/finance.json';
+import finance from '../../../../data/finance.json';
 
 type MonthlyFinanceData = {
   month: string;
