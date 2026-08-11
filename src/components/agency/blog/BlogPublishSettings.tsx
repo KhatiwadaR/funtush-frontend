@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState} from "react";
 import { Card } from "@/components/ui/card";
 import { useTheme } from "@/context/theme";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
@@ -57,7 +57,11 @@ export function BlogPublishSettings({
   const { isDark } = useTheme();
 
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [tagsList, setTagsList] = useState<string[]>([]);
+  
+  // Initialize tagsList from the incoming tag prop if it already contains values
+  const [tagsList, setTagsList] = useState<string[]>(
+    tag ? tag.split(",").map((t) => t.trim()).filter(Boolean) : []
+  );
   const [tagInput, setTagInput] = useState("");
 
   const cardClass = isDark
@@ -120,7 +124,7 @@ export function BlogPublishSettings({
     if (trimmed && !tagsList.includes(trimmed)) {
       const updated = [...tagsList, trimmed];
       setTagsList(updated);
-      setTag(updated.join(", "));
+      setTag(updated.join(", ")); // Now properly passing back to parent through setTag
     }
     setTagInput("");
   };
@@ -128,7 +132,7 @@ export function BlogPublishSettings({
   const handleRemoveTag = (indexToRemove: number) => {
     const updated = tagsList.filter((_, index) => index !== indexToRemove);
     setTagsList(updated);
-    setTag(updated.join(", "));
+    setTag(updated.join(", ")); // Now properly passing back to parent through setTag
   };
 
   const validateFile = (file: File) => {
