@@ -71,18 +71,47 @@ export default function GuideForm({
   const [languages, setLanguages] = useState<string[]>(
     initialData?.languages ?? [],
   );
+  const [languageInput, setLanguageInput] = useState("");
+  const [photoFileName, setPhotoFileName] = useState<string>("");
+  const [dragActive, setDragActive] = useState(false);
   const [certifications, setCertifications] = useState<Certification[]>(
     initialData?.certifications?.length
       ? initialData.certifications
       : [emptyCertification()],
   );
 
+  const addLanguage = (value: string) => {
+    const trimmed = value.trim();
+    if (!trimmed) return;
+    const normalized = trimmed.replace(/,$/, "");
+    if (languages.includes(normalized)) return;
+    setLanguages((current) => [...current, normalized]);
+  };
+
+  const handleLanguageKeyDown = (
+    event: React.KeyboardEvent<HTMLInputElement>,
+  ) => {
+    if (event.key === "Enter" || event.key === ",") {
+      event.preventDefault();
+      addLanguage(languageInput);
+      setLanguageInput("");
+    }
+
+    if (event.key === "Backspace" && !languageInput && languages.length > 0) {
+      setLanguages((current) => current.slice(0, -1));
+    }
+  };
+
+  const removeLanguage = (language: string) => {
+    setLanguages((current) => current.filter((item) => item !== language));
+  };
+
   const toggleLanguage = (language: string) => {
-    setLanguages((current) =>
-      current.includes(language)
-        ? current.filter((item) => item !== language)
-        : [...current, language],
-    );
+    if (languages.includes(language)) {
+      removeLanguage(language);
+    } else {
+      addLanguage(language);
+    }
   };
 
   const updateCertification = (
@@ -97,6 +126,42 @@ export default function GuideForm({
           : certification,
       ),
     );
+  };
+
+  const processFile = (file: File | null | undefined) => {
+    if (!file) return;
+
+    setPhotoFileName(file.name);
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === "string") {
+        setPhoto(reader.result);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handlePhotoFile = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    processFile(file);
+  };
+
+  const handleDrag = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (event.type === "dragenter" || event.type === "dragover") {
+      setDragActive(true);
+    } else if (event.type === "dragleave") {
+      setDragActive(false);
+    }
+  };
+
+  const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setDragActive(false);
+    processFile(event.dataTransfer.files?.[0]);
   };
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -121,7 +186,7 @@ export default function GuideForm({
 
   return (
     <form
-      className="max-w-4xl rounded-2xl border border-neutral-200 bg-white p-5 sm:p-6"
+      className="w-full rounded-2xl border border-neutral-200 bg-white p-5 sm:p-6"
       onSubmit={handleSubmit}
     >
       <div className="border-b border-neutral-200 pb-5">
@@ -161,25 +226,88 @@ export default function GuideForm({
               type="tel"
             />
           </Field>
-          <Field label="Email address" htmlFor="guide-email">
-            <input
-              id="guide-email"
-              className={fieldClassName}
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              placeholder="guide@example.com"
-              type="email"
-            />
-          </Field>
-          <Field label="Profile photo URL" htmlFor="guide-photo">
-            <input
-              id="guide-photo"
-              className={fieldClassName}
-              value={photo}
-              onChange={(event) => setPhoto(event.target.value)}
-              placeholder="/images/guides/suresh.jpg"
-              type="url"
-            />
+
+          <div className="space-y-4">
+            <Field label="Email address" htmlFor="guide-email">
+              <input
+                id="guide-email"
+                className={fieldClassName}
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                placeholder="guide@example.com"
+                type="email"
+              />
+            </Field>
+            <Field label="Languages" htmlFor="guide-languages">
+              <div className="space-y-2">
+                <input
+                  id="guide-languages"
+                  className={fieldClassName}
+                  value={languageInput}
+                  onChange={(event) => setLanguageInput(event.target.value)}
+                  onKeyDown={handleLanguageKeyDown}
+                  placeholder="Type a language and press Enter"
+                  type="text"
+                />
+                <div className="flex flex-wrap gap-2">
+                  {languages.map((language) => (
+                    <button
+                      key={language}
+                      type="button"
+                      onClick={() => removeLanguage(language)}
+                      className="inline-flex items-center gap-2 rounded-full bg-neutral-100 px-3 py-1 text-sm text-neutral-700 transition hover:bg-neutral-200"
+                    >
+                      <span>{language}</span>
+                      <span className="text-neutral-400">×</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </Field>
+          </div>
+
+          <Field label="Upload photo" htmlFor="guide-photo">
+            <div
+              className={`rounded-3xl border-2 border-dashed bg-white p-4 transition ${
+                dragActive ? "border-primary-400 bg-primary-50" : "border-neutral-200"
+              }`}
+              onDragEnter={handleDrag}
+              onDragOver={handleDrag}
+              onDragLeave={handleDrag}
+              onDrop={handleDrop}
+            >
+              <div className="flex flex-col items-center justify-center gap-3 text-center text-sm text-neutral-600">
+                <div className="relative flex h-36 w-full max-w-sm items-center justify-center overflow-hidden rounded-3xl border border-neutral-200 bg-neutral-100">
+                  {photo ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={photo} alt="Guide preview" className="h-full w-full object-cover" />
+                  ) : (
+                    <span className="text-xs text-neutral-500">Drag & drop an image here</span>
+                  )}
+                </div>
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-center">
+                  <label
+                    htmlFor="guide-photo"
+                    className="inline-flex cursor-pointer items-center justify-center rounded-full bg-primary-900 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-800"
+                  >
+                    Choose file
+                  </label>
+                  <span className="text-xs text-neutral-500">
+                    {photoFileName || "No file chosen"}
+                  </span>
+                </div>
+                <input
+                  id="guide-photo"
+                  type="file"
+                  accept="image/*"
+                  className="sr-only"
+                  onChange={handlePhotoFile}
+                />
+              </div>
+            </div>
+            <p className="mt-3 text-xs text-neutral-500">
+              Drag and drop a photo or choose one from your device. If you skip this, a default avatar will be used.
+            </p>
           </Field>
           <Field
             label="Short bio"

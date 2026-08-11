@@ -4,6 +4,7 @@ import { useTheme } from "@/context/theme";
 import { useMemo } from "react";
 import dynamic from "next/dynamic";
 import "react-quill-new/dist/quill.snow.css";
+import { Quill } from "react-quill-new";
 
 const ReactQuill = dynamic(() => import("react-quill-new"), { ssr: false });
 
@@ -15,22 +16,38 @@ interface QuillEditorProps {
 export function QuillEditor({ content, onChange }: QuillEditorProps) {
     const { isDark } = useTheme();
 
-    // Toolbar configurations
     const modules = useMemo(() => ({
         toolbar: [
-            [{ header: [1, 2, 3, false] }],
-            ["bold", "italic", "strike"],
-            [{ list: "ordered" }, { list: "bullet" }],
-            ["blockquote", "link", "image"],
+            [{ header: [1, 2, 3, 4, 5, 6, false] }],
+            ["bold", "italic", "underline", "strike", "code"],
+            [{ color: [] }, { background: [] }],
+            [{ align: [] }],
+            [{ list: "ordered" }, { list: "bullet" }, { indent: "-1" }, { indent: "+1" }],
+            ["blockquote", "code-block"],
+            ["link", "image", "formula"],
             ["clean"],
         ],
     }), []);
 
     const formats = [
         "header",
-        "bold", "italic", "strike",
-        "list", "bullet",
-        "blockquote", "link", "image"
+        "bold",
+        "italic",
+        "underline",
+        "strike",
+        "code",
+        "list",
+        "blockquote",
+        "link",
+        "image",
+        "color",
+        "background",
+        "align",
+        "code-block",
+        "formula",
+        "indent",
+        "direction",
+        "size",
     ];
 
     // Dynamic classes matching your theme variables
@@ -47,7 +64,7 @@ export function QuillEditor({ content, onChange }: QuillEditorProps) {
                 modules={modules}
                 formats={formats}
                 placeholder="Write something amazing..."
-                className="min-h-[250px] flex flex-col"
+                className="min-h-[28rem] flex flex-col"
             />
 
             {/* Global style overrides to seamlessly map Quill onto your Light/Dark Tailwind palette */}
