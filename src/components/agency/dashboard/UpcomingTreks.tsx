@@ -44,12 +44,13 @@ export default function UpcomingTreks({ agencyId }: Props) {
         duration: `${formatDate(startDate)} - ${formatDate(endDate, true)}`,
         currentSeats: `${bookedSeats}/${pkg?.group_size_max}`,
         status: pkg?.status,
+        image: pkg?.image,
       };
     })
     .slice(0, 4);
 
   return (
-    <section className="lg:min-w-[340px] lg:min-h-[305px] flex flex-col gap-[10px] pt-[16px] px-[6px] pb-[10px] rounded-sm bg-white">
+    <section className="lg:min-w-[340px] lg:min-h-[305px] flex flex-col gap-4 pt-[16px] px-[6px] pb-[10px] rounded-sm bg-white">
       <div className="flex justify-between items-center">
         <h3 className="font-semibold text-sm leading-xl">Upcoming Treks</h3>
         <Link
@@ -64,8 +65,14 @@ export default function UpcomingTreks({ agencyId }: Props) {
           return (
             <div key={item.id} className="flex justify-between items-center pr-4">
               <div className="flex gap-3">
-                <Image src="/null" alt="no image" width={82} height={57}></Image>
-                <div className="font-semibold">
+                <Image
+                  src={item.image || '/assets/placeholder.jpg'}
+                  alt="no image"
+                  width={82}
+                  height={57}
+                  className="h-[57px] w-[82px] shrink-0 rounded-sm object-cover"
+                ></Image>
+                <div className="flex flex-col gap-1 font-semibold">
                   <h4 className="text-xs">{item.packageName}</h4>
                   <p className="text-[10px]">{item.duration}</p>
                   <p className="text-[10px]">{`${item.currentSeats} Seats`}</p>
