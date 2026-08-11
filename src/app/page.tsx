@@ -1,7 +1,7 @@
 import Link from 'next/link';
 
 export default function HomePage() {
-  return (
+  return
     <main className="min-h-screen bg-slate-50 p-8 text-slate-900">
       <div className="mx-auto max-w-4xl rounded-3xl border border-slate-200 bg-white p-10 shadow-lg">
         <h1 className="text-4xl font-bold">Funtush Frontend</h1>
@@ -19,10 +19,9 @@ export default function HomePage() {
             href="/dashboard"
             className="rounded-xl bg-slate-900 px-6 py-4 text-center text-white transition hover:bg-slate-800"
           >
-            Dashboard
+            Dashboard                                                          
           </Link>
         </div>
       </div>
     </main>
-  );
 }

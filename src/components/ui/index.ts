@@ -16,3 +16,8 @@ export * from '../shared/forms/Select';
 export * from '../shared/forms/Checkbox';
 export * from '../shared/forms/Textarea';
 export * from '../shared/forms/DatePicker';
+
+// src/components/ui/index.ts
+export { Navbar } from '@/components/navigation/navbar';
+export { Sidebar } from '@/components/navigation/sidebar';
+export { NotificationsDropdown } from '@/components/navigation/notification-dropdown';
