@@ -141,14 +141,14 @@ const config: Config = {
         'sm': ['0.875rem', { lineHeight: '1.25rem' }],  // 14px / 20px
         'xs': ['0.75rem', { lineHeight: '1rem' }],      // 12px / 16px
       },
-      // fontWeight: {
-      //   light: '300',
-      //   normal: '400',
-      //   medium: '500',
-      //   semibold: '600',
-      //   bold: '700',
-      //   extrabold: '800',
-      // },
+      fontWeight: {
+        light: '300',
+        normal: '400',
+        medium: '500',
+        semibold: '600',
+        bold: '700',
+        extrabold: '800',
+      },
       borderRadius: {
         'none': '0px',
         'sm': '2px',     // 2px

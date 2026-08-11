@@ -19,10 +19,9 @@ export default function HomePage() {
             href="/dashboard"
             className="rounded-xl bg-slate-900 px-6 py-4 text-center text-white transition hover:bg-slate-800"
           >
-            Dashboard
+            Dashboard                                                          
           </Link>
         </div>
       </div>
-    </main>
-  );
+    </main>A
 }
