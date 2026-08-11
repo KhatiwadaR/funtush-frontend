@@ -1,8 +1,9 @@
 "use client";
 
+import Link from "next/link";
+import { FileText, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui";
 import type { NewGuide } from "@/hooks/useGuides";
 
 interface Certification {
@@ -35,47 +36,53 @@ interface Guide {
 }
 
 interface GuideFormProps {
-  initialData?: Guide; //pre-fill data when editing
-  onSave: (data: NewGuide) => void; //called when form is submitted
-  isNew?: boolean; //changes the submit button text
+  initialData?: Guide;
+  onSave: (data: NewGuide) => void;
+  isNew?: boolean;
 }
+
+const languageOptions = [
+  "English",
+  "Nepali",
+  "Hindi",
+  "French",
+  "German",
+  "Chinese",
+];
+const emptyCertification = (): Certification => ({
+  name: "",
+  issuingBody: "",
+  number: "",
+  expiry: "",
+});
+const fieldClassName =
+  "w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 outline-none transition placeholder:text-neutral-400 focus:border-primary-500 focus:ring-4 focus:ring-primary-50";
 
 export default function GuideForm({
   initialData,
   onSave,
   isNew = false,
 }: GuideFormProps) {
-  const getInitialCertifications = () =>
+  const [name, setName] = useState(initialData?.name ?? "");
+  const [email, setEmail] = useState(initialData?.email ?? "");
+  const [phone, setPhone] = useState(initialData?.phone ?? "");
+  const [photo, setPhoto] = useState(initialData?.photo ?? "");
+  const [bio, setBio] = useState(initialData?.bio ?? "");
+  const [languages, setLanguages] = useState<string[]>(
+    initialData?.languages ?? [],
+  );
+  const [certifications, setCertifications] = useState<Certification[]>(
     initialData?.certifications?.length
       ? initialData.certifications
-      : [{ name: "", issuingBody: "", number: "", expiry: "" }];
+      : [emptyCertification()],
+  );
 
-  const [name, setName] = useState(initialData?.name || "");
-  const [email, setEmail] = useState(initialData?.email || "");
-  const [phone, setPhone] = useState(initialData?.phone || "");
-  const [photo, setPhoto] = useState(initialData?.photo || "");
-  const [bio, setBio] = useState(initialData?.bio || "");
-  const [languages, setLanguages] = useState<string[]>(initialData?.languages || []);
-  const [certifications, setCertifications] = useState<Certification[]>(getInitialCertifications);
-
-  const languageOptions = [
-    "English",
-    "Nepali",
-    "Hindi",
-    "French",
-    "German",
-    "Chinese",
-  ];
-  // Certification row
-  const addCertificationRow = () => {
-    setCertifications([
-      ...certifications,
-      { name: "", issuingBody: "", number: "", expiry: "" },
-    ]);
-  };
-
-  const removeCertificationRow = (index: number) => {
-    setCertifications(certifications.filter((_, i) => i !== index));
+  const toggleLanguage = (language: string) => {
+    setLanguages((current) =>
+      current.includes(language)
+        ? current.filter((item) => item !== language)
+        : [...current, language],
+    );
   };
 
   const updateCertification = (
@@ -83,261 +90,329 @@ export default function GuideForm({
     field: keyof Certification,
     value: string,
   ) => {
-    const updated = [...certifications];
-    updated[index][field] = value;
-    setCertifications(updated);
+    setCertifications((current) =>
+      current.map((certification, itemIndex) =>
+        itemIndex === index
+          ? { ...certification, [field]: value }
+          : certification,
+      ),
+    );
   };
 
-  // Submit
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
 
-    // Build the guide object
-    const guideData = {
-      name,
-      email,
-      phone,
-      photo: photo || "/images/guides/default.jpg", // fallback image
-      bio,
+    onSave({
+      name: name.trim(),
+      email: email.trim(),
+      phone: phone.trim(),
+      photo: photo.trim() || "/images/guides/default.jpg",
+      bio: bio.trim(),
       languages,
-      certifications,
-      // Defaults for fields that might be missing
-      status: initialData?.status || "available",
-      rating: initialData?.rating || 0,
-      totalTreks: initialData?.totalTreks || 0,
-      upcomingAssignments: initialData?.upcomingAssignments || [],
-    };
-
-    onSave(guideData);
+      certifications: certifications.filter((certification) =>
+        Object.values(certification).some(Boolean),
+      ),
+      status: initialData?.status ?? "available",
+      rating: initialData?.rating ?? 0,
+      totalTreks: initialData?.totalTreks ?? 0,
+      upcomingAssignments: initialData?.upcomingAssignments ?? [],
+    });
   };
 
-  // ---------- Render ----------
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{isNew ? "Add New Guide" : "Edit Guide"}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* ---- Name ---- */}
-          <div>
-            <label className="block text-sm font-medium text-neutral-700">
-              Name *
-            </label>
+    <form
+      className="max-w-4xl rounded-2xl border border-neutral-200 bg-white p-5 sm:p-6"
+      onSubmit={handleSubmit}
+    >
+      <div className="border-b border-neutral-200 pb-5">
+        <h1 className="text-xl font-bold text-neutral-900">
+          {isNew ? "Add new guide" : "Edit guide"}
+        </h1>
+      </div>
+
+      <section className="pt-5" aria-labelledby="guide-details-heading">
+        <div className="mb-4">
+          <h2
+            id="guide-details-heading"
+            className="text-base font-bold text-neutral-900"
+          >
+            Guide details
+          </h2>
+        
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Field label="Full name" htmlFor="guide-name" required>
             <input
-              type="text"
+              id="guide-name"
+              className={fieldClassName}
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={(event) => setName(event.target.value)}
+              placeholder="e.g. Suresh Gurung"
               required
-              className="mt-1 block w-full border border-neutral-300 rounded px-3 py-1.5 text-sm focus:ring-1 focus:ring-blue-500"
             />
-          </div>
-
-          {/* ---- Email ---- */}
-          <div>
-            <label className="block text-sm font-medium text-neutral-700">
-              Email
-            </label>
+          </Field>
+          <Field label="Phone" htmlFor="guide-phone">
             <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 block w-full border border-neutral-300 rounded px-3 py-1.5 text-sm"
-            />
-          </div>
-
-          {/* ---- Phone ---- */}
-          <div>
-            <label className="block text-sm font-medium text-neutral-700">
-              Phone
-            </label>
-            <input
-              type="text"
+              id="guide-phone"
+              className={fieldClassName}
               value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              className="mt-1 block w-full border border-neutral-300 rounded px-3 py-1.5 text-sm"
+              onChange={(event) => setPhone(event.target.value)}
+              placeholder="+977 98…"
+              type="tel"
             />
-          </div>
-
-          {/* ---- Photo URL ---- */}
-          <div>
-            <label className="block text-sm font-medium text-neutral-700">
-              Photo URL
-            </label>
+          </Field>
+          <Field label="Email address" htmlFor="guide-email">
             <input
-              type="text"
+              id="guide-email"
+              className={fieldClassName}
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              placeholder="guide@example.com"
+              type="email"
+            />
+          </Field>
+          <Field label="Profile photo URL" htmlFor="guide-photo">
+            <input
+              id="guide-photo"
+              className={fieldClassName}
               value={photo}
-              onChange={(e) => setPhoto(e.target.value)}
-              placeholder="e.g. /images/guides/suresh.jpg"
-              className="mt-1 block w-full border border-neutral-300 rounded px-3 py-1.5 text-sm"
+              onChange={(event) => setPhoto(event.target.value)}
+              placeholder="/images/guides/suresh.jpg"
+              type="url"
             />
-          </div>
-
-          {/* ---- Bio ---- */}
-          <div>
-            <label className="block text-sm font-medium text-neutral-700">
-              Bio
-            </label>
+          </Field>
+          <Field
+            label="Short bio"
+            htmlFor="guide-bio"
+            className="sm:col-span-2"
+          >
             <textarea
+              id="guide-bio"
+              className={`${fieldClassName} min-h-28 resize-y`}
               value={bio}
-              onChange={(e) => setBio(e.target.value)}
-              rows={3}
-              className="mt-1 block w-full border border-neutral-300 rounded px-3 py-1.5 text-sm"
+              onChange={(event) => setBio(event.target.value)}
+              placeholder="Experience, specialties, and local knowledge…"
+              rows={4}
             />
-          </div>
+          </Field>
+        </div>
+      </section>
 
-          {/* ---- Languages (multi‑select) ---- */}
+      <section
+        className="mt-7 border-t border-neutral-200 pt-5"
+        aria-labelledby="languages-heading"
+      >
+        <h2
+          id="languages-heading"
+          className="text-base font-bold text-neutral-900"
+        >
+          Languages
+        </h2>
+        <p className="mt-1 text-sm text-neutral-500">
+          Select every language the guide can confidently support guests in.
+        </p>
+        <div className="mt-4 flex flex-wrap gap-2">
+          {languageOptions.map((language) => {
+            const selected = languages.includes(language);
+            return (
+              <label
+                key={language}
+                className={`cursor-pointer rounded-full border px-3 py-1.5 text-sm font-medium transition ${selected ? "border-primary-600 bg-primary-50 text-primary-800" : "border-neutral-300 bg-white text-neutral-600 hover:border-primary-300"}`}
+              >
+                <input
+                  className="sr-only"
+                  type="checkbox"
+                  checked={selected}
+                  onChange={() => toggleLanguage(language)}
+                />
+                {language}
+              </label>
+            );
+          })}
+        </div>
+      </section>
+
+      <section
+        className="mt-7 border-t border-neutral-200 pt-5"
+        aria-labelledby="certifications-heading"
+      >
+        <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <label className="block text-sm font-medium text-neutral-700">
-              Languages
-            </label>
-            <select
-              multiple
-              value={languages}
-              onChange={(e) => {
-                const selected = Array.from(
-                  e.target.selectedOptions,
-                  (opt) => opt.value,
-                );
-                setLanguages(selected);
-              }}
-              className="mt-1 block w-full border border-neutral-300 rounded px-3 py-1.5 text-sm h-auto min-h-20"
+            <h2
+              id="certifications-heading"
+              className="text-base font-bold text-neutral-900"
             >
-              {languageOptions.map((lang) => (
-                <option key={lang} value={lang}>
-                  {lang}
-                </option>
-              ))}
-            </select>
-            <p className="text-xs text-neutral-500 mt-1">
-              Hold Ctrl (Cmd on Mac) to select multiple
+              Certifications
+            </h2>
+            <p className="mt-1 text-sm text-neutral-500">
+              Keep license and safety certification details up to date.
             </p>
           </div>
+          <button
+            className="inline-flex items-center gap-1.5 rounded-xl border border-primary-200 bg-primary-50 px-3 py-2 text-sm font-semibold text-primary-800 hover:bg-primary-100"
+            type="button"
+            onClick={() =>
+              setCertifications((current) => [...current, emptyCertification()])
+            }
+          >
+            <Plus className="h-4 w-4" aria-hidden="true" /> Add certification
+          </button>
+        </div>
 
-          {/* ---- Certifications ---- */}
-          <div>
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-semibold text-neutral-700">
-                Certifications
-              </h3>
-              <button
-                type="button"
-                onClick={addCertificationRow}
-                className="text-sm text-blue-600 hover:underline"
-              >
-                + Add Row
-              </button>
-            </div>
-            {certifications.map((cert, index) => (
-              <div
-                key={index}
-                className="border border-neutral-200 rounded p-3 mt-2 space-y-2"
-              >
-                <div className="flex gap-2">
-                  <div className="flex-1">
-                    <label className="block text-xs text-neutral-600">
-                      Cert Name
-                    </label>
-                    <input
-                      type="text"
-                      value={cert.name}
-                      onChange={(e) =>
-                        updateCertification(index, "name", e.target.value)
-                      }
-                      className="w-full border border-neutral-300 rounded px-2 py-1 text-sm"
-                    />
-                  </div>
-                  <div className="flex-1">
-                    <label className="block text-xs text-neutral-600">
-                      Issuing Body
-                    </label>
-                    <input
-                      type="text"
-                      value={cert.issuingBody}
-                      onChange={(e) =>
-                        updateCertification(
-                          index,
-                          "issuingBody",
-                          e.target.value,
-                        )
-                      }
-                      className="w-full border border-neutral-300 rounded px-2 py-1 text-sm"
-                    />
-                  </div>
-                </div>
-                <div className="flex gap-2">
-                  <div className="flex-1">
-                    <label className="block text-xs text-neutral-600">
-                      Cert Number
-                    </label>
-                    <input
-                      type="text"
-                      value={cert.number}
-                      onChange={(e) =>
-                        updateCertification(index, "number", e.target.value)
-                      }
-                      className="w-full border border-neutral-300 rounded px-2 py-1 text-sm"
-                    />
-                  </div>
-                  <div className="flex-1">
-                    <label className="block text-xs text-neutral-600">
-                      Expiry Date
-                    </label>
-                    <input
-                      type="date"
-                      value={cert.expiry}
-                      onChange={(e) =>
-                        updateCertification(index, "expiry", e.target.value)
-                      }
-                      className="w-full border border-neutral-300 rounded px-2 py-1 text-sm"
-                    />
-                  </div>
-                  <div className="flex items-end">
-                    <button
-                      type="button"
-                      onClick={() => removeCertificationRow(index)}
-                      className="text-red-600 text-sm hover:underline"
-                    >
-                      Remove
-                    </button>
-                  </div>
-                </div>
-                {/* Document upload – optional */}
-                <div>
-                  <label className="block text-xs text-neutral-600">
-                    Upload Document (optional)
-                  </label>
-                  <input
-                    type="file"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) {
-                        updateCertification(index, "document", file.name);
-                      }
-                    }}
-                    className="w-full border border-neutral-300 rounded px-2 py-1 text-sm"
-                  />
-                  {cert.document && (
-                    <span className="text-xs text-neutral-500">
-                      📄 {cert.document}
-                    </span>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* ---- Action Buttons ---- */}
-          <div className="flex gap-3 pt-2">
-            <button
-              type="submit"
-              className="bg-blue-600 text-white px-4 py-2 rounded text-sm hover:bg-blue-700"
+        <div className="mt-4 space-y-3">
+          {certifications.map((certification, index) => (
+            <div
+              key={index}
+              className="rounded-xl border border-neutral-200 bg-neutral-50/60 p-4"
             >
-              {isNew ? "Create Guide" : "Update Guide"}
-            </button>
-          </div>
-        </form>
-      </CardContent>
-    </Card>
+              <div className="mb-3 flex items-center justify-between gap-3">
+                <p className="text-sm font-semibold text-neutral-700">
+                  Certification {index + 1}
+                </p>
+                {certifications.length > 1 && (
+                  <button
+                    className="inline-flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-sm font-medium text-danger-700 hover:bg-danger-50"
+                    type="button"
+                    onClick={() =>
+                      setCertifications((current) =>
+                        current.filter((_, itemIndex) => itemIndex !== index),
+                      )
+                    }
+                  >
+                    <Trash2 className="h-4 w-4" aria-hidden="true" /> Remove
+                  </button>
+                )}
+              </div>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <Field
+                  label="Certification name"
+                  htmlFor={`cert-name-${index}`}
+                >
+                  <input
+                    id={`cert-name-${index}`}
+                    className={fieldClassName}
+                    value={certification.name}
+                    onChange={(event) =>
+                      updateCertification(index, "name", event.target.value)
+                    }
+                    placeholder="e.g. Wilderness First Aid"
+                  />
+                </Field>
+                <Field label="Issuing body" htmlFor={`cert-issuer-${index}`}>
+                  <input
+                    id={`cert-issuer-${index}`}
+                    className={fieldClassName}
+                    value={certification.issuingBody}
+                    onChange={(event) =>
+                      updateCertification(
+                        index,
+                        "issuingBody",
+                        event.target.value,
+                      )
+                    }
+                    placeholder="Organization name"
+                  />
+                </Field>
+                <Field
+                  label="Certificate number"
+                  htmlFor={`cert-number-${index}`}
+                >
+                  <input
+                    id={`cert-number-${index}`}
+                    className={fieldClassName}
+                    value={certification.number}
+                    onChange={(event) =>
+                      updateCertification(index, "number", event.target.value)
+                    }
+                    placeholder="Certificate ID"
+                  />
+                </Field>
+                <Field label="Expiry date" htmlFor={`cert-expiry-${index}`}>
+                  <input
+                    id={`cert-expiry-${index}`}
+                    className={fieldClassName}
+                    value={certification.expiry}
+                    onChange={(event) =>
+                      updateCertification(index, "expiry", event.target.value)
+                    }
+                    type="date"
+                  />
+                </Field>
+                <Field
+                  label="Supporting document"
+                  htmlFor={`cert-document-${index}`}
+                  className="sm:col-span-2"
+                >
+                  <input
+                    id={`cert-document-${index}`}
+                    className="block w-full text-sm text-neutral-600 file:mr-3 file:rounded-lg file:border-0 file:bg-white file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-primary-800 hover:file:bg-primary-50"
+                    type="file"
+                    onChange={(event) =>
+                      updateCertification(
+                        index,
+                        "document",
+                        event.target.files?.[0]?.name ?? "",
+                      )
+                    }
+                  />
+                  {certification.document && (
+                    <p className="mt-2 flex items-center gap-1.5 text-xs text-neutral-500">
+                      <FileText className="h-3.5 w-3.5" aria-hidden="true" />
+                      {certification.document}
+                    </p>
+                  )}
+                </Field>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <div className="mt-7 flex flex-col-reverse gap-3 border-t border-neutral-200 pt-5 sm:flex-row sm:justify-end">
+        <Link
+          href="/dashboard/guides"
+          className="rounded-xl border border-neutral-300 bg-white px-4 py-2 text-center text-sm font-semibold text-neutral-700 hover:bg-neutral-50"
+        >
+          Cancel
+        </Link>
+        <button
+          className="rounded-xl bg-primary-900 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-800 focus:outline-none focus:ring-4 focus:ring-primary-100"
+          type="submit"
+        >
+          {isNew ? "Create guide" : "Save changes"}
+        </button>
+      </div>
+    </form>
+  );
+}
+
+function Field({
+  label,
+  htmlFor,
+  required = false,
+  className,
+  children,
+}: {
+  label: string;
+  htmlFor: string;
+  required?: boolean;
+  className?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className={className}>
+      <label
+        className="mb-1.5 block text-sm font-semibold text-neutral-700"
+        htmlFor={htmlFor}
+      >
+        {label}
+        {required && (
+          <span className="ml-1 text-danger-600" aria-hidden="true">
+            *
+          </span>
+        )}
+      </label>
+      {children}
+    </div>
   );
 }
