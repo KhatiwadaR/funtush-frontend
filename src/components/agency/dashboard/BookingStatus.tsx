@@ -46,7 +46,7 @@ export default function BookingStatus({ agencyId }: Props) {
   const totalBookings = bookingStatus.reduce((total, item) => total + item.count, 0);
 
   return (
-    <section className="w-full flex flex-col gap-2 pt-[24px] px-[22px] rounded-sm bg-white shadow-sm">
+    <section className="lg:min-w-[300px] lg:min-h-[305px] flex flex-col gap-2 pt-[24px] px-[22px] rounded-sm bg-white shadow-sm">
       <div className="flex item-center justify-between">
         <h3 className="text-[14px] font-semibold leading-[20px]">Booking Status</h3>
         <label htmlFor="months"></label>
@@ -55,7 +55,7 @@ export default function BookingStatus({ agencyId }: Props) {
           id="months"
           value={selectedMonth}
           onChange={(e) => setSelectedMonth(e.target.value)}
-          className="text-[10px] border border-[#F2F2F7] rounded px-[4px] py-[5px] gap-2 outline-none focus:ring-2 focus:ring-blue-500"
+          className="text-[10px] border border-neutral-100 rounded px-[4px] py-[5px] gap-2 outline-none focus:ring-2 focus:ring-blue-500"
         >
           {monthArr.map((month) => (
             <option key={month} value={month}>

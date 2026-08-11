@@ -21,7 +21,7 @@ export default function AgencyDashboardPage() {
   const activeSos = ''; // Placeholder for active SOS check
   const user = users[0].name.split(' ')[0];
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 text-neutral-900">
       <div className="flex items-end justify-between gap-3">
         <div>
           <div className="flex items-center gap-2 text-sm text-neutral-500">

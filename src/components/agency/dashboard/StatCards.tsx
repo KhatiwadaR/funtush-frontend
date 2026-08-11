@@ -65,14 +65,14 @@ export default function StatCards({ agencyId }: Props) {
         return (
           <div
             key={item.label}
-            className="w-full flex item-center justify-between gap-x-4 rounded-lg py-[9px] px-[10px] bg-[#FFFFFF] shadow-sm"
+            className="w-full flex item-center justify-between gap-x-4 rounded-lg py-[9px] px-[10px] bg-white"
           >
-            <div className="flex flex-col gap-y-[3px] whitespace-nowrap">
+            <div className="flex flex-col gap-y-2 whitespace-nowrap py-[7px]">
               <h3 className="text-xs font-semibold">{item.label}</h3>
               <p className="text-sm font-semibold">{item.amount}</p>
               <p className="text-xs font-semibold text-[#34C759]">
                 <span>
-                  <PlayArrowIcon sx={{ transform: 'rotate(270deg)' }} />
+                  <PlayArrowIcon className="m-[-4px]" sx={{ transform: 'rotate(270deg)' }} />
                 </span>
                 {`${item.sub}%`}
               </p>

@@ -49,7 +49,7 @@ export default function UpcomingTreks({ agencyId }: Props) {
     .slice(0, 4);
 
   return (
-    <section className="flex flex-col gap-[10px] pt-[16px] px-[6px] pb-[10px] rounded-sm bg-white">
+    <section className="lg:min-w-[340px] lg:min-h-[305px] flex flex-col gap-[10px] pt-[16px] px-[6px] pb-[10px] rounded-sm bg-white">
       <div className="flex justify-between items-center">
         <h3 className="font-semibold text-sm leading-xl">Upcoming Treks</h3>
         <Link
@@ -65,7 +65,7 @@ export default function UpcomingTreks({ agencyId }: Props) {
             <div key={item.id} className="flex justify-between items-center pr-4">
               <div className="flex gap-3">
                 <Image src="/null" alt="no image" width={82} height={57}></Image>
-                <div className="font-semibold leading-[17px]">
+                <div className="font-semibold">
                   <h4 className="text-xs">{item.packageName}</h4>
                   <p className="text-[10px]">{item.duration}</p>
                   <p className="text-[10px]">{`${item.currentSeats} Seats`}</p>
