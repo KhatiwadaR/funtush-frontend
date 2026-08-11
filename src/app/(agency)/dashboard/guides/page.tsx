@@ -459,7 +459,7 @@ export default function GuidesPage() {
         <AnalyticsSummaryCard label="Certs Expiring" value={stats.expiring} tone="danger" icon={AlertTriangle} />
       </div>
 
-      {/* <div className="grid gap-3 sm:grid-cols-[minmax(240px,1fr)_180px_180px]">
+      <div className="grid gap-3 sm:grid-cols-[minmax(240px,1fr)_180px_180px]">
         <label className="relative block">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
           <input
@@ -493,7 +493,7 @@ export default function GuidesPage() {
             </option>
           ))}
         </select>
-      </div> */}
+      </div>
 
       <div className="overflow-x-auto border-t border-neutral-200 bg-white/90 w-full">
           <table className="min-w-full w-full text-left text-sm text-neutral-700">
