@@ -72,10 +72,10 @@ export default function RevenueOverview({ agencyId }: Props) {
   getDisplayableData('expenses', expenseArr, chartdata);
 
   return (
-    <section className="flex flex-col gap-y-8 rounded-sm bg-[#fff] px-[12px] py-[15px] shadow-sm">
+    <section className="lg:min-w-[500px] lg:min-h-[305px] flex flex-col gap-y-8 rounded-sm bg-[#fff] px-[12px] py-[15px] shadow-sm">
       <div className="flex justify-between">
         <div className="flex flex-col gap-2">
-          <h3 className="font-roboto font-semibold text-sm leading-sm">Revenue Overview</h3>
+          <h3 className="font-roboto font-semibold text-sm">Revenue Overview</h3>
           <div className="flex gap-2">
             <label htmlFor="months"></label>
             <select
@@ -83,7 +83,7 @@ export default function RevenueOverview({ agencyId }: Props) {
               id="months"
               value={selectedMonth}
               onChange={(e) => setSelectedMonth(e.target.value)}
-              className="text-[10px] border border-[#F2F2F7] rounded px-[4px] py-[5px] gap-2 outline-none focus:ring-2 focus:ring-blue-500"
+              className="text-[10px] border border-neutral-100 rounded px-[4px] py-[5px] gap-2 outline-none focus:ring-2 focus:ring-blue-500"
             >
               {monthArr.map((month) => (
                 <option key={month} value={month}>
@@ -91,10 +91,10 @@ export default function RevenueOverview({ agencyId }: Props) {
                 </option>
               ))}
             </select>
-            <button className="text-sm font-semibold" onClick={() => setShowRevenue(!showRevenue)}>
+            <button className="text-[10px] font-semibold" onClick={() => setShowRevenue(!showRevenue)}>
               <span className={getLegendIndicatorClass(showRevenue)}>-- </span>Revenue
             </button>
-            <button className="text-sm font-semibold" onClick={() => setShowExpenses(!showExpenses)}>
+            <button className="text-[10px] font-semibold" onClick={() => setShowExpenses(!showExpenses)}>
               <span className={getLegendIndicatorClass(showExpenses)}>-- </span>Expenses
             </button>
           </div>
@@ -105,7 +105,7 @@ export default function RevenueOverview({ agencyId }: Props) {
             <p className="text-[10px]">Total Revenue</p>
           </div>
           <div className="w-[2px] h-full bg-[#625B71]"></div>
-          <div className="flex flex-col gap-1 items-center font-roboto font-semibold">
+          <div className="flex flex-col gap-1 items-center font-roboto font-semibold text-[#625B71]">
             <p className="text-xl">{`Rs ${chartdata.reduce((sum, item) => sum + item.expenses, 0).toLocaleString()}`}</p>
             <p className="text-[10px]">Total Expenses</p>
           </div>
@@ -123,7 +123,7 @@ export default function RevenueOverview({ agencyId }: Props) {
             }}
           >
             {/* Light grid like the second screenshot */}
-            <CartesianGrid stroke="#e5e7eb" strokeDasharray="0" vertical={true} horizontal={true} />
+            <CartesianGrid stroke="var(--color-neutral-200)" strokeDasharray="0" vertical={true} horizontal={true} />
 
             {/* X axis */}
             <XAxis
@@ -132,7 +132,7 @@ export default function RevenueOverview({ agencyId }: Props) {
               tickLine={false}
               tick={{
                 fontSize: 10,
-                fill: '#6b6478',
+                fill: 'var(--color-neutral-500)',
               }}
               tickMargin={10}
             />
@@ -143,17 +143,17 @@ export default function RevenueOverview({ agencyId }: Props) {
               tickLine={false}
               tick={{
                 fontSize: 10,
-                fill: '#6b6478',
+                fill: 'var(--color-neutral-500)',
               }}
               tickFormatter={(value) => {
                 if (value === 0) return 'Rs0';
-                return `Rs${value / 1000}K`;
+                return `Rs ${value / 1000}K`;
               }}
               tickMargin={10}
             />
 
             {/* Optional tooltip */}
-            <Tooltip formatter={(value) => `Rs${Number(value).toLocaleString()}`} />
+            <Tooltip formatter={(value) => `Rs ${Number(value).toLocaleString()}`} />
 
             {/* Revenue */}
             {showRevenue && (
@@ -187,4 +187,4 @@ export default function RevenueOverview({ agencyId }: Props) {
 }
 
 const getLegendIndicatorClass = (isActive: boolean) =>
-  `font-bold text-2xl ${isActive ? 'text-[#14C935]' : 'text-[#D3F1BF]'}`;
+  `relative top-[2px] font-bold text-xl ${isActive ? 'text-[#14C935]' : 'text-[#D3F1BF]'}`;

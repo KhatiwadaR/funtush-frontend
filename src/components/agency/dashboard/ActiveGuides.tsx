@@ -1,6 +1,5 @@
 'use client';
 
-import Image from 'next/image';
 import Link from 'next/link';
 import guides from '@/../data/guides.json';
 import Battery4BarIcon from '@mui/icons-material/Battery4Bar';
@@ -9,7 +8,7 @@ export default function ActiveGuides() {
   const activeGuides = guides.filter((guide) => guide.status === 'on_trek');
 
   return (
-    <section className="flex flex-col gap-4 rounded-sm bg-white p-6 shadow-sm">
+    <section className="lg:min-w-[240px] lg:min-h-[175px] flex flex-col gap-4 rounded-sm bg-white p-2 shadow-sm">
       <div className="flex justify-between items-center">
         <h3 className="font-semibold text-sm leading-[20px]">Active Guides on Trek</h3>
         <Link
@@ -22,19 +21,28 @@ export default function ActiveGuides() {
 
       {activeGuides.map((guide) => (
         <div className="flex items-center justify-between gap-6" key={guide.id}>
-          <div className="flex items-center gap-4">
-            <Image src={guide.photo} alt="guide's image" width={40} height={40} className="rounded-full" />
-            <div className="flex flex-col gap-1 text-xs">
+          <div className="flex gap-2">
+            <div className="w-[20px] h-[20px] flex justify-center items-center p-3 rounded-full bg-[#FF8D28] font-semibold text-[9px]">
+              {getCapitalLetter(guide.name)}
+            </div>
+            <div className="flex flex-col gap-1 font-[500] text-[10px]">
               <p>{guide.name}</p>
               <p>Rating: {guide.rating.toFixed(1)} . On trek</p>
             </div>
           </div>
-          <div className="flex items-center gap-4">
-            <span className="text-xs font-semibold text-success-700">● LIVE</span>
-            <Battery4BarIcon sx={{ transform: 'rotate(90deg)' }} className="text-success-700" />
+          <div className="flex gap-4">
+            <span className="self-start text-[10px] font-semibold text-success-700 whitespace-nowrap">
+              <span className="relative top-[2px] text-lg">●</span> LIVE
+            </span>
+            <Battery4BarIcon sx={{ transform: 'rotate(90deg)' }} className="self-end text-success-700" />
           </div>
         </div>
       ))}
     </section>
   );
 }
+
+const getCapitalLetter = (name: string) => {
+  const nameArr = name.toUpperCase().split(' ');
+  return nameArr[0].slice(0, 1) + nameArr[1].slice(0, 1);
+};

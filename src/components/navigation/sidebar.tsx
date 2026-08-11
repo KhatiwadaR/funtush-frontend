@@ -1,7 +1,6 @@
-//src/components/navigation/sidebar.tsx
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { X } from 'lucide-react';
@@ -16,7 +15,6 @@ import {
   ChevronLeft,
   CompassCalibrationOutlined,
   DashboardCustomizeOutlined,
-  
   Inventory2Outlined,
   ManageAccountsOutlined,
   PersonOutlineOutlined,
@@ -50,10 +48,8 @@ type SidebarProps = {
 export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
   const pathname = usePathname();
   const { isDark } = useTheme();
-  const [openSection, setOpenSection] = useState<string | null>('operations');
 
-  const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
-
+  // Navigation Data Structure (Preserved exact data)
   const navigationGroups: Array<{ label: string; items: NavItem[] }> = [
     {
       label: 'Main',
@@ -93,147 +89,305 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
     },
   ];
 
+  // Helper function to evaluate active route states
+  const isActive = (href?: string) => {
+    if (!href) return false;
+    if (href === '/dashboard') return pathname === '/dashboard';
+    return pathname === href || pathname.startsWith(`${href}/`);
+  };
+
+  // State for accordion items with children (keyed by item label)
+  const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({});
+
+  // Automatically expand parent items if a child route is currently active
+  useEffect(() => {
+    navigationGroups.forEach((group) => {
+      group.items.forEach((item) => {
+        if (item.children?.some((child) => isActive(child.href))) {
+          setExpandedItems((prev) => ({ ...prev, [item.label]: true }));
+        }
+      });
+    });
+  }, [pathname]);
+
+  const toggleExpand = (label: string) => {
+    setExpandedItems((prev) => ({ ...prev, [label]: !prev[label] }));
+  };
+
   if (!isOpen) return null;
 
-  const asideClass = isDark
-    ? 'fixed left-0 top-16 bottom-0 z-40 w-72 overflow-y-auto border-r border-slate-800 bg-slate-950 text-slate-200 shadow-xl'
-    : 'fixed left-0 top-16 bottom-0 z-40 w-72 overflow-y-auto border-r border-neutral-200 bg-white text-neutral-900 shadow-sm';
-
-  const headerClass = isDark ? 'flex items-start justify-between border-b border-slate-800 px-4 py-4' : 'flex items-start justify-between border-b border-neutral-200 px-4 py-4';
-
-  const cardClass = isDark ? 'flex items-center gap-3 rounded-3xl border border-slate-800 bg-slate-900 px-4 py-4' : 'flex items-center gap-3 rounded-3xl border border-neutral-200 bg-neutral-50 px-4 py-4';
-
-  const closeBtnClass = isDark
-    ? 'inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-slate-800 bg-slate-900 text-slate-300 transition hover:bg-slate-800 focus:outline-none'
-    : 'inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-neutral-200 bg-white text-neutral-700 transition hover:bg-neutral-50 focus:outline-none';
-
   return (
-    <aside className={asideClass}>
-      <div className={headerClass}>
-        <div className={cardClass}>
-          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-indigo-600 text-white shadow-sm">
-            <CompassCalibrationOutlined className="h-5 w-5" />
-          </div>
-          <div>
-            <p className={isDark ? 'text-sm font-semibold text-white' : 'text-sm font-semibold text-neutral-900'}>FUNTUSh</p>
-            <p className={isDark ? 'text-xs text-slate-400' : 'text-xs text-neutral-500'}>Digital Marketing</p>
-          </div>
-        </div>
-        <button
-          type="button"
-          onClick={onClose}
-          aria-label="Close sidebar"
-          className={closeBtnClass}
+    <>
+      {/* Backdrop for Mobile Overlay */}
+      <div
+        className="fixed inset-0 z-30 bg-black/40 backdrop-blur-sm md:hidden"
+        onClick={onClose}
+        aria-hidden="true"
+      />
+
+      {/* Sidebar Container */}
+      <aside
+        className={cn(
+          'fixed left-0 top-16 bottom-0 z-40 w-72 flex flex-col border-r transition-all duration-300 ease-in-out select-none',
+          isDark
+            ? 'border-slate-800 bg-slate-950 text-slate-200 shadow-2xl'
+            : 'border-neutral-200 bg-white text-neutral-900 shadow-sm'
+        )}
+      >
+        {/* Header Section */}
+        <div
+          className={cn(
+            'flex items-center justify-between border-b px-4 py-3.5',
+            isDark ? 'border-slate-800/80' : 'border-neutral-100'
+          )}
         >
-          <X className="h-4 w-4" />
-        </button>
-      </div>
+          <div
+            className={cn(
+              'flex flex-1 items-center gap-3 rounded-2xl border px-3 py-2.5 transition-colors',
+              isDark
+                ? 'border-slate-800 bg-slate-900/60'
+                : 'border-neutral-200/80 bg-neutral-50/80'
+            )}
+          >
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#6C72FF] text-white shadow-sm shadow-[#6C72FF]/20">
+              <CompassCalibrationOutlined className="h-5 w-5" />
+            </div>
+            <div className="overflow-hidden">
+              <p className={cn('text-xs font-bold truncate', isDark ? 'text-white' : 'text-neutral-900')}>
+                FUNTUSh
+              </p>
+              <p className={cn('text-[11px] truncate', isDark ? 'text-slate-400' : 'text-neutral-500')}>
+                Digital Marketing
+              </p>
+            </div>
+          </div>
 
-      <div className="flex-1 overflow-y-auto px-3 py-4">
-        {navigationGroups.map((group) => (
-          <div key={group.label} className="mb-5">
-            <p className={`mb-3 px-3 text-[11px] font-semibold uppercase tracking-[0.25em] ${isDark ? 'text-slate-500' : 'text-neutral-500'}`}>
-              {group.label}
-            </p>
-            <nav className="space-y-1">
-              {group.items.map((item) => {
-                const Icon = item.icon;
-                const hasChildren = Boolean(item.children?.length);
-                const isGroupActive = hasChildren
-                  ? item.children!.some((child) => isActive(child.href))
-                  : Boolean(item.href && isActive(item.href));
-                const showChildren = openSection === group.label && hasChildren && isGroupActive;
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close sidebar"
+            className={cn(
+              'ml-2 inline-flex h-9 w-9 items-center justify-center rounded-xl border transition focus:outline-none focus:ring-2 focus:ring-[#6C72FF]',
+              isDark
+                ? 'border-slate-800 bg-slate-900 text-slate-400 hover:bg-slate-800 hover:text-white'
+                : 'border-neutral-200 bg-white text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900'
+            )}
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
 
-                return (
-                  <div key={item.label}>
-                    {hasChildren ? (
-                      <button
-                        type="button"
-                        onClick={() => setOpenSection((prev) => (prev === group.label ? null : group.label))}
-                        className={cn(
-                          'flex w-full items-center justify-between rounded-3xl px-3 py-3 text-sm font-medium transition-colors',
-                          isGroupActive
-                            ? (isDark ? 'bg-cyan-500/10 text-white' : 'bg-cyan-50 text-neutral-900')
-                            : (isDark ? 'text-slate-300 hover:bg-slate-900 hover:text-white' : 'text-neutral-700 hover:bg-neutral-50')
-                        )}
-                      >
-                        <span className="flex items-center gap-3">
-                          <Icon className={cn('h-4 w-4', isGroupActive ? (isDark ? 'text-indigo-600' : 'text-indigo-600') : (isDark ? 'text-neutral-500' : 'text-neutral-400'))} />
-                          {item.label}
-                        </span>
-                        <span className="flex items-center gap-2">
-                          {item.badge ? (
-                            <span className="rounded-full bg-rose-500 px-2 py-0.5 text-[10px] font-semibold text-white">
-                              {item.badge}
-                            </span>
-                          ) : null}
-                          {showChildren ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-                        </span>
-                      </button>
-                    ) : (
-                      <Link
-                        href={item.href!}
-                        className={cn(
-                          'flex items-center justify-between rounded-3xl px-3 py-3 text-sm font-medium transition-colors',
-                          isGroupActive
-                            ? (isDark ? 'bg-cyan-500/10 text-white' : 'bg-cyan-50 text-neutral-900')
-                            : (isDark ? 'text-slate-300 hover:bg-slate-900 hover:text-white' : 'text-neutral-700 hover:bg-neutral-50')
-                        )}
-                      >
-                        <span className="flex items-center gap-3">
-                          <Icon className={cn('h-5 w-5', isGroupActive ? (isDark ? 'text-cyan-300' : 'text-cyan-600') : (isDark ? 'text-slate-400' : 'text-neutral-500'))} />
-                          {item.label}
-                        </span>
-                        {item.badge ? (
-                          <span className="rounded-full bg-rose-500 px-2 py-0.5 text-[10px] font-semibold text-white">
-                            {item.badge}
-                          </span>
-                        ) : null}
-                      </Link>
-                    )}
+        {/* Navigation Group Items */}
+        <div className="flex-1 overflow-y-auto px-3 py-4 space-y-6">
+          {navigationGroups.map((group) => (
+            <div key={group.label}>
+              <p
+                className={cn(
+                  'mb-2 px-3 text-[11px] font-bold uppercase tracking-wider',
+                  isDark ? 'text-slate-500' : 'text-neutral-400'
+                )}
+              >
+                {group.label}
+              </p>
 
-                    {hasChildren && showChildren ? (
-                      <div className={`mt-2 space-y-2 rounded-3xl px-3 py-3 ${isDark ? 'border border-slate-800 bg-slate-900' : 'border border-neutral-200 bg-neutral-50'}`}>
-                        {item.children!.map((child) => {
-                          const ChildIcon = child.icon;
-                          const childActive = isActive(child.href);
+              <nav className="space-y-1">
+                {group.items.map((item) => {
+                  const Icon = item.icon;
+                  const hasChildren = Boolean(item.children?.length);
+                  const isParentActive = hasChildren
+                    ? item.children!.some((child) => isActive(child.href))
+                    : isActive(item.href);
+                  const isExpanded = Boolean(expandedItems[item.label]);
 
-                          return (
-                            <Link
-                              key={child.label}
-                              href={child.href}
+                  return (
+                    <div key={item.label}>
+                      {hasChildren ? (
+                        /* Parent Accordion Button */
+                        <button
+                          type="button"
+                          onClick={() => toggleExpand(item.label)}
+                          className={cn(
+                            'flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-xs font-semibold transition-all duration-150',
+                            isParentActive
+                              ? isDark
+                                ? 'bg-[#6C72FF]/15 text-[#6C72FF]'
+                                : 'bg-[#6C72FF]/10 text-[#6C72FF]'
+                              : isDark
+                              ? 'text-slate-300 hover:bg-slate-900 hover:text-white'
+                              : 'text-neutral-700 hover:bg-neutral-100/70 hover:text-neutral-900'
+                          )}
+                        >
+                          <span className="flex items-center gap-3">
+                            <Icon
                               className={cn(
-                                'flex items-center gap-3 rounded-2xl px-3 py-2 text-sm transition-colors',
-                                childActive
-                                  ? (isDark ? 'bg-slate-800 text-white' : 'bg-cyan-50 text-neutral-900')
-                                  : (isDark ? 'text-slate-400 hover:bg-slate-900 hover:text-white' : 'text-neutral-600 hover:bg-neutral-50')
+                                'h-4 w-4',
+                                isParentActive
+                                  ? 'text-[#6C72FF]'
+                                  : isDark
+                                  ? 'text-slate-400'
+                                  : 'text-neutral-400'
+                              )}
+                            />
+                            {item.label}
+                          </span>
+
+                          <span className="flex items-center gap-2">
+                            {item.badge && (
+                              <span className="rounded-full bg-[#6C72FF] px-2 py-0.5 text-[10px] font-bold text-white">
+                                {item.badge}
+                              </span>
+                            )}
+                            {isExpanded ? (
+                              <ChevronLeft className="h-4 w-4 -rotate-90 transition-transform duration-200" />
+                            ) : (
+                              <ChevronRight className="h-4 w-4 transition-transform duration-200" />
+                            )}
+                          </span>
+                        </button>
+                      ) : (
+                        /* Direct Navigation Link */
+                        <Link
+                          href={item.href!}
+                          className={cn(
+                            'flex items-center justify-between rounded-xl px-3 py-2.5 text-xs font-semibold transition-all duration-150',
+                            isParentActive
+                              ? 'bg-[#6C72FF] text-white shadow-sm shadow-[#6C72FF]/20'
+                              : isDark
+                              ? 'text-slate-300 hover:bg-slate-900 hover:text-white'
+                              : 'text-neutral-700 hover:bg-neutral-100/70 hover:text-neutral-900'
+                          )}
+                        >
+                          <span className="flex items-center gap-3">
+                            <Icon
+                              className={cn(
+                                'h-4 w-4',
+                                isParentActive
+                                  ? 'text-white'
+                                  : isDark
+                                  ? 'text-slate-400'
+                                  : 'text-neutral-400'
+                              )}
+                            />
+                            {item.label}
+                          </span>
+
+                          {item.badge && (
+                            <span
+                              className={cn(
+                                'rounded-full px-2 py-0.5 text-[10px] font-bold',
+                                isParentActive
+                                  ? 'bg-white/20 text-white'
+                                  : 'bg-[#6C72FF]/10 text-[#6C72FF]'
                               )}
                             >
-                              {ChildIcon ? <ChildIcon className="h-4 w-4" /> : <span className="h-2 w-2 rounded-full bg-neutral-300" />}
-                              {child.label}
-                            </Link>
-                          );
-                        })}
-                      </div>
-                    ) : null}
-                  </div>
-                );
-              })}
-            </nav>
-          </div>
-        ))}
-      </div>
+                              {item.badge}
+                            </span>
+                          )}
+                        </Link>
+                      )}
 
-      <div className={isDark ? 'border-t border-slate-800 px-4 py-4' : 'border-t border-neutral-200 px-4 py-4'}>
-        <div className={isDark ? 'rounded-3xl border border-slate-800 bg-slate-900 px-4 py-4 text-sm text-slate-300' : 'rounded-3xl border border-neutral-200 bg-neutral-50 px-4 py-4 text-sm text-neutral-700'}>
-          <p className={isDark ? 'font-semibold text-white' : 'font-semibold text-neutral-900'}>Daily Summary</p>
-          <p className={isDark ? 'mt-2 text-xs text-slate-500' : 'mt-2 text-xs text-neutral-500'}>You have 5 pending approvals and 2 new messages.</p>
-          <div className="mt-4 grid gap-2 text-xs">
-            <span className={isDark ? 'rounded-2xl bg-slate-950 px-3 py-2' : 'rounded-2xl bg-neutral-100 px-3 py-2'}>Bookings: 24</span>
-            <span className={isDark ? 'rounded-2xl bg-slate-950 px-3 py-2' : 'rounded-2xl bg-neutral-100 px-3 py-2'}>Revenue: $12,400</span>
+                      {/* Sub-menu Navigation Links */}
+                      {hasChildren && isExpanded && (
+                        <div
+                          className={cn(
+                            'mt-1 ml-4 space-y-1 border-l pl-3 py-1',
+                            isDark ? 'border-slate-800' : 'border-neutral-200'
+                          )}
+                        >
+                          {item.children!.map((child) => {
+                            const ChildIcon = child.icon;
+                            const childActive = isActive(child.href);
+
+                            return (
+                              <Link
+                                key={child.label}
+                                href={child.href}
+                                className={cn(
+                                  'flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-xs font-medium transition-colors',
+                                  childActive
+                                    ? isDark
+                                      ? 'bg-slate-800/80 text-white font-semibold'
+                                      : 'bg-[#6C72FF]/10 text-[#6C72FF] font-semibold'
+                                    : isDark
+                                    ? 'text-slate-400 hover:bg-slate-900 hover:text-slate-200'
+                                    : 'text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900'
+                                )}
+                              >
+                                {ChildIcon ? (
+                                  <ChildIcon
+                                    className={cn(
+                                      'h-3.5 w-3.5',
+                                      childActive
+                                        ? isDark
+                                          ? 'text-[#6C72FF]'
+                                          : 'text-[#6C72FF]'
+                                        : 'text-neutral-400'
+                                    )}
+                                  />
+                                ) : (
+                                  <span
+                                    className={cn(
+                                      'h-1.5 w-1.5 rounded-full',
+                                      childActive ? 'bg-[#6C72FF]' : 'bg-neutral-300'
+                                    )}
+                                  />
+                                )}
+                                {child.label}
+                              </Link>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </nav>
+            </div>
+          ))}
+        </div>
+
+        {/* Daily Summary Footer Section */}
+        <div
+          className={cn(
+            'border-t p-3',
+            isDark ? 'border-slate-800/80 bg-slate-950' : 'border-neutral-200 bg-white'
+          )}
+        >
+          <div
+            className={cn(
+              'rounded-2xl border p-3 text-xs transition-colors',
+              isDark
+                ? 'border-slate-800 bg-slate-900/50 text-slate-300'
+                : 'border-neutral-200/70 bg-neutral-50/70 text-neutral-700'
+            )}
+          >
+            <p className={cn('font-bold', isDark ? 'text-white' : 'text-neutral-900')}>
+              Daily Summary
+            </p>
+            <p className={cn('mt-1 text-[11px] leading-snug', isDark ? 'text-slate-400' : 'text-neutral-500')}>
+              You have 5 pending approvals and 2 new messages.
+            </p>
+            <div className="mt-3 grid grid-cols-2 gap-2 text-[11px] font-semibold">
+              <div
+                className={cn(
+                  'rounded-xl px-2.5 py-1.5 text-center',
+                  isDark ? 'bg-slate-950 text-slate-300' : 'bg-white border border-neutral-200/60 text-neutral-800'
+                )}
+              >
+                Bookings: <span className="text-[#6C72FF]">24</span>
+              </div>
+              <div
+                className={cn(
+                  'rounded-xl px-2.5 py-1.5 text-center',
+                  isDark ? 'bg-slate-950 text-slate-300' : 'bg-white border border-neutral-200/60 text-neutral-800'
+                )}
+              >
+                Revenue: <span className="text-emerald-600">$12.4k</span>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-    </aside>
+      </aside>
+    </>
   );
 };

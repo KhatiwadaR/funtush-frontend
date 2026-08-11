@@ -9,7 +9,7 @@ type Props = {
   agencyId: string;
 };
 
-const tableStyles = 'grid grid-cols-5';
+const tableStyles = 'grid grid-cols-5 gap-2';
 const headerStyles = 'font-[500] text-sm text-[#505055]';
 const dataStyles = 'font-[500] text-[10px]';
 
@@ -42,8 +42,8 @@ export default function RecentBookings({ agencyId }: Props) {
   });
 
   return (
-    <section className="flex flex-col gap-4 rounded-lg px-2 py-2 bg-white shadow-sm">
-      <div className="flex justify-between items-center">
+    <section className="flex flex-col gap-1 rounded-lg px-2 py-2 bg-white shadow-sm">
+      <div className="flex justify-between items-center mb-2">
         <h3 className="font-semibold text-sm">Recent Bookings</h3>
         <Link
           href="/dashboard/bookings"
@@ -59,17 +59,17 @@ export default function RecentBookings({ agencyId }: Props) {
         <span className={headerStyles}>Amount</span>
         <span className={headerStyles}>Status</span>
       </div>
-      <hr className="w-full border-2 border-[#F2F2F7]" />
+      <hr className="w-full border border-[#F2F2F7] mb-1" />
       {recentBookingArr.map((booking) => {
         return (
           <div key={booking.id} className={`${tableStyles}`}>
-            <span className={dataStyles}>
-              <AccountCircleIcon />
+            <span className={`${dataStyles} flex item-center`}>
+              <AccountCircleIcon className="block" />
               {booking.customer}
             </span>
             <span className={dataStyles}>{booking.packageName}</span>
             <span className={dataStyles}>{booking.bookingDate}</span>
-            <span className={dataStyles}>${booking.amount}</span>
+            <span className={dataStyles}>Rs {booking.amount.toLocaleString()}</span>
             <span
               className={`justify-self-start self-center rounded-full px-2 py-1 ${dataStyles} ${statusStyles[booking.status as keyof typeof statusStyles]}`}
             >

@@ -151,7 +151,8 @@
     "start_date": "2026-09-18",
     "status": "published",
     "difficulty": "Moderate",
-    "available_slots": 8
+    "available_slots": 8,
+    "image": "/assets/everest.png"
   },
   {
     "id": "pkg-1002",
@@ -179,7 +180,8 @@
     "start_date": "2026-08-27",
     "status": "available",
     "difficulty": "Moderate",
-    "available_slots": 5
+    "available_slots": 5,
+    "image": "/assets/langtang.png"
   },
   {
     "id": "pkg-1004",
@@ -193,7 +195,8 @@
     "start_date": "2026-09-11",
     "status": "confirmed",
     "difficulty": "Challenging",
-    "available_slots": 4
+    "available_slots": 4,
+    "image": "/assets/manaslu.png"
   },
   {
     "id": "pkg-1005",
@@ -207,6 +210,7 @@
     "start_date": "2026-09-22",
     "status": "pending",
     "difficulty": "Easy-Moderate",
-    "available_slots": 10
+    "available_slots": 10,
+    "image": "/assets/ghorepani.png"
   }
 ]

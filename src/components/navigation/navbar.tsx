@@ -1,7 +1,22 @@
+'use client';
+
 import React, { useState } from 'react';
-import { Bell, Menu, MessageCircle, Moon, Search, SunMedium,X } from 'lucide-react';
 import Link from 'next/link';
+import {
+  Bell,
+  Menu,
+  MessageCircle,
+  Moon,
+  Search,
+  SunMedium,
+  X,
+  User,
+  LogOut,
+  Settings,
+} from 'lucide-react';
 import { useTheme } from '@/context/theme';
+import { cn } from '@/lib/utils/cn';
+import { NotificationsDropdown } from './notification-dropdown';
 
 type NavbarProps = {
   sidebarOpen?: boolean;
@@ -16,24 +31,28 @@ export const Navbar: React.FC<NavbarProps> = ({
   isDarkMode,
   onDarkModeToggle,
 }) => {
-  const [isMobileMenuOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+
   const canToggleSidebar = typeof onSidebarToggle === 'function';
+
   const theme = useTheme();
   const effectiveIsDark = typeof isDarkMode === 'boolean' ? isDarkMode : theme.isDark;
   const effectiveToggle = onDarkModeToggle ?? theme.toggle;
-  // const baseBtnClass = effectiveIsDark
-  //   ? 'border-slate-800 bg-slate-900 text-slate-200 hover:bg-slate-800'
-  //   : 'border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-50';
+
   const searchBgClass = effectiveIsDark
-    ? 'border-slate-800 bg-slate-900/95 text-slate-200 placeholder:text-slate-500 shadow-sm'
-    : 'border-neutral-200 bg-white text-neutral-900 placeholder:text-neutral-500 shadow-sm';
-  const searchFocusClass = effectiveIsDark
-    ? 'focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20'
-    : 'focus:border-slate-700 focus:ring-2 focus:ring-slate-700/20';
-  const subtitleColorClass = effectiveIsDark ? 'text-slate-100' : 'text-slate-700';
-  const iconBtnWrapper = 'inline-flex p-2 rounded focus:outline-none';
-  const iconColorClass = effectiveIsDark ? 'text-slate-200 hover:text-white' : 'text-neutral-700 hover:text-neutral-900';
+    ? 'border-slate-800 bg-slate-900/90 text-slate-200 placeholder:text-slate-500 shadow-sm'
+    : 'border-neutral-200 bg-neutral-50 text-neutral-900 placeholder:text-neutral-400 shadow-sm';
+
+  const searchFocusClass = 'focus:border-[#6C72FF] focus:ring-2 focus:ring-[#6C72FF]/20';
+
+  const iconBtnClass = cn(
+    'relative flex h-10 w-10 items-center justify-center rounded-xl transition focus:outline-none focus:ring-2 focus:ring-[#6C72FF]',
+    effectiveIsDark
+      ? 'text-slate-300 hover:bg-slate-900 hover:text-white'
+      : 'text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900'
+  );
 
   const navLinks = [
     { label: 'Dashboard', href: '/dashboard' },
@@ -43,98 +62,199 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   return (
     <nav
-      className={`fixed inset-x-0 top-0 z-50 border-b backdrop-blur-xl ${
+      className={cn(
+        'fixed inset-x-0 top-0 z-50 h-16 border-b backdrop-blur-xl transition-colors select-none',
         effectiveIsDark
-          ? 'border-slate-800 bg-slate-950/95'
-          : 'border-neutral-200 bg-white/95'
-      }`}
+          ? 'border-slate-800 bg-slate-950/95 text-slate-200'
+          : 'border-neutral-200 bg-white/95 text-neutral-900'
+      )}
     >
-      <div className="mx-auto flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto flex h-full items-center justify-between px-4 sm:px-6 lg:px-8">
+        {/* Left Section: Sidebar Toggle & Branding */}
         <div className="flex items-center gap-3">
           {canToggleSidebar && (
             <button
               type="button"
               onClick={onSidebarToggle}
               aria-label={sidebarOpen ? 'Close sidebar' : 'Open sidebar'}
-              className={iconBtnWrapper}
+              className={iconBtnClass}
             >
-              {sidebarOpen ? <X className={`h-5 w-5 ${iconColorClass}`} /> : <Menu className={`h-5 w-5 ${iconColorClass}`} />}
+              {sidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
           )}
 
           <div className="flex flex-col">
             <span
-              className="inline-flex items-center rounded-full border border-[#1c3762] px-2 py-1 text-xs font-semibold uppercase tracking-[0.4em] text-[#0077ff]"
+              className="inline-flex w-fit items-center rounded-full border border-[#1c3762] px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.3em] text-[#0077ff]"
               style={{ fontFamily: 'VAG Round Next Shine, Arial, Helvetica, sans-serif' }}
             >
               FUNTUSh
             </span>
-            <span className={`text-sm font-semibold ${subtitleColorClass}`}>Digital Marketing Dashboard</span>
+            <span
+              className={cn(
+                'text-xs font-bold tracking-tight',
+                effectiveIsDark ? 'text-slate-200' : 'text-neutral-800'
+              )}
+            >
+              Digital Marketing Dashboard
+            </span>
           </div>
         </div>
 
-        <div className="hidden md:flex flex-1 items-center justify-center px-4">
-          <label className="relative w-full max-w-xl">
-            <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
+        {/* Center Section: Global Search Bar */}
+        <div className="hidden md:flex flex-1 items-center justify-center px-8">
+          <label className="relative w-full max-w-lg">
+            <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
             <input
               type="search"
               placeholder="Search for anything..."
-              className={`w-full rounded-full py-3 pl-12 pr-4 text-sm outline-none transition ${searchBgClass} ${searchFocusClass}`}
+              className={cn(
+                'w-full rounded-xl py-2 pl-10 pr-4 text-xs font-medium outline-none transition',
+                searchBgClass,
+                searchFocusClass
+              )}
             />
           </label>
         </div>
 
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            className={`${iconBtnWrapper} relative`}
-          >
-            <Bell className={`h-5 w-5 ${iconColorClass}`} />
-            <span className="absolute -right-1 -top-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-rose-500 px-1.5 text-[10px] font-semibold text-white">
-              3
-            </span>
-          </button>
+        {/* Right Section: Notification, Messaging, Theme Toggle & User Dropdown */}
+        <div className="flex items-center gap-1.5 sm:gap-2">
+          {/* Notifications Trigger & Dropdown */}
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => {
+                setIsNotificationsOpen((prev) => !prev);
+                setIsUserDropdownOpen(false);
+              }}
+              aria-label="Notifications"
+              className={iconBtnClass}
+            >
+              <Bell className="h-5 w-5" />
+              <span className="absolute top-1.5 right-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-rose-500 px-1 text-[9px] font-bold text-white ring-2 ring-white dark:ring-slate-950">
+                2
+              </span>
+            </button>
 
-          <button
-            type="button"
-            className={`${iconBtnWrapper} relative`}
-          >
-            <MessageCircle className={`h-5 w-5 ${iconColorClass}`} />
-            <span className="absolute -right-1 -top-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-emerald-500 px-1.5 text-[10px] font-semibold text-white">
+            <NotificationsDropdown
+              isOpen={isNotificationsOpen}
+              onClose={() => setIsNotificationsOpen(false)}
+            />
+          </div>
+
+          {/* Messages Button */}
+          <button type="button" aria-label="Messages" className={iconBtnClass}>
+            <MessageCircle className="h-5 w-5" />
+            <span className="absolute top-1.5 right-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-emerald-500 px-1 text-[9px] font-bold text-white ring-2 ring-white dark:ring-slate-950">
               2
             </span>
           </button>
 
+          {/* Theme Toggle Button */}
           <button
             type="button"
             onClick={effectiveToggle}
-            className={iconBtnWrapper}
+            aria-label="Toggle theme"
+            className={iconBtnClass}
           >
-            {effectiveIsDark ? <Moon className={`h-5 w-5 ${iconColorClass}`} /> : <SunMedium className={`h-5 w-5 ${iconColorClass}`} />}
+            {effectiveIsDark ? <Moon className="h-5 w-5" /> : <SunMedium className="h-5 w-5" />}
           </button>
 
-          <div className="relative">
+          {/* Vertical Separator */}
+          <div
+            className={cn(
+              'h-6 w-px mx-1 hidden sm:block',
+              effectiveIsDark ? 'bg-slate-800' : 'bg-neutral-200'
+            )}
+          />
+
+          {/* User Avatar & Dropdown Popover */}
+          <div className="relative ml-1">
             <button
               type="button"
-              onClick={() => setIsUserDropdownOpen((prev) => !prev)}
-              className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-cyan-500 text-slate-950 shadow-md shadow-cyan-500/20 transition hover:bg-cyan-400 focus:outline-none"
+              onClick={() => {
+                setIsUserDropdownOpen((prev) => !prev);
+                setIsNotificationsOpen(false);
+              }}
+              aria-label="User menu"
+              className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#6C72FF] text-white font-bold text-xs shadow-sm shadow-[#6C72FF]/20 transition hover:bg-[#5a60e0] focus:outline-none focus:ring-2 focus:ring-[#6C72FF]"
             >
-              <span className="text-sm font-bold">GA</span>
+              MR
             </button>
 
             {isUserDropdownOpen && (
               <>
-                <div className="fixed inset-0 z-10" onClick={() => setIsUserDropdownOpen(false)} />
-                <div className="absolute right-0 top-full z-20 mt-3 w-64 rounded-3xl border border-slate-800 bg-slate-950 p-3 shadow-xl shadow-black/20">
-                  <div className="rounded-3xl border border-slate-800 bg-slate-900 p-4">
-                    <p className="text-sm font-semibold text-slate-100">Manisha Rai</p>
-                    <p className="mt-1 text-xs text-slate-500">Agency Admin</p>
+                <div
+                  className="fixed inset-0 z-10"
+                  onClick={() => setIsUserDropdownOpen(false)}
+                  aria-hidden="true"
+                />
+                <div
+                  className={cn(
+                    'absolute right-0 top-full z-20 mt-2 w-60 rounded-2xl border p-2.5 shadow-2xl transition-all',
+                    effectiveIsDark
+                      ? 'border-slate-800 bg-slate-950 text-slate-200'
+                      : 'border-neutral-200 bg-white text-neutral-900'
+                  )}
+                >
+                  <div
+                    className={cn(
+                      'rounded-xl border p-3',
+                      effectiveIsDark
+                        ? 'border-slate-800 bg-slate-900/60'
+                        : 'border-neutral-100 bg-neutral-50'
+                    )}
+                  >
+                    <p
+                      className={cn(
+                        'text-xs font-bold',
+                        effectiveIsDark ? 'text-white' : 'text-neutral-900'
+                      )}
+                    >
+                      Manisha Rai
+                    </p>
+                    <p
+                      className={cn(
+                        'text-[11px] font-medium',
+                        effectiveIsDark ? 'text-slate-400' : 'text-neutral-500'
+                      )}
+                    >
+                      Agency Admin
+                    </p>
                   </div>
-                  <div className="mt-3 space-y-2">
-                    <button className="w-full rounded-2xl border border-slate-800 bg-slate-900 px-4 py-3 text-left text-sm text-slate-200 transition hover:bg-slate-800">
+
+                  <div className="mt-2 space-y-1">
+                    <Link
+                      href="/dashboard/profile"
+                      onClick={() => setIsUserDropdownOpen(false)}
+                      className={cn(
+                        'flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-semibold transition',
+                        effectiveIsDark
+                          ? 'text-slate-300 hover:bg-slate-900 hover:text-white'
+                          : 'text-neutral-700 hover:bg-neutral-100 hover:text-neutral-900'
+                      )}
+                    >
+                      <User className="h-4 w-4" />
                       Profile Settings
-                    </button>
-                    <button className="w-full rounded-2xl border border-slate-800 bg-slate-900 px-4 py-3 text-left text-sm text-rose-300 transition hover:bg-rose-950/80">
+                    </Link>
+                    <Link
+                      href="/dashboard/settings"
+                      onClick={() => setIsUserDropdownOpen(false)}
+                      className={cn(
+                        'flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-semibold transition',
+                        effectiveIsDark
+                          ? 'text-slate-300 hover:bg-slate-900 hover:text-white'
+                          : 'text-neutral-700 hover:bg-neutral-100 hover:text-neutral-900'
+                      )}
+                    >
+                      <Settings className="h-4 w-4" />
+                      Account Settings
+                    </Link>
+                    <button
+                      type="button"
+                      className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-semibold text-rose-500 transition hover:bg-rose-500/10"
+                    >
+                      <LogOut className="h-4 w-4" />
                       Logout
                     </button>
                   </div>
@@ -143,30 +263,47 @@ export const Navbar: React.FC<NavbarProps> = ({
             )}
           </div>
 
-          {/* Online status removed per request */}
+          {/* Mobile Navigation Trigger */}
+          <button
+            type="button"
+            onClick={() => setIsMobileMenuOpen((prev) => !prev)}
+            aria-label="Toggle mobile menu"
+            className={cn(iconBtnClass, 'md:hidden')}
+          >
+            {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
         </div>
       </div>
 
-      {/* Notification summary removed per UX request */}
-
+      {/* Mobile Navigation Menu Dropdown */}
       {isMobileMenuOpen && (
-        <div className="md:hidden border-t border-slate-800 bg-slate-950 px-4 pb-4 pt-3">
-          <div className="space-y-2">
-            {navLinks.map((link) => (
-              <Link
-                key={link.label}
-                href={link.href}
-                className="block rounded-2xl border border-slate-800 bg-slate-900 px-4 py-3 text-sm text-slate-200 transition hover:bg-slate-800"
-              >
-                {link.label}
-              </Link>
-            ))}
-          </div>
-          {/* mobile notification summary removed */}
+        <div
+          className={cn(
+            'md:hidden border-t px-4 py-3 space-y-2',
+            effectiveIsDark
+              ? 'border-slate-800 bg-slate-950'
+              : 'border-neutral-200 bg-white'
+          )}
+        >
+          {navLinks.map((link) => (
+            <Link
+              key={link.label}
+              href={link.href}
+              onClick={() => setIsMobileMenuOpen(false)}
+              className={cn(
+                'block rounded-xl px-3.5 py-2.5 text-xs font-semibold transition',
+                effectiveIsDark
+                  ? 'bg-slate-900 text-slate-200 hover:bg-slate-800 hover:text-white'
+                  : 'bg-neutral-50 text-neutral-800 hover:bg-neutral-100 hover:text-neutral-900'
+              )}
+            >
+              {link.label}
+            </Link>
+          ))}
         </div>
       )}
     </nav>
   );
-}
+};
 
 export default Navbar;
