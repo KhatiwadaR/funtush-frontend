@@ -86,14 +86,14 @@ export function TipTapEditor({ content, onChange }: TipTapEditorProps) {
         return "Paragraphs";
     };
 
-    // Dynamic classes based on theme
+    // Dynamic classes without borders on the outer card container
     const containerClass = isDark
-        ? "border-[#1E293B] bg-[#0d1b32] text-slate-200"
-        : "border-neutral-200 bg-white text-neutral-800";
+        ? "bg-[#0d1b32] text-slate-200"
+        : "bg-white text-neutral-800 border border-neutral-300 shadow-sm";
 
     const toolbarContainerClass = isDark
-        ? "bg-[#111B3A] border-[#1E293B]"
-        : "bg-neutral-50 border-neutral-200";
+        ? "bg-[#111B3A] border-b border-[#1E293B]"
+        : "bg-neutral-50 border-b border-neutral-200";
 
     const dropdownButtonClass = isDark
         ? "bg-[#162947] hover:bg-[#1f365c] text-slate-300 border-[#233a5e]"
@@ -115,9 +115,9 @@ export function TipTapEditor({ content, onChange }: TipTapEditorProps) {
         : "text-neutral-500 hover:bg-neutral-100 hover:text-neutral-900";
 
     return (
-        <div className={`border rounded-xl overflow-hidden shadow-lg transition-colors duration-200 ${containerClass}`}>
+        <div className={`rounded-xl overflow-hidden transition-colors duration-200 ${containerClass}`}>
             {/* Toolbar Container */}
-            <div className={`border-b p-2 flex flex-wrap gap-1.5 items-center justify-between select-none ${toolbarContainerClass}`}>
+            <div className={`p-2 flex flex-wrap gap-1.5 items-center justify-between select-none ${toolbarContainerClass}`}>
                 
                 {/* Left side formatting controls */}
                 <div className="flex flex-wrap gap-1.5 items-center">
@@ -283,7 +283,7 @@ export function TipTapEditor({ content, onChange }: TipTapEditorProps) {
             {/* Editor Content Area */}
             <EditorContent
                 editor={editor}
-                className={`prose prose-sm max-w-none p-4 min-h-[250px] outline-hidden leading-relaxed font-normal ${
+                className={`prose prose-sm max-w-none p-4 min-h-[250px] focus:outline-none focus:ring-0 focus-visible:outline-none leading-relaxed font-normal ${
                     isDark ? "prose-invert text-slate-300" : "text-neutral-800"
                 } [&_.is-editor-empty:first-child::before]:text-neutral-400 [&_.is-editor-empty:first-child::before]:content-[attr(data-placeholder)] [&_.is-editor-empty:first-child::before]:float-left [&_.is-editor-empty:first-child::before]:pointer-events-none`}
             />

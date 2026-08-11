@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState } from "react";
@@ -58,6 +57,8 @@ export function BlogPublishSettings({
   const { isDark } = useTheme();
 
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [tagsList, setTagsList] = useState<string[]>([]);
+  const [tagInput, setTagInput] = useState("");
 
   const cardClass = isDark
     ? "bg-[#111B3A] text-white border-[#1E293B]"
@@ -114,8 +115,20 @@ export function BlogPublishSettings({
     }
   };
 
-  const handleTagChange = (value: string) => {
-    setTag(value);
+  const handleAddTag = (newTag: string) => {
+    const trimmed = newTag.trim();
+    if (trimmed && !tagsList.includes(trimmed)) {
+      const updated = [...tagsList, trimmed];
+      setTagsList(updated);
+      setTag(updated.join(", "));
+    }
+    setTagInput("");
+  };
+
+  const handleRemoveTag = (indexToRemove: number) => {
+    const updated = tagsList.filter((_, index) => index !== indexToRemove);
+    setTagsList(updated);
+    setTag(updated.join(", "));
   };
 
   const validateFile = (file: File) => {
@@ -300,32 +313,53 @@ export function BlogPublishSettings({
       {/* Tag */}
       <div className="space-y-1.5">
         <label className="block font-bold text-xs">
-          Tag
+          Tags
         </label>
 
-        <select
-          value={tag}
-          onChange={(e) =>
-            handleTagChange(e.target.value)
-          }
-          className={`w-full rounded-xl border px-3.5 py-3 text-xs focus:outline-none focus:ring-2 shadow-sm ${selectClass}`}
-        >
-          <option value="">
-            Select a tag
-          </option>
+        <div className={`w-full rounded-xl border px-3 py-2 text-xs shadow-sm ${inputClass}`}>
+          {/* Render Tag Pills */}
+          <div className="flex flex-wrap gap-1.5 mb-1.5">
+            {tagsList.map((t, index) => (
+              <span
+                key={index}
+                className="inline-flex items-center gap-1 bg-blue-600 text-white text-[11px] px-2 py-0.5 rounded-md"
+              >
+                {t}
+                <button
+                  type="button"
+                  onClick={() => handleRemoveTag(index)}
+                  className="hover:text-red-200 font-bold ml-0.5"
+                >
+                  &times;
+                </button>
+              </span>
+            ))}
+          </div>
 
-          <option value="marketing">
-            Marketing
-          </option>
-
-          <option value="seo">
-            SEO
-          </option>
-
-          <option value="tips">
-            Tips
-          </option>
-        </select>
+          {/* Simple Input with Add Button (No Dropdown) */}
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={tagInput}
+              onChange={(e) => setTagInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  handleAddTag(tagInput);
+                }
+              }}
+              placeholder="Type a tag and press add..."
+              className="w-full bg-transparent focus:outline-none text-xs py-1"
+            />
+            <button
+              type="button"
+              onClick={() => handleAddTag(tagInput)}
+              className="px-3 py-1 bg-blue-600 text-white rounded-lg text-xs font-medium hover:bg-blue-500 transition-colors shrink-0"
+            >
+              Add
+            </button>
+          </div>
+        </div>
 
         <p
           className={`text-[11px] ${secondaryText} mt-1`}
@@ -430,4 +464,3 @@ export function BlogPublishSettings({
     </Card>
   );
 }
-
