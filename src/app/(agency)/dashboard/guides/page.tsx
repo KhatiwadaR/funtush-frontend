@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, AlertTriangle, Search, Compass, Footprints, CheckCircle2, Download } from "lucide-react";
+import { Plus, AlertTriangle, Search, Compass, Footprints, CheckCircle2, Download, ChevronRight } from "lucide-react";
 import { DeleteOutlined, EditOutlined, VisibilityOutlined } from "@mui/icons-material";
 import { Pagination } from "@/components/ui/pagination";
 import { Modal } from "@/components/ui/modal";
@@ -407,14 +407,30 @@ export default function GuidesPage() {
 
   return (
     <div className="space-y-4 w-full">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between w-full">
-        <h1 className="mt-2 text-2xl font-semibold text-neutral-900">Guides</h1>
+      <h1 className="mt-2 text-2xl font-semibold text-neutral-900">Guides</h1>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="space-y-1">
-          <div className="flex items-center gap-2 text-sm text-neutral-500"><button type="button" onClick={() => router.push("/dashboard")} className="hover:text-neutral-900">Dashboard</button><span className="text-neutral-300">/</span><span className="font-semibold text-neutral-900">All Guides</span></div>
+          <div className="flex items-center gap-2 text-sm text-neutral-500">
+            <button
+              type="button"
+              onClick={() => router.push("/dashboard")}
+              className="hover:text-neutral-900"
+            >
+              Guides
+            </button>
+            <span className="text-neutral-300">
+              <ChevronRight size={15} />
+            </span>
+            <span className="font-semibold text-neutral-900">All Guides</span>
+          </div>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          <button type="button" onClick={() => router.push("/dashboard/guides/new")} className="inline-flex items-center gap-2 rounded-xl bg-primary-800 px-3 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-800 shadow-sm">
+          <button
+            type="button"
+            onClick={() => router.push("/dashboard/guides/new")}
+            className="inline-flex items-center gap-2 rounded-xl bg-primary-800 px-3 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-800 shadow-sm"
+          >
             <Plus className="h-4 w-4" />
             Add Guide
           </button>
