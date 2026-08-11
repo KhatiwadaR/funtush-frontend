@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   Add,
   DeleteOutlined,
@@ -9,7 +10,10 @@ import {
   Search,
   VisibilityOutlined,
 } from "@mui/icons-material";
+import { BarChart3, CheckCircle2, Eye, Package as PackageIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Pagination } from "@/components/ui/pagination";
+import { AnalyticsSummaryCard } from "@/components/shared/AnalyticsSummaryCard";
 import packagesJson from "../../../../../data/packages.json";
 
 interface RawPackage {
@@ -69,14 +73,43 @@ const formatNpr = (value: number) => `Rs. ${value.toLocaleString("en-IN")}`;
 
 export default function PackagesPage() {
   const agencyId = "ag-001";
+  const router = useRouter();
 
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<Package["status"] | "">("");
   const [sortBy, setSortBy] = useState<"latest" | "price" | "duration">("latest");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [packages, setPackages] = useState<Package[]>(() => {
+    try {
+      const stored = typeof window !== "undefined" ? localStorage.getItem("packages") : null;
+      if (!stored) return packageRows;
+      const storedPackages = JSON.parse(stored) as Array<Partial<Package> & {
+        destination?: string;
+        duration?: number;
+        maxGroup?: number;
+        basePrice?: number;
+        dates?: Array<{ date: string; slots: number }>;
+        addons?: Array<{ name: string }>;
+      }>;
+      return storedPackages.map((pkg) => ({
+        ...(pkg as Package),
+        destination: pkg.destination ?? pkg.destination_slug?.replace(/-/g, " ") ?? "",
+        price_npr: pkg.price_npr ?? Math.round(((pkg.price_usd ?? pkg.basePrice ?? 0) as number) * 133),
+      }));
+    } catch {
+      return packageRows;
+    }
+  });
+  const [actionDialog, setActionDialog] = useState<{
+    type: "edit" | "delete";
+    package: Package;
+  } | null>(null);
+
+  // packages are initialized lazily above; no setState in effect required.
 
   const agencyPackages = useMemo(
-    () => packageRows.filter((pkg) => pkg.agency_id === agencyId),
-    [agencyId]
+    () => packages.filter((pkg) => pkg.agency_id === agencyId),
+    [agencyId, packages]
   );
 
   const filteredPackages = useMemo(() => {
@@ -100,29 +133,48 @@ export default function PackagesPage() {
       }, {}),
     [agencyPackages]
   );
+  const publishedPackages = agencyPackages.filter((pkg) => pkg.status === "published").length;
+  const draftPackages = agencyPackages.filter((pkg) => pkg.status === "draft").length;
+  const packageValue = agencyPackages.reduce((total, pkg) => total + pkg.price_npr, 0).toLocaleString("en-IN");
+
+  const packagesPerPage = 8;
+  const totalPages = Math.max(1, Math.ceil(filteredPackages.length / packagesPerPage));
+
+  // Reset page when filters change via handlers below
+
+  const safeCurrentPage = Math.min(currentPage, totalPages);
+
+  const paginatedPackages = useMemo(() => {
+    const startIndex = (safeCurrentPage - 1) * packagesPerPage;
+    return filteredPackages.slice(startIndex, startIndex + packagesPerPage);
+  }, [safeCurrentPage, filteredPackages]);
 
   return (
     <div className="space-y-4">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="space-y-1">
-          <p className="text-xs font-semibold uppercase tracking-[0.28em] text-neutral-500">Packages</p>
-          <div className="flex flex-col gap-1">
-            <h1 className="text-2xl font-semibold text-neutral-900">Agency Packages</h1>
-            <p className="text-sm leading-6 text-neutral-600">Manage package listings from JSON data in a clean dashboard layout.</p>
+          <div className="flex flex-wrap items-center gap-2 text-sm text-neutral-500">
+            <button type="button" onClick={() => router.push("/dashboard")} className="transition hover:text-neutral-900">
+              Dashboard
+            </button>
+            <span className="text-neutral-300">/</span>
+            <span className="font-semibold text-neutral-900">All Packages</span>
           </div>
+          <h1 className="text-2xl font-semibold text-neutral-900">Agency Packages</h1>
+          <p className="text-sm leading-6 text-neutral-600">Manage package listings from JSON data in a clean dashboard layout.</p>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
-            className="inline-flex items-center gap-2 rounded-2xl bg-neutral-900 px-3 py-2.5 text-sm font-semibold text-white transition hover:bg-neutral-800 shadow-sm"
+            className="inline-flex items-center gap-2 rounded-2xl border border-primary-200 bg-white px-3 py-2.5 text-sm font-semibold text-primary-900 transition hover:bg-primary-50 shadow-sm"
           >
             <Download className="h-4 w-4 text-current" />
             Import
           </button>
           <button
             type="button"
-            className="inline-flex items-center gap-2 rounded-2xl bg-neutral-900 px-3 py-2.5 text-sm font-semibold text-white transition hover:bg-neutral-800 shadow-sm"
+            className="inline-flex items-center gap-2 rounded-2xl bg-primary-900 px-3 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-800 shadow-sm"
           >
             <Add className="h-4 w-4 text-current" />
             Create Package
@@ -130,21 +182,28 @@ export default function PackagesPage() {
         </div>
       </div>
 
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <AnalyticsSummaryCard label="Total Packages" value={agencyPackages.length} tone="primary" icon={PackageIcon} />
+        <AnalyticsSummaryCard label="Published" value={publishedPackages} tone="success" icon={CheckCircle2} />
+        <AnalyticsSummaryCard label="Draft" value={draftPackages} tone="warning" icon={BarChart3} />
+        <AnalyticsSummaryCard label="Total Value" value={`Rs. ${packageValue}`} tone="accent" icon={Eye} />
+      </div>
+
       <div className="grid gap-3 sm:grid-cols-[minmax(240px,1fr)_180px_180px]">
         <label className="relative block">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
           <input
-            className="w-full rounded-2xl border border-neutral-200 bg-white py-2.5 pl-10 pr-3 text-sm text-neutral-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
+            className="w-full rounded-2xl border border-neutral-200 bg-white py-2.5 pl-10 pr-3 text-sm text-neutral-900 outline-none transition focus:border-primary-400 focus:ring-2 focus:ring-primary-100"
             placeholder="Search packages"
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => { setSearch(e.target.value); setCurrentPage(1); }}
           />
         </label>
 
         <select
-          className="rounded-2xl border border-neutral-200 bg-white px-3 py-2.5 text-sm text-neutral-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
+          className="rounded-2xl border border-neutral-200 bg-white px-3 py-2.5 text-sm text-neutral-900 outline-none transition focus:border-primary-400 focus:ring-2 focus:ring-primary-100"
           value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value as Package["status"] | "")}
+          onChange={(e) => { setStatusFilter(e.target.value as Package["status"] | ""); setCurrentPage(1); }}
         >
           <option value="">All status</option>
           <option value="published">Published</option>
@@ -154,9 +213,9 @@ export default function PackagesPage() {
         </select>
 
         <select
-          className="rounded-2xl border border-neutral-200 bg-white px-3 py-2.5 text-sm text-neutral-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
+          className="rounded-2xl border border-neutral-200 bg-white px-3 py-2.5 text-sm text-neutral-900 outline-none transition focus:border-primary-400 focus:ring-2 focus:ring-primary-100"
           value={sortBy}
-          onChange={(e) => setSortBy(e.target.value as "latest" | "price" | "duration")}
+          onChange={(e) => { setSortBy(e.target.value as "latest" | "price" | "duration"); setCurrentPage(1); }}
         >
           <option value="latest">Newest</option>
           <option value="price">Price low to high</option>
@@ -164,24 +223,26 @@ export default function PackagesPage() {
         </select>
       </div>
 
-      <div className="flex flex-wrap gap-2">
+      <div className="overflow-x-auto border-b border-neutral-200">
+        <div className="flex min-w-max items-center gap-5 sm:gap-8">
         {statusTabs.map((tab) => (
           <button
             key={tab.label}
             type="button"
-            onClick={() => setStatusFilter(tab.value as Package["status"] | "")}
-            className={`rounded-full px-4 py-2 text-xs font-semibold transition ${
+            onClick={() => { setStatusFilter(tab.value as Package["status"] | ""); setCurrentPage(1); }}
+            className={`inline-flex items-center gap-2 border-b-2 px-1 py-3 text-sm font-semibold transition ${
               statusFilter === tab.value
-                ? "bg-indigo-600 text-white"
-                : "bg-neutral-100 text-neutral-700 hover:bg-neutral-200"
+                ? "border-primary-900 text-primary-900"
+                : "border-transparent text-neutral-600 hover:border-neutral-300 hover:text-neutral-900"
             }`}
           >
             {tab.label}
-            <span className="ml-2 inline-flex rounded-full bg-white px-2 py-0.5 text-[11px] font-semibold text-neutral-900 shadow-sm">
+            <span className="inline-flex rounded-full bg-neutral-100 px-2 py-0.5 text-[11px] font-semibold text-neutral-500">
               {statusCounts[tab.value] ?? 0}
             </span>
           </button>
         ))}
+        </div>
       </div>
 
       <div className="overflow-x-auto border-t border-neutral-200 bg-white/90">
@@ -207,13 +268,13 @@ export default function PackagesPage() {
                 </td>
               </tr>
             ) : (
-              filteredPackages.map((pkg, index) => {
+              paginatedPackages.map((pkg, index) => {
                 const difficulty = difficultyForDuration(pkg.duration_days);
                 const startDate = new Date(pkg.start_date).toLocaleDateString("en-GB");
 
                 return (
                   <tr key={pkg.id} className="border-b border-neutral-200 hover:bg-neutral-50">
-                    <td className="px-4 py-3 font-semibold text-neutral-900">{index + 1}</td>
+                    <td className="px-4 py-3 font-semibold text-neutral-900">{(currentPage - 1) * packagesPerPage + index + 1}</td>
                     <td className="px-4 py-3 text-neutral-900">
                       <div className="font-semibold">{pkg.title}</div>
                       <div className="text-xs text-neutral-500">{pkg.destination}</div>
@@ -228,14 +289,29 @@ export default function PackagesPage() {
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2">
-                        <button className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-neutral-100 text-neutral-600 transition hover:bg-neutral-200">
-                          <VisibilityOutlined className="h-4 w-4" />
+                        <button
+                          type="button"
+                          aria-label={`View ${pkg.title}`}
+                          onClick={() => router.push(`/dashboard/packages/${pkg.id}`)}
+                          className="inline-flex h-7.5 w-7.5 items-center justify-center rounded-md bg-primary-50 text-primary-700 transition hover:bg-primary-100"
+                        >
+                          <VisibilityOutlined sx={{ fontSize: 18 }} />
                         </button>
-                        <button className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-neutral-100 text-neutral-600 transition hover:bg-neutral-200">
-                          <EditOutlined className="h-4 w-4" />
+                        <button
+                          type="button"
+                          aria-label={`Edit ${pkg.title}`}
+                          onClick={() => setActionDialog({ type: "edit", package: pkg })}
+                          className="inline-flex h-7.5 w-7.5 items-center justify-center rounded-md bg-warning-50 text-warning-700 transition hover:bg-warning-100"
+                        >
+                          <EditOutlined sx={{ fontSize: 18 }} />
                         </button>
-                        <button className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-neutral-100 text-neutral-600 transition hover:bg-neutral-200">
-                          <DeleteOutlined className="h-4 w-4" />
+                        <button
+                          type="button"
+                          aria-label={`Delete ${pkg.title}`}
+                          onClick={() => setActionDialog({ type: "delete", package: pkg })}
+                          className="inline-flex h-7.5 w-7.5 items-center justify-center rounded-md bg-danger-50 text-danger-700 transition hover:bg-danger-100"
+                        >
+                          <DeleteOutlined sx={{ fontSize: 18 }} />
                         </button>
                       </div>
                     </td>
@@ -246,6 +322,56 @@ export default function PackagesPage() {
           </tbody>
         </table>
       </div>
+
+      <Pagination
+        currentPage={safeCurrentPage}
+        totalPages={totalPages}
+        onPageChange={setCurrentPage}
+      />
+
+      {actionDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
+            <h2 className="text-lg font-semibold text-neutral-900">
+              {actionDialog.type === "delete" ? "Delete package?" : "Edit package?"}
+            </h2>
+            <p className="mt-2 text-sm leading-6 text-neutral-600">
+              {actionDialog.type === "delete"
+                ? `This will remove ${actionDialog.package.title} from your package list. This action cannot be undone.`
+                : `Open ${actionDialog.package.title} in the package editor?`}
+            </p>
+            <div className="mt-5 flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setActionDialog(null)}
+                className="rounded-2xl border border-neutral-200 bg-white px-4 py-2 text-sm font-semibold text-neutral-900 hover:bg-neutral-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  if (actionDialog.type === "edit") {
+                    router.push(`/dashboard/packages/${actionDialog.package.id}/edit`);
+                  } else {
+                    const nextPackages = packages.filter((pkg) => pkg.id !== actionDialog.package.id);
+                    setPackages(nextPackages);
+                    localStorage.setItem("packages", JSON.stringify(nextPackages));
+                  }
+                  setActionDialog(null);
+                }}
+                className={`rounded-2xl px-4 py-2 text-sm font-semibold text-white ${
+                  actionDialog.type === "delete"
+                    ? "bg-danger-600 hover:bg-danger-700"
+                    : "bg-primary-900 hover:bg-primary-800"
+                }`}
+              >
+                {actionDialog.type === "delete" ? "Delete package" : "Continue to edit"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

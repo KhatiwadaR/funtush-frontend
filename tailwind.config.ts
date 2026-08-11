@@ -91,6 +91,8 @@ const config: Config = {
         'border-secondary': 'hsl(var(--border-secondary))',
         ring: 'hsl(var(--ring))',
         'ring-offset': 'hsl(var(--ring-offset))',
+        'brand-border': '#358CBD',
+        'brand-tint': '#EAF4FB',
       },
           spacing: {
       "0": "0px",

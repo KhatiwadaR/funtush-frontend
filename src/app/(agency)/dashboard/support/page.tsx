@@ -1,5 +1,10 @@
-"use client";
-import { useState } from "react";
+'use client';
+
+import React, { useState } from 'react';
+import toast from "react-hot-toast";
+import { Skeleton } from "@/components/ui/skeleton";
+import SupportIcon from '@mui/icons-material/Support'; 
+import { Input } from "@/components/ui/input";
 
 interface BugReport {
   id: string;
@@ -21,33 +26,65 @@ const initialReports: BugReport[] = [
 
 export default function SupportPage() {
   const [reports, setReports] = useState<BugReport[]>(initialReports);
+  const [isLoading, setIsLoading] = useState(false);
   const [title, setTitle] = useState("");
   const [desc, setDesc] = useState("");
   const [steps, setSteps] = useState("");
   const [screenshot, setScreenshot] = useState<File | null>(null);
 
+  const [errors, setErrors] = useState({
+    title: "",
+    desc: ""
+  });
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title.trim() || !desc.trim()) return;
 
-    const newBug: BugReport = {
-      id: `BUG-${Math.floor(100 + Math.random() * 900)}`,
-      title,
-      status: "Submitted",
-      date: new Date().toISOString().split('T')[0],
-      notes: "Awaiting inspection triage allocation."
-    };
+    const newErrors = { title: "", desc: "" };
+    let hasError = false;
 
-    setReports([newBug, ...reports]);
-    setTitle("");
-    setDesc("");
-    setSteps("");
-    setScreenshot(null);
-    alert("Bug reported successfully directly into Funtush support triage!");
+    if (!title.trim()) {
+      newErrors.title = "Please fill the issue title below.";
+      hasError = true;
+    }
+
+    if (!desc.trim()) {
+      newErrors.desc = "Please provide a detailed description of the bug.";
+      hasError = true;
+    }
+
+    if (hasError) {
+      setErrors(newErrors);
+      toast.error("Please fix the validation errors before submitting.");
+      return;
+    }
+
+    setErrors({ title: "", desc: "" });
+
+    try {
+      const newBug: BugReport = {
+        id: `BUG-${Math.floor(100 + Math.random() * 900)}`,
+        title,
+        status: "Submitted",
+        date: new Date().toISOString().split('T')[0],
+        notes: "Awaiting inspection triage allocation."
+      };
+
+      setReports([newBug, ...reports]);
+      setTitle("");
+      setDesc("");
+      setSteps("");
+      setScreenshot(null);
+      toast.success("Bug reported successfully directly into Funtush support triage!");
+    } catch (err) {
+      setIsLoading(false)
+      console.error("Error submitting bug report:", err);
+      toast.error("Failed to submit bug report. Please try again.");
+    }
   };
 
   return (
-    <div className="p-6 max-w-7xl mx-auto space-y-6">
+    <div className="space-y-4">
       <div>
         <h1 className="text-2xl font-bold text-slate-800 tracking-tight">Help Center & Bug Report Hub</h1>
         <p className="text-sm text-slate-500 mt-0.5">Submit technical bugs directly to the Funtush development engine and monitor engineering triage notes.</p>
@@ -66,29 +103,38 @@ export default function SupportPage() {
         {/* Bug Report Form */}
         <div className="bg-white p-5 rounded-xl border border-slate-200/60 shadow-xs lg:col-span-2">
           <h3 className="text-sm font-bold text-slate-800 border-b border-slate-100 pb-2.5 mb-4">Report an Operational System Bug</h3>
-          <form onSubmit={handleSubmit} className="space-y-4 text-xs">
-            <div>
-              <label className="block font-bold text-slate-700 mb-1">Issue Title *</label>
-              <input
-                type="text"
-                required
-                placeholder="e.g., GPS telemetry track failing to push update coords"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                className="w-full border border-slate-200 rounded-lg p-2.5 text-slate-700 focus:outline-hidden focus:ring-1 focus:ring-blue-500 font-medium"
-              />
-            </div>
+          <form onSubmit={handleSubmit} className="space-y-4 text-xs" noValidate>
+            
+            <Input
+              label="Issue Title *"
+              placeholder="e.g., GPS telemetry track failing to push update coords"
+              value={title}
+              onChange={(e) => {
+                setTitle(e.target.value);
+                if (errors.title) setErrors(prev => ({ ...prev, title: "" }));
+              }}
+              error={errors.title}
+            />
 
             <div>
               <label className="block font-bold text-slate-700 mb-1">Detailed Description *</label>
               <textarea
                 rows={3}
-                required
                 placeholder="Describe what occurred, expected result, and system details..."
                 value={desc}
-                onChange={(e) => setDesc(e.target.value)}
-                className="w-full border border-slate-200 rounded-lg p-2.5 text-slate-700 focus:outline-hidden focus:ring-1 focus:ring-blue-500 font-medium"
+                onChange={(e) => {
+                  setDesc(e.target.value);
+                  if (errors.desc) setErrors(prev => ({ ...prev, desc: "" }));
+                }}
+                className={`w-full border rounded-lg p-2.5 text-slate-700 focus:outline-hidden focus:ring-1 font-medium ${
+                  errors.desc ? "border-red-500 focus:ring-red-500 bg-red-50/30" : "border-slate-200 focus:ring-blue-500"
+                }`}
               />
+              {errors.desc && (
+                <p className="text-red-500 text-[11px] font-semibold mt-1">
+                  {errors.desc}
+                </p>
+              )}
             </div>
 
             <div>
@@ -117,41 +163,68 @@ export default function SupportPage() {
 
             <button
               type="submit"
-              className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-xl transition-colors shadow-xs"
+              className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-xl transition-colors shadow-xs cursor-pointer"
             >
               Dispatch Ticket to Funtush Core
             </button>
           </form>
         </div>
 
-        {/* My Reports List */}
+        {/* My Reports List with Loading & Empty State Handling */}
         <div className="bg-white p-4 rounded-xl border border-slate-200/60 shadow-xs h-full">
           <h3 className="font-bold text-slate-800 text-sm mb-3">My Submitted Tickets</h3>
+          
           <div className="space-y-3 max-h-[500px] overflow-y-auto pr-1">
-            {reports.map((report) => (
-              <div key={report.id} className="p-3 bg-slate-50 border border-slate-100 rounded-lg space-y-2">
-                <div className="flex justify-between items-start gap-2">
-                  <h4 className="font-bold text-slate-800 text-xs leading-tight">{report.title}</h4>
-                  <span className={`inline-flex px-1.5 py-0.5 rounded text-[9px] font-black tracking-wider uppercase whitespace-nowrap ${
-                    report.status === "Fixed" ? "bg-emerald-50 text-emerald-700 border border-emerald-100" :
-                    report.status === "Under Review" ? "bg-amber-50 text-amber-700 border border-amber-100" :
-                    report.status === "Closed" ? "bg-slate-200 text-slate-600" : "bg-blue-50 text-blue-700 border border-blue-100"
-                  }`}>
-                    {report.status}
-                  </span>
+            {isLoading ? (
+              Array.from({ length: 2 }).map((_, index) => (
+                <div key={index} className="p-3 bg-slate-50 border border-slate-100 rounded-lg space-y-2">
+                  <div className="flex justify-between items-center">
+                    <Skeleton className="h-4 w-3/4" />
+                    <Skeleton className="h-4 w-16" />
+                  </div>
+                  <Skeleton className="h-10 w-full" />
+                  <div className="flex justify-between pt-1">
+                    <Skeleton className="h-3 w-20" />
+                    <Skeleton className="h-3 w-20" />
+                  </div>
                 </div>
-                {report.notes && (
-                  <p className="text-[11px] text-slate-500 bg-white p-2 rounded border border-slate-200/40 leading-relaxed">
-                    <strong className="text-slate-700 font-semibold block text-[10px] uppercase text-slate-400 mb-0.5">Funtush Dev Team Note:</strong>
-                    {report.notes}
-                  </p>
-                )}
-                <div className="flex justify-between items-center text-[10px] text-slate-400 pt-1 font-medium">
-                  <span>ID: {report.id}</span>
-                  <span>Logged: {report.date}</span>
+              ))
+            ) : reports.length === 0 ? (
+              <div className="text-center py-10 px-4 space-y-3">
+                <div className="bg-blue-50 text-blue-600 w-12 h-12 rounded-full flex items-center justify-center mx-auto">
+                  <SupportIcon className="w-6 h-6" />
                 </div>
+                <h4 className="text-xs font-bold text-slate-700">No support tickets found</h4>
+                <p className="text-[11px] text-slate-400 leading-relaxed">
+                  You haven&apos;t submitted any bug reports yet. Use the form on the left to log your first system ticket.
+                </p>
               </div>
-            ))}
+            ) : (
+              reports.map((report) => (
+                <div key={report.id} className="p-3 bg-slate-50 border border-slate-100 rounded-lg space-y-2">
+                  <div className="flex justify-between items-start gap-2">
+                    <h4 className="font-bold text-slate-800 text-xs leading-tight">{report.title}</h4>
+                    <span className={`inline-flex px-1.5 py-0.5 rounded text-[9px] font-black tracking-wider uppercase whitespace-nowrap ${
+                      report.status === "Fixed" ? "bg-emerald-50 text-emerald-700 border border-emerald-100" :
+                      report.status === "Under Review" ? "bg-amber-50 text-amber-700 border border-amber-100" :
+                      report.status === "Closed" ? "bg-slate-200 text-slate-600" : "bg-blue-50 text-blue-700 border border-blue-100"
+                    }`}>
+                      {report.status}
+                    </span>
+                  </div>
+                  {report.notes && (
+                    <p className="text-[11px] text-slate-500 bg-white p-2 rounded border border-slate-200/40 leading-relaxed">
+                      <strong className="text-slate-700 font-semibold block text-[10px] uppercase text-slate-400 mb-0.5">Funtush Dev Team Note:</strong>
+                      {report.notes}
+                    </p>
+                  )}
+                  <div className="flex justify-between items-center text-[10px] text-slate-400 pt-1 font-medium">
+                    <span>ID: {report.id}</span>
+                    <span>Logged: {report.date}</span>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
       </div>

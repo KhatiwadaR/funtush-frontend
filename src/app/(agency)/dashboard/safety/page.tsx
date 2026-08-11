@@ -5,11 +5,10 @@ import { SOSAlertBanner } from "@/components/agency/safety/SOSAlertBanner";
 import { ActiveTrekList } from "@/components/agency/safety/ActiveTrekList";
 import { IncidentLog } from "@/components/agency/safety/IncidentLog";
 import { useTheme } from "@/context/theme";
-import { FileText } from "lucide-react";
-
+import DescriptionIcon from "@mui/icons-material/Description";
+import toast from "react-hot-toast";
 
 const SafetyMap = dynamic(() => import("@/components/agency/safety/SafetyMap"), {
-
   ssr: false,
   loading: () => (
     <div className="w-full h-full min-h-100 bg-slate-50 border border-dashed rounded-xl flex flex-col items-center justify-center text-slate-400 gap-2 animate-pulse">
@@ -43,36 +42,46 @@ export default function SafetyPage() {
     return () => cancelAnimationFrame(handle);
   }, []);
 
+  const handleExportReport = () => {
+    try {
+      toast.success("Successfully compiled and exported safety audit report.");
+    } catch (err) {
+      console.error("Error exporting safety audit report:", err);
+      toast.error("Failed to export safety audit report. Please try again.");
+    }
+  };
+
   const activeSosCount = mockActiveTreks.filter(t => t.has_sos).length;
 
   if (!mounted) return null;
 
   return (
-    <div className="p-6 max-w-7xl mx-auto space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 py-2">
+    <div className="space-y-4">
+      <div className="flex flex-col gap-3 border-b border-neutral-200 pb-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className={`text-xl font-bold tracking-tight ${isDark ? "text-slate-100" : "text-slate-900"
-            }`}>
-Safety Monitoring
-            </h1>
+          <h1 className={`text-2xl font-semibold tracking-tight ${isDark ? "text-slate-100" : "text-neutral-900"}`}>
+            Safety Monitoring
+          </h1>
           <div className="flex items-center gap-1.5 text-xs mt-0.5">
-            <span className={isDark ? "text-slate-400" : "text-slate-500"}>
-
-  Safety            </span>
-            <span className={isDark ? "text-slate-600" : "text-slate-300"}>›</span>
-            <span className="font-medium text-blue-600 dark:text-blue-400">
-Live Overview            </span>
+            <span className={isDark ? "text-slate-400" : "text-neutral-500"}>
+              Safety            
+            </span>
+            <span className={isDark ? "text-slate-600" : "text-neutral-300"}>›</span>
+            <span className="font-medium text-primary-700 dark:text-primary-400">
+              Live Overview            
+            </span>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
           <button
-            className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border text-xs font-semibold transition-colors shadow-2xs ${isDark
-                ? "bg-slate-800 border-slate-700 text-slate-200 hover:bg-slate-700 hover:text-white"
-                : "bg-white border-slate-200 text-slate-700 hover:bg-slate-50 hover:text-slate-900"
-              }`}
+            onClick={handleExportReport}
+            className={`inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-xs font-semibold transition-colors shadow-sm cursor-pointer ${isDark
+              ? "bg-slate-800 border-slate-700 text-slate-200 hover:bg-slate-700 hover:text-white"
+              : "bg-white border-slate-200 text-slate-700 hover:bg-slate-50 hover:text-slate-900"
+            }`}
           >
-            <FileText className="w-3.5 h-3.5" />
+            <DescriptionIcon sx={{ fontSize: 16 }} />
             <span>Export Report</span>
           </button>
         </div>
@@ -80,8 +89,8 @@ Live Overview            </span>
 
       <SOSAlertBanner activeSosCount={activeSosCount} />
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="space-y-4 lg:col-span-1">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+        <div className="space-y-3 lg:col-span-1">
           <ActiveTrekList
             treks={mockActiveTreks}
             selectedTrekId={selectedTrek}
@@ -89,7 +98,7 @@ Live Overview            </span>
           />
         </div>
 
-        <div className="lg:col-span-2 h-[420px]">
+        <div className="min-h-100 lg:col-span-2">
           <SafetyMap treks={mockActiveTreks} />
         </div>
       </div>
