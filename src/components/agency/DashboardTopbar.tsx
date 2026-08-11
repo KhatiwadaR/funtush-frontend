@@ -19,7 +19,7 @@ export default function DashboardTopbar({ title = 'Dashboard' }: DashboardTopbar
   const initial = userName.charAt(0).toUpperCase();
 
   return (
-    <header className="bg-white border-b border-neutral-200 px-6 py-3 flex items-center justify-between sticky top-0 z-10">
+    <header className="bg-white border-b border-neutral-200 px-6 h-16 flex items-center justify-between w-full shadow-sm">
       {/* Left side - Agency name + Page title */}
       <div className="flex items-center gap-4">
         <span className="text-xl font-bold text-blue-600 whitespace-nowrap">

@@ -1,7 +1,7 @@
 
 "use client";
 
-import { TipTapEditor } from "./TipTapEditor";
+import { QuillEditor } from "./QuillEditor";
 import { Card } from "@/components/ui/card";
 import { useTheme } from "@/context/theme";
 import SparklesIcon from "@mui/icons-material/AutoAwesome";
@@ -124,7 +124,7 @@ export function BlogEditorSection({
               : ""
           }
         >
-          <TipTapEditor
+          <QuillEditor
             content={htmlContent}
             onChange={setHtmlContent}
           />

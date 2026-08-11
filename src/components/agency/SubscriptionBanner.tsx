@@ -6,11 +6,13 @@ import {Crown, X} from 'lucide-react';
 interface SubscriptionBannerProps{
     tier?: 'free' | 'medium' | 'large';
     onUpgrade?: () => void;
+    isCollapsed?: boolean;
 }
 
 export default function SubscriptionBanner({
     tier = 'free',
-    onUpgrade
+    onUpgrade,
+    isCollapsed
 }: SubscriptionBannerProps){
     const [isVisible, setIsVisible] = useState(true);
 

@@ -1,7 +1,6 @@
 'use client';
 
 import { usePathname, useRouter } from 'next/navigation';
-import { useState } from 'react';
 import {
   LayoutDashboard,
   Package,
@@ -10,6 +9,9 @@ import {
   Briefcase,
   GitBranch,
   Newspaper,
+  PlusCircle,
+  ImagePlus,
+  Tag,
   DollarSign,
   BarChart3,
   UserCog,
@@ -25,11 +27,16 @@ import {
 } from 'lucide-react';
 import SubscriptionBanner from './SubscriptionBanner';
 
+interface AgencySidebarProps {
+  isCollapsed: boolean;
+  onToggleCollapse: () => void;
+}
+
 interface NavItem {
   label: string;
   href: string;
   icon: React.ReactNode;
-  section?: 'main' | 'operations' | 'account';
+  section?: 'main' | 'operations' | 'blog' | 'account';
   tier?: 'free' | 'medium' | 'large';
 }
 
@@ -40,8 +47,13 @@ const navItems: NavItem[] = [
   { label: 'Booking Approval', href: '/dashboard/bookings', icon: <CalendarCheck size={20} />, section: 'main' },
   { label: 'Customers', href: '/dashboard/customers', icon: <Users size={20} />, section: 'main' },
   { label: 'Guides', href: '/dashboard/guides', icon: <Briefcase size={20} />, section: 'main' },
-  { label: 'Blog', href: '/dashboard/blog', icon: <Newspaper size={20} />, section: 'main', },
-  
+
+  // Blog section
+  { label: 'Blog', href: '/dashboard/blog', icon: <Newspaper size={20} />, section: 'blog' },
+  { label: 'Create Blog', href: '/dashboard/blog/new', icon: <PlusCircle size={20} />, section: 'blog' },
+  { label: 'Blog Categories', href: '/dashboard/blog/categories', icon: <Tag size={20} />, section: 'blog' },
+  { label: 'Advertisements', href: '/dashboard/blog/advertisements', icon: <ImagePlus size={20} />, section: 'blog' },
+
   // Operations section
   { label: 'Finance', href: '/dashboard/finance', icon: <DollarSign size={20} />, section: 'operations' },
   { label: 'Analytics', href: '/dashboard/analytics', icon: <BarChart3 size={20} />, section: 'operations' },
@@ -65,10 +77,9 @@ const isTierLocked = (tier?: string) => {
   return false;
 };
 
-export default function AgencySidebar() {
+export default function AgencySidebar({ isCollapsed, onToggleCollapse }: AgencySidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
-  const [isCollapsed, setIsCollapsed] = useState(false);
 
   // Mock tier – replace with real data from context
   const userTier = 'free';
@@ -80,10 +91,11 @@ export default function AgencySidebar() {
 
   const mainItems = navItems.filter(item => item.section === 'main');
   const operationsItems = navItems.filter(item => item.section === 'operations');
+  const blogItems = navItems.filter(item => item.section === 'blog');
   const accountItems = navItems.filter(item => item.section === 'account');
 
   return (
-    <aside className={`bg-white border-r border-neutral-200 h-screen sticky top-0 overflow-y-auto transition-all duration-300 ${
+    <aside className={`sidebar-scrollbar bg-white border-r border-neutral-200 h-screen sticky top-0 overflow-y-auto transition-all duration-300 ${
       isCollapsed ? 'w-16' : 'w-64'
     }`}>
       {/* Logo / Agency Name */}
@@ -94,7 +106,7 @@ export default function AgencySidebar() {
           </span>
         </div>
         <button
-          onClick={() => setIsCollapsed(!isCollapsed)}
+          onClick={onToggleCollapse}
           className="p-1 rounded hover:bg-neutral-100 transition-colors shrink-0"
         >
           {isCollapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
@@ -140,6 +152,41 @@ export default function AgencySidebar() {
             })}
           </div>
         </div>
+
+        {/* Blog Section */}
+        {blogItems.length > 0 && (
+          <div>
+            {!isCollapsed && (
+              <p className="text-xs font-semibold text-neutral-400 uppercase tracking-wider px-3 mb-2">
+                Blog
+              </p>
+            )}
+            <div className="space-y-1">
+              {blogItems.map((item) => {
+                const locked = isTierLocked(item.tier);
+                return (
+                  <button
+                    key={item.href}
+                    onClick={() => !locked && router.push(item.href)}
+                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
+                      isActive(item.href) && !locked
+                        ? 'bg-blue-50 text-blue-600 font-medium'
+                        : locked
+                        ? 'text-neutral-400 cursor-not-allowed opacity-60'
+                        : 'text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900'
+                    }`}
+                    disabled={locked}
+                  >
+                    <span className="shrink-0">{item.icon}</span>
+                    {!isCollapsed && (
+                      <span className="flex-1 text-left">{item.label}</span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {/* Operations Section */}
         <div>
@@ -220,7 +267,11 @@ export default function AgencySidebar() {
         </div>
 
         {/* Subscription Banner – only for free tier */}
-        <SubscriptionBanner tier={userTier} onUpgrade={() => alert('Upgrade flow')} />
+        <SubscriptionBanner
+          tier={userTier}
+          isCollapsed={isCollapsed}
+          onUpgrade={() => alert('Upgrade flow')}
+        />
 
         {/* Logout */}
         <div className="border-t border-neutral-200 pt-4">
