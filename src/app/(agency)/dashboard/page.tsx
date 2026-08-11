@@ -1,12 +1,11 @@
 'use client';
 
 import Link from 'next/link';
-import { Plus, ShieldAlert } from 'lucide-react';
-
-import users from '@/../data/users.json';
+import { ShieldAlert } from 'lucide-react';
 
 import ActiveGuides from '@/components/agency/dashboard/ActiveGuides';
 import BookingStatus from '@/components/agency/dashboard/BookingStatus';
+import DashboardHeader from '@/components/agency/dashboard/DashboardHeader';
 import QuickState from '@/components/agency/dashboard/QuickState';
 import RecentActivity from '@/components/agency/dashboard/RecentActivity';
 import RecentBookings from '@/components/agency/dashboard/RecentBookings';
@@ -19,25 +18,10 @@ const agencyId = 'ag-001';
 
 export default function AgencyDashboardPage() {
   const activeSos = ''; // Placeholder for active SOS check
-  const user = users[0].name.split(' ')[0];
   return (
     <div className="space-y-4 text-neutral-900">
-      <div className="flex items-end justify-between gap-3">
-        <div>
-          <div className="flex items-center gap-2 text-sm text-neutral-500">
-            <span className="font-semibold text-neutral-900">Dashboard</span>
-          </div>
-          <h1 className="mt-2 text-2xl font-semibold text-neutral-900">Good Morning, {user}</h1>
-          <p className="mt-1 text-sm text-neutral-600">Here’s What’s happening with your agency today.</p>
-        </div>
-        <div className="hidden items-center gap-2 sm:flex">
-          <Link
-            href="/dashboard/packages/new"
-            className="inline-flex items-center gap-2 rounded-2xl bg-primary-900 px-3 py-2 text-sm font-semibold text-white hover:bg-primary-800"
-          >
-            <Plus className="h-4 w-4" /> New package
-          </Link>
-        </div>
+      <div className="mb-8">
+        <DashboardHeader />
       </div>
 
       {activeSos && (
