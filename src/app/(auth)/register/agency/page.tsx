@@ -9,7 +9,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
+
 import { ArrowLeft, Globe, Info } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -60,24 +60,25 @@ export default function AgencyWorkspacePage() {
 
   // Load draft on mount
   useEffect(() => {
-    const raw = localStorage.getItem(DRAFT_KEY);
-    if (!raw) {
-      toast.error('Please start signup from the beginning');
-      router.push('/register');
+  const raw = localStorage.getItem(DRAFT_KEY);
+  if (!raw) {
+    toast.error('Please start signup from the beginning');
+    router.push('/register');
+    return;
+  }
+
+  try {
+    const parsed = JSON.parse(raw) as SignupDraft;
+    if (parsed.role !== 'trekker') {  // or 'agency' in agency file
+      router.push('/register/agency');  // or '/register/trekker'
       return;
     }
-
-    try {
-      const parsed = JSON.parse(raw) as SignupDraft;
-      if (parsed.role !== 'agency') {
-        router.push('/register/trekker');
-        return;
-      }
-      setDraft(parsed);
-    } catch {
-      router.push('/register');
-    }
-  }, [router]);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setDraft(parsed);
+  } catch {
+    router.push('/register');
+  }
+}, [router]);
 
   function validate() {
     const newErrors: typeof errors = {};
