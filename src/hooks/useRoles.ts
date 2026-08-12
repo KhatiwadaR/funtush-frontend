@@ -44,5 +44,14 @@ export function useRoles() {
     });
   };
 
-  return { roles, saveRole, getRole: (id: string) => roles.find((role) => role.id === id) };
+  const deleteRole = (id: string) => {
+    setRoles((current) => current.filter((role) => role.id !== id));
+  };
+
+  return {
+    roles,
+    saveRole,
+    deleteRole,
+    getRole: (id: string) => roles.find((role) => role.id === id),
+  };
 }
