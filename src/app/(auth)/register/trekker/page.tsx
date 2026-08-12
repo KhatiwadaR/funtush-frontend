@@ -32,7 +32,19 @@ const DRAFT_KEY = 'funtush_signup_draft';
 export default function TrekkerDetailsPage() {
   const router = useRouter();
 
-  const [draft, setDraft] = useState<SignupDraft | null>(null);
+  const [draft] = useState<SignupDraft | null>(() => {
+    if (typeof window === 'undefined') return null;
+
+    try {
+      const raw = localStorage.getItem(DRAFT_KEY);
+      if (!raw) return null;
+
+      const parsed = JSON.parse(raw) as SignupDraft;
+      return parsed.role === 'trekker' ? parsed : null;
+    } catch {
+      return null;
+    }
+  });
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
   const [country, setCountry] = useState('');
@@ -45,27 +57,12 @@ export default function TrekkerDetailsPage() {
 
   const [isLoading, setIsLoading] = useState(false);
 
-  // Load draft on mount, redirect if missing
   useEffect(() => {
-  const raw = localStorage.getItem(DRAFT_KEY);
-  if (!raw) {
-    toast.error('Please start signup from the beginning');
-    router.push('/register');
-    return;
-  }
-
-  try {
-    const parsed = JSON.parse(raw) as SignupDraft;
-    if (parsed.role !== 'trekker') {  // or 'agency' in agency file
-      router.push('/register/agency');  // or '/register/trekker'
-      return;
+    if (!draft) {
+      toast.error('Please start signup from the beginning');
+      router.push('/register');
     }
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setDraft(parsed);
-  } catch {
-    router.push('/register');
-  }
-}, [router]);
+  }, [draft, router]);
 
   function validate() {
     const newErrors: typeof errors = {};
