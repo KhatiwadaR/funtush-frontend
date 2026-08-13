@@ -18,7 +18,7 @@ export default function TopDestinations() {
         <select
           name="months"
           id="months"
-          value="30"
+          defaultValue="30"
           className="text-[10px] border border-neutral-100 rounded px-[4px] py-[5px] gap-2 outline-none hover:text-red-700 hover:bg-blue-50 focus:ring-2 focus:ring-blue-500"
         >
           <option value="30">Last 30 days</option>

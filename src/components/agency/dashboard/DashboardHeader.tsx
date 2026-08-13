@@ -52,6 +52,11 @@ export default function DashboardHeader() {
       <div className="font-[500]">
         <h1 className="text-2xl">Good Morning, {user}</h1>
         <p className="text-sm text-[#625B71]">Here’s What’s happening with your agency today.</p>
+        <div>
+          <p className="mt-2">
+            Live Visitor: <span className="font-bold text-green-500">120</span>
+          </p>
+        </div>
       </div>
 
       <div className="flex items-center gap-8">
