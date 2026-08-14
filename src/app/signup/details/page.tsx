@@ -1,6 +1,9 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { ROLE_REDIRECT } from '@/lib/auth';
+import toast from 'react-hot-toast';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
@@ -19,9 +22,34 @@ export default function DetailsPage() {
   const [phoneNumber, setPhoneNumber] = useState('+33 6 12 34 58 78');
   const [country, setCountry] = useState('');
 
-  const handleCreateAccount = (e: React.FormEvent) => {
+  const search = useSearchParams();
+  const type = search?.get('type') || 'agency';
+  const role = type === 'trekker' ? 'trekker' : 'agency_admin';
+
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [showTiers, setShowTiers] = useState(false);
+  const [selectedTier, setSelectedTier] = useState<string | null>(null);
+
+  const submitAndShowTiers = (e: React.FormEvent) => {
     e.preventDefault();
-    router.push('/my-treks');
+    setShowSuccess(true);
+    setTimeout(() => {
+      setShowSuccess(false);
+      if (role === 'agency_admin') setShowTiers(true);
+      else {
+        // For trekkers, create account and redirect to trekker area
+        toast.success('Account created — redirecting...');
+        const dest = ROLE_REDIRECT[role as any] ?? '/';
+        router.push(dest);
+      }
+    }, 900);
+  };
+
+  const finishTiers = () => {
+    setShowTiers(false);
+    toast.success(`Selected tier: ${selectedTier ?? 'Free'}`);
+    const dest = ROLE_REDIRECT[role as any] ?? '/';
+    router.push(dest);
   };
 
   return (
@@ -117,7 +145,7 @@ export default function DetailsPage() {
             </div>
 
             {/* Form */}
-            <form onSubmit={handleCreateAccount} className="space-y-4">
+            <form onSubmit={submitAndShowTiers} className="space-y-4">
               <div>
                 <label className="block text-xs font-bold text-neutral-800 mb-1">
                   Full Name
@@ -169,6 +197,55 @@ export default function DetailsPage() {
                 You'll be redirected to <span className="font-bold text-neutral-800">My Treks</span> right away.
               </p>
             </form>
+
+            {/* Success Modal */}
+            {showSuccess && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center">
+                <div className="absolute inset-0 bg-black/40" />
+                <div className="relative z-10 w-[420px] rounded-xl bg-white p-6 text-center shadow-xl">
+                  <div className="mb-4 flex items-center justify-center">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-100 text-green-700">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                    </div>
+                  </div>
+                  <h3 className="mb-2 text-lg font-bold text-neutral-900">Account created</h3>
+                  <p className="text-sm text-neutral-600">Your account has been created successfully.</p>
+                </div>
+              </div>
+            )}
+
+            {/* Tier Selector Modal */}
+            {showTiers && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center">
+                <div className="absolute inset-0 bg-black/40" />
+                <div className="relative z-10 w-full max-w-3xl rounded-xl bg-white p-6 shadow-xl">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-bold">Choose a tier</h3>
+                    <button onClick={() => { setShowTiers(false); router.push('/dashboard'); }} className="text-sm text-neutral-500">Skip</button>
+                  </div>
+                  <div className="mt-4 grid grid-cols-4 gap-4">
+                    {['Free','Basic','Premium','Enterprise'].map((t) => (
+                      <button
+                        key={t}
+                        onClick={() => setSelectedTier(t)}
+                        className={`rounded-lg border p-4 text-left transition ${selectedTier===t ? 'border-[#5B50FB] bg-[#F1F0FF]' : 'border-neutral-200'}`}>
+                        <div className="flex items-center justify-between">
+                          <div className={`h-8 w-8 rounded-md ${selectedTier===t ? 'bg-[#5B50FB] text-white' : 'bg-neutral-100 text-neutral-600'}`} />
+                          <div className={`h-5 w-5 rounded-full border ${selectedTier===t ? 'border-[#5B50FB] bg-[#5B50FB]' : 'border-neutral-300'}`} />
+                        </div>
+                        <p className="mt-3 text-sm font-semibold">{t}</p>
+                        <p className="mt-1 text-xs text-neutral-500">{t === 'Free' ? 'Start free' : t === 'Basic' ? 'For small teams' : t === 'Premium' ? 'Most popular' : 'Enterprise features'}</p>
+                      </button>
+                    ))}
+                  </div>
+                  <div className="mt-6 flex justify-end">
+                    <button disabled={!selectedTier} onClick={finishTiers} className="rounded-lg bg-[#5B50FB] px-4 py-2 text-sm font-semibold text-white disabled:opacity-60">Continue</button>
+                  </div>
+                </div>
+              </div>
+            )}
 
           </div>
         </div>

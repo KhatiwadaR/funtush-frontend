@@ -1,7 +1,12 @@
-'use client';
+"use client";
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { saveSessionEverywhere, ROLE_REDIRECT } from '@/lib/auth';
+import toast from 'react-hot-toast';
+import type { SessionUser } from '@/types/user';
+import usersData from '../../../../data/users.json';
 import {
   Eye,
   EyeOff,
@@ -18,9 +23,46 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const router = useRouter();
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Add authentication logic here
+
+    try {
+      // Authenticate against local dataset in data/users.json
+      const userRaw = (usersData as any[]).find(
+        (u) => u.email.toLowerCase() === email.trim().toLowerCase(),
+      );
+
+      if (!userRaw || userRaw.password !== password) {
+        toast.error('Invalid email or password');
+        return;
+      }
+
+      const sessionUser: SessionUser = {
+        id: userRaw.id,
+        role: userRaw.role,
+        agency_id: userRaw.agency_id ?? null,
+        name: userRaw.name,
+        email: userRaw.email,
+        phone: userRaw.phone,
+        member_since: userRaw.member_since,
+        country: userRaw.country,
+        token: `local-${Date.now()}`,
+      };
+
+      try {
+        localStorage.setItem('authToken', sessionUser.token);
+      } catch {}
+
+      saveSessionEverywhere(sessionUser);
+
+      const dest = ROLE_REDIRECT[sessionUser.role] ?? '/';
+      router.push(dest);
+    } catch (err: any) {
+      console.error('Login failed', err || {});
+      toast.error(err?.message || 'Login failed. Check credentials.');
+    }
   };
 
   const toggleRememberMe = () => {
@@ -30,7 +72,7 @@ export default function LoginPage() {
   return (
     <div className="flex min-h-screen w-full items-center justify-center bg-slate-100/70 p-4 sm:p-6 lg:p-8 select-none">
       {/* Outer Card Container with 1:2 Ratio & Curved Corners */}
-      <div className="flex w-full max-w-5xl overflow-hidden rounded-3xl bg-white shadow-2xl border border-slate-200/60">
+      <div className="flex w-full max-w-5xl overflow-hidden rounded-3xl bg-white shadow-2xl border border-slate-200/60" style={{maxHeight: '720px'}}>
         
         {/* Left Branding Panel (1/3 Width Ratio) */}
         <div className="relative hidden w-1/3 flex-col justify-between bg-[#635BFF] p-8 text-white md:flex">
@@ -92,7 +134,7 @@ export default function LoginPage() {
         </div>
 
         {/* Right Form Panel (2/3 Width Ratio) */}
-        <div className="flex w-full flex-col justify-center px-6 py-10 md:w-2/3 md:px-12 lg:px-16">
+        <div className="flex w-full flex-col justify-center px-6 py-8 md:w-2/3 md:px-12 lg:px-16">
           <div className="mx-auto w-full max-w-md">
             {/* Header */}
             <div className="mb-6">
