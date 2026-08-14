@@ -306,23 +306,21 @@ export default function LoginPage() {
             <div className="mt-6 flex items-center gap-3">
               <div className="h-px flex-1 bg-neutral-200" />
               <span className="text-xs text-neutral-400">OR</span>
-              <div className="h-px flex-1 bg-neutral-200" />
-            </div>
+                <div className="h-px flex-1 bg-neutral-200" />
+              </div>
 
-            {/* ── Bottom Link ── */}
-            <p className="mt-6 text-center text-sm text-neutral-700">
-              New to Funtush?{' '}
-              <Link
-                href="/register"
-                className="font-semibold text-primary-600 hover:underline"
-              >
-                Create an account
-              </Link>
-              <br />
-              <span className="text-xs text-neutral-500">as a trekker or a trekking agency.</span>
-            </p>
-
->>>>>>> pr-83
+              {/* ── Bottom Link ── */}
+              <p className="mt-6 text-center text-sm text-neutral-700">
+                New to Funtush?{' '}
+                <Link
+                  href="/register"
+                  className="font-semibold text-primary-600 hover:underline"
+                >
+                  Create an account
+                </Link>
+                <br />
+                <span className="text-xs text-neutral-500">as a trekker or a trekking agency.</span>
+              </p>
           </div>
         </div>
       </div>
