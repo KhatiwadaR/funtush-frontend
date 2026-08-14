@@ -21,21 +21,25 @@ export interface Staff {
 }
 
 export function useStaff() {
-  const [staff, setStaff] = useState<Staff[]>(() => {
-    if (typeof window === 'undefined') return staffsData;
+  const [staff, setStaff] = useState<Staff[]>(staffsData);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
 
     try {
       const stored = localStorage.getItem('staff');
       if (stored) {
-        return JSON.parse(stored) as Staff[];
+        const parsed = JSON.parse(stored) as Staff[];
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setStaff(parsed);
+          return;
+        }
       }
       localStorage.setItem('staff', JSON.stringify(staffsData));
-      return staffsData;
     } catch {
       localStorage.setItem('staff', JSON.stringify(staffsData));
-      return staffsData;
     }
-  });
+  }, []);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;

@@ -105,17 +105,20 @@ export default function BookingsPage() {
   const [toDate, setToDate] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
 
-  const [bookings, setBookings] = useState<Booking[]>(() => {
+  // Initialize with the static dataset so server and client render match.
+  // Read from localStorage only after mount to avoid hydration mismatches.
+  const [bookings, setBookings] = useState<Booking[]>(bookingsData as Booking[]);
+
+  useEffect(() => {
     try {
-      const stored =
-        typeof window !== "undefined" ? localStorage.getItem("bookings") : null;
-      return stored
-        ? (JSON.parse(stored) as Booking[])
-        : (bookingsData as Booking[]);
+      const stored = localStorage.getItem("bookings");
+      if (stored) {
+        setBookings(JSON.parse(stored) as Booking[]);
+      }
     } catch {
-      return bookingsData as Booking[];
+      /* ignore and keep default bookingsData */
     }
-  });
+  }, []);
 
   const inquiryCount = bookings.filter(
     (booking) => booking.status.toLowerCase() === "inquiry",
