@@ -61,7 +61,17 @@ export function useStaff() {
         },
       ],
     };
-    setStaff((prev) => [...prev, staffWithId]);
+    setStaff((prev) => {
+      const next = [...prev, staffWithId];
+      try {
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('staff', JSON.stringify(next));
+        }
+      } catch {
+        // The effect below will retry persistence when storage is available.
+      }
+      return next;
+    });
   };
 
   const updateStaff = (id: string, updated: Partial<Staff>) => {
