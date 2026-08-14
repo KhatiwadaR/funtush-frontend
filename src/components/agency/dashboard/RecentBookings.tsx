@@ -9,9 +9,9 @@ type Props = {
   agencyId: string;
 };
 
-const tableStyles = 'grid grid-cols-5 gap-2';
-const headerStyles = 'font-[500] text-sm text-[#505055]';
-const dataStyles = 'font-[500] text-[10px]';
+const tableStyles = 'w-full grid grid-cols-5 gap-2';
+const headerStyles = 'font-[500] text-[10px] lg:text-xs text-[#505055]';
+const dataStyles = 'font-[500] text-[8px]';
 
 const statusStyles = {
   confirmed: 'bg-green-100 text-green-700',
@@ -42,24 +42,26 @@ export default function RecentBookings({ agencyId }: Props) {
   });
 
   return (
-    <section className="min-w-[370px] flex flex-col gap-1 rounded-lg p-2 bg-white shadow-sm md:col-span-2 xl:col-span-1">
-      <div className="flex justify-between items-center mb-3">
-        <h3 className="font-semibold text-sm">Recent Bookings</h3>
+    <section className="w-full flex flex-col gap-1 rounded-lg p-2 bg-white shadow-sm md:col-span-full lg:col-span-1">
+      <div className="flex justify-between items-center mb-2">
+        <h2 className="font-semibold text-xs md:text-[10px] lg:text-xs">Recent Bookings</h2>
         <Link
           href="/dashboard/bookings"
-          className="text-xs text-[#0D2DFC] font-semibold transition-transform hover:translate-y-[-1px] hover:underline "
+          className="text-xs md:text-[10px] lg:text-xs text-[#0D2DFC] font-semibold transition-transform hover:translate-y-[-1px] hover:underline "
         >
           View All
         </Link>
       </div>
-      <div className={`${tableStyles}`}>
-        <span className={headerStyles}>Customer</span>
-        <span className={headerStyles}>Package</span>
-        <span className={headerStyles}>Date</span>
-        <span className={headerStyles}>Amount</span>
-        <span className={headerStyles}>Status</span>
+      <div>
+        <div className={`${tableStyles}`}>
+          <span className={headerStyles}>Customer</span>
+          <span className={headerStyles}>Package</span>
+          <span className={headerStyles}>Date</span>
+          <span className={headerStyles}>Amount</span>
+          <span className={headerStyles}>Status</span>
+        </div>
+        <hr className="w-full border border-[#F2F2F7] mt-1" />
       </div>
-      <hr className="w-full border border-[#F2F2F7] mb-1" />
       <div className="mt-1 flex flex-col gap-1">
         {recentBookingArr.map((booking) => {
           return (

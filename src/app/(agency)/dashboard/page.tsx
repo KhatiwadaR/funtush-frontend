@@ -48,7 +48,7 @@ export default function AgencyDashboardPage() {
         <StatCards agencyId={agencyId} />
       </div>
 
-      <div className="grid gap-2 lg:grid-cols-2 xl:grid-cols-[1.55fr_1fr_1fr]">
+      <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-[1.55fr_1fr_1fr]">
         <RevenueOverview agencyId={agencyId} />
         <BookingStatus agencyId={agencyId} />
         <UpcomingTreks agencyId={agencyId} />

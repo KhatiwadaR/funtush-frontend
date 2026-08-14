@@ -46,16 +46,16 @@ export default function BookingStatus({ agencyId }: Props) {
   const totalBookings = bookingStatus.reduce((total, item) => total + item.count, 0);
 
   return (
-    <section className="min-w-0 min-h-0 flex flex-col gap-2 p-5 rounded-sm bg-white shadow-sm">
+    <section className="min-w-0 min-h-0 flex flex-col gap-7 px-6 py-7 md:p-5 lg:px-7 lg:px-6 rounded-sm bg-white shadow-sm">
       <div className="flex item-center justify-between">
-        <h3 className="text-sm font-semibold">Booking Status</h3>
+        <h2 className="text-base md:text-xs lg:text-sm font-semibold">Booking Status</h2>
         <label htmlFor="months"></label>
         <select
           name="months"
           id="months"
           value={selectedMonth}
           onChange={(e) => setSelectedMonth(e.target.value)}
-          className="text-[10px] border border-neutral-100 rounded p-1 gap-2 outline-none hover:text-red-700 hover:bg-blue-50 focus:ring-2 focus:ring-blue-500"
+          className="text-[8px] md:text-[7px] border border-neutral-100 rounded p-1 gap-2 outline-none hover:text-red-700 hover:bg-blue-50 focus:ring-2 focus:ring-blue-500"
         >
           {monthArr.map((month) => (
             <option key={month} value={month}>
@@ -64,8 +64,8 @@ export default function BookingStatus({ agencyId }: Props) {
           ))}
         </select>
       </div>
-      <div className="flex flex-col items-center justify-between whitespace-nowrap md:flex-row">
-        <PieChart width={180} height={240}>
+      <div className="flex justify-between whitespace-nowrap md:flex-row">
+        <PieChart width={180} height={180}>
           <Pie data={bookingStatus} dataKey="count" nameKey="name" cx="50%" cy="50%" innerRadius={50} outerRadius={80}>
             {bookingStatus.map((entry, index) => (
               <Cell key={`cell-${index}`} fill={['#0088FF', '#FF2D55', '#FFCC00', '#00C8B3'][index % 4]} />
@@ -94,22 +94,22 @@ export default function BookingStatus({ agencyId }: Props) {
         </PieChart>
 
         {/* Custom Legend */}
-        <div className="flex flex-col gap-y-8 justify-center">
+        <div className="flex flex-col gap-y-6 justify-center">
           {bookingStatus.map((item, index) => {
             const percentage = totalBookings ? Math.round((item.count / totalBookings) * 100) : 0;
 
             return (
-              <div key={item.name} className="flex items-center gap-2">
+              <div key={item.name} className="flex items-center gap-1 md:gap-4 lg:gap-5">
                 {/* Circle */}
                 <span
-                  className="h-4 w-4 rounded-full"
+                  className="w-3 h-3 md:w-2 md:h-2 rounded-full"
                   style={{
                     backgroundColor: ['#0088FF', '#FF2D55', '#FFCC00', '#00C8B3'][index % 4],
                   }}
                 />
 
                 {/* Text */}
-                <span className="text-xs font-semibold">
+                <span className="text-xs md:text-[8px] lg:text-[10px] font-semibold">
                   {item.name.charAt(0).toUpperCase() + item.name.slice(1)} <span className="pl-4"></span>
                   {item.count} ({percentage}%)
                 </span>

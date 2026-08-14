@@ -69,12 +69,15 @@ const activities: Activity[] = [
 
 export default function RecentActivity() {
   return (
-    <section className="w-full rounded-lg lg:bg-white px-6 py-4 lg:shadow-lg">
+    <section className="w-full rounded-lg md:bg-white p-2 md:px-3 md:py-4 lg:px-4 lg:py-4.5">
       {/* Header */}
       <div className="mb-5 flex items-center justify-between">
-        <h3 className="text-sm font-semibold">Recent Activity</h3>
+        <h2 className="text-[10px] md:text-lg font-semibold">Recent Activity</h2>
 
-        <button type="button" className="text-sm font-medium text-violet-500 transition-colors hover:text-violet-700">
+        <button
+          type="button"
+          className="text-[7px] md:text-xs font-medium text-violet-500 transition-colors hover:text-violet-700"
+        >
           View all activity
         </button>
       </div>
@@ -82,32 +85,28 @@ export default function RecentActivity() {
       {/* Activity Timeline */}
       <div className="flex w-full items-start overflow-x-auto pb-2">
         {activities.map((activity, index) => (
-          <div key={`${activity.title}-${index}`} className="flex min-w-[250px] flex-1 items-start">
-            {/* Activity item */}
+          <div key={`${activity.title}-${index}`} className="flex flex-1 items-start">
+            {/* Activity */}
             <div className="flex min-w-0 flex-1 items-start gap-3">
-              {/* Icon */}
               <div
-                className={`flex h-16 w-16 shrink-0 items-center justify-center rounded-full ${activity.iconBg} ${activity.iconColor}`}
+                className={`flex h-11 w-11 md:h-10 md:w-10 lg:h-11.5 lg:w-11.5 shrink-0 items-center justify-center rounded-full ${activity.iconBg} ${activity.iconColor}`}
               >
                 {activity.icon}
               </div>
 
-              {/* Text */}
-              <div className="min-w-0">
-                <p className="mb-1 text-xs font-medium text-gray-500">{activity.time}</p>
-
-                <p className="whitespace-nowrap text-sm font-semibold text-gray-900">{activity.title}</p>
-
-                <p className="mt-1 whitespace-nowrap text-xs font-medium text-gray-500">{activity.description}</p>
+              <div className="min-w-0 text-[10px] md:text-[8px] lg:text-[10px] font-semibold">
+                <p className="mb-1 text-gray-500">{activity.time}</p>
+                <p className="whitespace-nowrap text-gray-900">{activity.title}</p>
+                <p className="mt-1 whitespace-nowrap text-gray-500">{activity.description}</p>
               </div>
             </div>
 
             {/* Connector */}
             {index < activities.length - 1 && (
-              <div className="flex items-center pt-8">
-                <div className="h-px w-10 bg-gray-300" />
-
-                <div className="h-2.5 w-2.5 shrink-0 rounded-full bg-gray-300" />
+              <div className="flex w-12 shrink-0 items-center pt-5">
+                <div className="h-px flex-1 bg-gray-300" />
+                <div className="h-2 w-2 shrink-0 rounded-full bg-gray-300" />
+                <div className="h-px flex-1 bg-gray-300" />
               </div>
             )}
           </div>

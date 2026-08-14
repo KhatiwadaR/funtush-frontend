@@ -14,6 +14,8 @@ type Props = {
   agencyId: string;
 };
 
+const iconSize = '!text-sm md:!text-xl lg:!text-2xl';
+
 export default function StatCards({ agencyId }: Props) {
   const { bookings, income } = getAgencyData(agencyId);
 
@@ -25,7 +27,7 @@ export default function StatCards({ agencyId }: Props) {
     {
       label: 'Total Bookings',
       amount: `Rs ${totalBookings.toLocaleString()}`,
-      icon: <CalendarMonthIcon />,
+      icon: <CalendarMonthIcon className={iconSize} />,
       iconBg: 'bg-[#DAEBFF]',
       color: '#0088FF',
       iconColor: 'text-[#0088FF]',
@@ -37,7 +39,7 @@ export default function StatCards({ agencyId }: Props) {
     {
       label: 'Revenue (This month)',
       amount: `Rs ${revenue.toLocaleString()}`,
-      icon: <AttachMoneyIcon />,
+      icon: <AttachMoneyIcon className={iconSize} />,
       iconBg: 'bg-[#E8FDE6]',
       color: '#34C759',
       iconColor: 'text-[#34C759]',
@@ -49,7 +51,7 @@ export default function StatCards({ agencyId }: Props) {
     {
       label: 'Total Customers',
       amount: totalCustomers,
-      icon: <GroupIcon />,
+      icon: <GroupIcon className={iconSize} />,
       iconBg: 'bg-[#E1E3FB]',
       color: '#6155F5',
       iconColor: 'text-[#6155F5]',
@@ -61,7 +63,7 @@ export default function StatCards({ agencyId }: Props) {
     {
       label: 'Active Treks',
       amount: 1,
-      icon: <WifiTetheringSharpIcon />,
+      icon: <WifiTetheringSharpIcon className={iconSize} />,
       iconBg: 'bg-[#FBFFDC]',
       color: '#FDA31C',
       iconColor: 'text-[#FDA31C]',
@@ -73,31 +75,36 @@ export default function StatCards({ agencyId }: Props) {
   ];
 
   return (
-    <section className="w-full mt-2 grid gap-8 grid-cols-[repeat(4,minmax(260px,1fr))] xl:grid-cols-4 overflow-x-auto scrollbar-hide">
+    <section className="w-full mt-2 grid gap-4 md:gap-7 grid-cols-[repeat(4,minmax(160px,1fr))] md:grid-cols-[repeat(4,minmax(260,1fr))] overflow-x-auto scrollbar-hide">
       {stat.map((item) => {
         return (
           <div
             key={item.label}
-            className="flex w-full min-w-0 items-center justify-between gap-x-4 rounded-lg bg-white p-2.5 shadow-sm"
+            className="w-full min-w-0 flex items-center justify-between p-1.5 md:p-2.5 rounded-lg bg-white shadow-sm"
           >
-            <div className="min-w-0 flex flex-col gap-y-2 whitespace-nowrap py-1.5">
-              <h3 className="text-xs font-semibold">{item.label}</h3>
-              <p className="text-sm font-semibold">{item.amount}</p>
-              <p className="text-xs font-semibold text-[#34C759]">
+            <div className="w-max min-w-0 flex flex-col gap-y-0.5 md:gap-y-1 whitespace-nowrap py-1.5">
+              <h3 className="text-[7px] md:text-xs font-semibold text-[#1A1A1A]">{item.label}</h3>
+              <p className="text-[8px] md:text-sm font-semibold">{item.amount}</p>
+              <p className="text-[7px] md:text-xs font-semibold text-[#34C759]">
                 <span>
-                  <PlayArrowIcon className="m-[-4px]" sx={{ transform: 'rotate(270deg)' }} />
-                </span>
+                  <PlayArrowIcon
+                    className="!text-xs md:!text-base xl:!text-2xl m-[-2px] md:m-[-4px]"
+                    sx={{ transform: 'rotate(270deg)' }}
+                  />
+                </span>{' '}
                 {`${item.sub}%`}
               </p>
-              <p className="text-[9.5px] font-medium">{item.comparison}</p>
+              <p className="text-[6px] md:text-[9.5px] text-[#45414A] font-medium">{item.comparison}</p>
             </div>
             <div className="flex flex-col">
               <div
-                className={`flex h-9 w-9 items-center justify-center self-end rounded-full ${item.iconBg} ${item.iconColor}`}
+                className={`flex w-5 h-5 items-center justify-center self-end rounded-full ${item.iconBg} ${item.iconColor} md:w-8 md:h-8 lg:w-8.5 lg:h-8.5`}
               >
                 {item.icon}
               </div>
-              <ChartWave color={item.color} gradient={[item.gradientColor1, item.gradientColor2]} />
+              <div className="w-[80px] h-[44px] md:w-[136px] md:h-[73px]">
+                <ChartWave color={item.color} gradient={[item.gradientColor1, item.gradientColor2]} />
+              </div>
             </div>
           </div>
         );

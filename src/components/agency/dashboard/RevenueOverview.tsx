@@ -20,6 +20,8 @@ type DisplayData = {
   expenses: number;
 };
 
+const textSizeStyle = 'text-[7px] md:text-[8.25px] lg:text-[10px]';
+
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 const getSortedTransaction = (data: Transaction[]) => {
@@ -72,18 +74,18 @@ export default function RevenueOverview({ agencyId }: Props) {
   getDisplayableData('expenses', expenseArr, chartdata);
 
   return (
-    <section className="w-full flex flex-col gap-y-8 rounded-sm bg-[#fff] p-3 shadow-sm lg:col-span-2  xl:min-w-[500px] xl:min-h-[305px] xl:col-span-1">
+    <section className="w-full flex flex-col gap-y-7.5 rounded-sm bg-[#fff] p-2.5 md:py-3 lg:px-3 md:col-span-2 lg:col-span-1 shadow-sm">
       <div className="flex justify-between">
-        <div className="flex flex-col gap-2">
-          <h3 className="font-semibold text-sm">Revenue Overview</h3>
-          <div className="flex gap-2">
+        <div className="flex flex-col gap-1 md:gap-1.5 lg:gap-2">
+          <h2 className="font-semibold text-[9px] md:text-xs lg:text-sm">Revenue Overview</h2>
+          <div className="flex gap-1 md:gap-2">
             <label htmlFor="months"></label>
             <select
               name="months"
               id="months"
               value={selectedMonth}
               onChange={(e) => setSelectedMonth(e.target.value)}
-              className="text-[10px] border border-neutral-100 rounded p-1 gap-2 outline-none hover:text-red-700 hover:bg-blue-50 focus:ring-2 focus:ring-blue-500"
+              className={`${textSizeStyle} border border-neutral-100 rounded p-0.5 gap-2 outline-none hover:text-red-700 hover:bg-blue-50 focus:ring-2 focus:ring-blue-500`}
             >
               {monthArr.map((month) => (
                 <option key={month} value={month}>
@@ -91,27 +93,27 @@ export default function RevenueOverview({ agencyId }: Props) {
                 </option>
               ))}
             </select>
-            <button className="text-[10px] font-semibold" onClick={() => setShowRevenue(!showRevenue)}>
+            <button className={`${textSizeStyle} font-semibold`} onClick={() => setShowRevenue(!showRevenue)}>
               <span className={getLegendIndicatorClass(showRevenue)}>-- </span>Revenue
             </button>
-            <button className="text-[10px] font-semibold" onClick={() => setShowExpenses(!showExpenses)}>
+            <button className={`${textSizeStyle} font-semibold`} onClick={() => setShowExpenses(!showExpenses)}>
               <span className={getLegendIndicatorClass(showExpenses)}>-- </span>Expenses
             </button>
           </div>
         </div>
-        <div className="flex gap-2 items-center">
+        <div className="flex gap-1 md:gap-1.5 lg:gap-2 items-center">
           <div className="flex flex-col gap-1 items-center font-semibold">
-            <p className="text-xl">{`Rs ${chartdata.reduce((sum, item) => sum + item.revenue, 0).toLocaleString()}`}</p>
-            <p className="text-[10px]">Total Revenue</p>
+            <p className="text-sm md:text-base lg:text-xl">{`Rs ${chartdata.reduce((sum, item) => sum + item.revenue, 0).toLocaleString()}`}</p>
+            <p className={textSizeStyle}>Total Revenue</p>
           </div>
-          <div className="w-[2px] h-full bg-[#625B71]"></div>
+          <div className="w-[2px] h-[70%] bg-[#625B71]"></div>
           <div className="flex flex-col gap-1 items-center font-semibold text-[#625B71]">
-            <p className="text-xl">{`Rs ${chartdata.reduce((sum, item) => sum + item.expenses, 0).toLocaleString()}`}</p>
-            <p className="text-[10px]">Total Expenses</p>
+            <p className="text-sm md:text-xl">{`Rs ${chartdata.reduce((sum, item) => sum + item.expenses, 0).toLocaleString()}`}</p>
+            <p className={textSizeStyle}>Total Expenses</p>
           </div>
         </div>
       </div>
-      <div className="w-full h-[280px]">
+      <div className="w-full h-[140px] md:h-[180px] lg:h-[220px]">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart
             data={chartdata}
@@ -187,4 +189,4 @@ export default function RevenueOverview({ agencyId }: Props) {
 }
 
 const getLegendIndicatorClass = (isActive: boolean) =>
-  `relative top-[2px] font-bold text-xl ${isActive ? 'text-[#14C935]' : 'text-[#D3F1BF]'}`;
+  `relative top-[2px] md:top-[3px] font-bold text-base md:text-xl lg:text-2xl ${isActive ? 'text-[#14C935]' : 'text-[#D3F1BF]'}`;

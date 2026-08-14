@@ -14,7 +14,7 @@ export default function TopDestinations() {
   return (
     <section className="flex flex-col bg-white rounded-sm p-2 gap-4 shadow-sm">
       <div className="flex justify-between items-center">
-        <h3 className="font-semibold text-sm leading-xl">Top Destinations</h3>
+        <h2 className="font-semibold text-xs md:text-[10px] lg:text-xs">Top Destinations</h2>
         <select
           name="months"
           id="months"

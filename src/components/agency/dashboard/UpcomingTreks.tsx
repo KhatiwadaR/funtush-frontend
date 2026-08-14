@@ -50,21 +50,21 @@ export default function UpcomingTreks({ agencyId }: Props) {
     .slice(0, 4);
 
   return (
-    <section className="lg:min-w-[340px] lg:min-h-[305px] flex flex-col gap-4 px-2 py-5 rounded-sm bg-white">
-      <div className="flex justify-between items-center">
-        <h3 className="font-semibold text-sm">Upcoming Treks</h3>
+    <section className="flex flex-col gap-3.5 md:gap-3 px-1.5 py-2.5 rounded-sm bg-white">
+      <div className="flex justify-between items-center mt-1.5">
+        <h2 className="font-semibold text-sm md:text-xs lg:text-sm">Upcoming Treks</h2>
         <Link
           href="/dashboard/packages"
-          className="text-xs text-[#0D2DFC] font-semibold hover:translate-y-[-1px] hover:underline"
+          className="text-[10px] text-[#0D2DFC] font-semibold hover:translate-y-[-1px] hover:underline"
         >
           View All
         </Link>
       </div>
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-1">
         {upcomingDepartureArr.map((item) => {
           return (
             <div key={item.id} className="flex justify-between items-center pr-4">
-              <div className="flex gap-3">
+              <div className="flex gap-1.5">
                 <Image
                   src={item.image || '/assets/placeholder.jpg'}
                   alt="no image"
@@ -73,13 +73,13 @@ export default function UpcomingTreks({ agencyId }: Props) {
                   className="h-[57px] w-[82px] shrink-0 rounded-sm object-cover"
                 ></Image>
                 <div className="flex flex-col gap-1 font-semibold">
-                  <h4 className="text-xs">{item.packageName}</h4>
-                  <p className="text-[10px]">{item.duration}</p>
-                  <p className="text-[10px]">{`${item.currentSeats} Seats`}</p>
+                  <h3 className="text-xs md:text-[10px] lg:text-xs">{item.packageName}</h3>
+                  <p className="text-[10px] md:text-[8.5px] lg:text-[10px]">{item.duration}</p>
+                  <p className="text-[10px] md:text-[8.5px] lg:text-[10px]">{`${item.currentSeats} Seats`}</p>
                 </div>
               </div>
               <p
-                className={`w-fit rounded-full px-2 py-1 text-sm font-semibold text-xs ${statusStyles[item.status as keyof typeof statusStyles]}`}
+                className={`w-fit rounded-full px-2 py-1 text-xs md:text-[10px] lg:text-xs font-semibold text-xs ${statusStyles[item.status as keyof typeof statusStyles]}`}
               >
                 {item.status}
               </p>
