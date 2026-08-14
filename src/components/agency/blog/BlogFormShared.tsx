@@ -23,6 +23,7 @@ interface BlogPost {
   publishDate?: string;
   tag?: string;
   photoOption?: "local" | "gallery";
+  photoUrl?: string;
   date: string;
   views: number;
 }
@@ -61,6 +62,13 @@ export function BlogFormShared({
   );
 
   const [tag, setTag] = useState("");
+
+  const [selectedGalleryImage, setSelectedGalleryImage] = useState<{
+    id: string;
+    url: string;
+    title?: string;
+    owner?: string;
+  } | null>(null);
 
   const [photoOption, setPhotoOption] = useState<
     "local" | "gallery"
@@ -128,6 +136,14 @@ export function BlogFormShared({
         setPhotoOption(
           target.photoOption || "local"
         );
+        if (target.photoUrl) {
+          setSelectedGalleryImage({
+            id: target.photoUrl,
+            url: target.photoUrl,
+            title: "",
+            owner: "",
+          });
+        }
       } catch (error) {
         console.error("Failed to load blog:", error);
 
@@ -310,6 +326,7 @@ export function BlogFormShared({
                   publishDate,
                   tag,
                   photoOption,
+                  photoUrl: photoOption === 'gallery' ? selectedGalleryImage?.url || '' : item.photoUrl || '',
                   date: dateValue,
                 }
               : item
@@ -356,6 +373,7 @@ export function BlogFormShared({
           publishDate,
           tag,
           photoOption,
+          photoUrl: photoOption === 'gallery' ? selectedGalleryImage?.url || '' : '',
           date: dateValue,
           views: 0,
         };
@@ -651,7 +669,7 @@ export function BlogFormShared({
 
       {/* Main Content */}
 
-      <div className="grid w-full grid-cols-1 items-start gap-6 lg:grid-cols-3">
+      <div className="grid w-full grid-cols-1 items-start gap-4 lg:grid-cols-3">
         {/* Editor */}
 
         <BlogEditorSection
@@ -679,7 +697,8 @@ export function BlogFormShared({
 
         {/* Publish Settings */}
 
-        <BlogPublishSettings
+        <div className="lg:sticky lg:top-24">
+          <BlogPublishSettings
           category={category}
           setCategory={(value) => {
             setCategory(value);
@@ -704,7 +723,10 @@ export function BlogFormShared({
           setPhotoOption={setPhotoOption}
           errors={errors}
           setErrors={setErrors}
-        />
+          onSelectGalleryImage={setSelectedGalleryImage}
+          selectedGalleryImage={selectedGalleryImage}
+          />
+        </div>
       </div>
     </div>
   );

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { useTheme } from "@/context/theme";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
@@ -9,11 +9,13 @@ import ImageIcon from "@mui/icons-material/Image";
 import Image from "next/image";
 
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import { Modal } from "@/components/ui/modal";
 
 interface GalleryImage {
   id: string;
   url: string;
-  title: string;
+  title?: string;
+  owner?: string;
 }
 
 interface BlogPublishSettingsProps {
@@ -48,6 +50,8 @@ interface BlogPublishSettingsProps {
       photo: string;
     }>
   >;
+  onSelectGalleryImage?: (img: GalleryImage | null) => void;
+  selectedGalleryImage?: GalleryImage | null;
 }
 
 export function BlogPublishSettings({
@@ -63,6 +67,8 @@ export function BlogPublishSettings({
   setPhotoOption,
   errors,
   setErrors,
+  onSelectGalleryImage,
+  selectedGalleryImage: selectedGalleryImageProp,
 }: BlogPublishSettingsProps) {
   const { isDark } = useTheme();
 
@@ -83,38 +89,37 @@ export function BlogPublishSettings({
 
   const [tagInput, setTagInput] = useState("");
 
-  const galleryImages: GalleryImage[] = [
-    {
-      id: "1",
-      url: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=800",
-      title: "Mountain Landscape",
-    },
-    {
-      id: "2",
-      url: "https://images.unsplash.com/photo-1493246507139-91e8fad9978e?w=800",
-      title: "Nature",
-    },
-    {
-      id: "3",
-      url: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=800",
-      title: "Technology",
-    },
-    {
-      id: "4",
-      url: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800",
-      title: "Beach",
-    },
-    {
-      id: "5",
-      url: "https://images.unsplash.com/photo-1492707892479-7bc8d5a4ee93?w=800",
-      title: "Lifestyle",
-    },
-    {
-      id: "6",
-      url: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800",
-      title: "People",
-    },
-  ];
+  const [galleryImages, setGalleryImages] = useState<GalleryImage[]>([]);
+
+  const [showGalleryModal, setShowGalleryModal] = useState(false);
+  const [gallerySearch, setGallerySearch] = useState("");
+
+  useEffect(() => {
+    let mounted = true;
+
+    fetch("/api/gallery")
+      .then((res) => res.json())
+      .then((data) => {
+        if (!mounted) return;
+
+        if (Array.isArray(data)) {
+          setGalleryImages(data as GalleryImage[]);
+        }
+      })
+      .catch((err) => {
+        console.error("Failed to load gallery from API:", err);
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (typeof selectedGalleryImageProp !== 'undefined') {
+      setSelectedGalleryImage(selectedGalleryImageProp || null);
+    }
+  }, [selectedGalleryImageProp]);
 
   const cardClass = isDark
     ? "bg-neutral-900 text-neutral-50 border-neutral-700"
@@ -293,6 +298,10 @@ export function BlogPublishSettings({
     image: GalleryImage
   ) => {
     setSelectedGalleryImage(image);
+
+    if (typeof onSelectGalleryImage === 'function') {
+      onSelectGalleryImage(image);
+    }
 
     /*
      * Clear local file because gallery is now selected.
@@ -616,6 +625,16 @@ export function BlogPublishSettings({
                 : "border-neutral-200 bg-neutral-50"
               }`}
           >
+            <div className="flex justify-end mb-3">
+              <button
+                type="button"
+                onClick={() => setShowGalleryModal(true)}
+                className="px-3 py-1 bg-primary-500 text-white rounded-lg text-xs font-medium hover:bg-primary-600 transition-colors"
+              >
+                Open Gallery
+              </button>
+            </div>
+
             <div className="flex items-center gap-2 mb-3">
               <ImageIcon className="w-4 h-4 text-primary-500" />
 
@@ -647,7 +666,7 @@ export function BlogPublishSettings({
                     >
                       <Image
                         src={image.url}
-                        alt={image.title}
+                        alt={image.title || 'Gallery image'}
                         width={800}
                         height={450}
                         className="w-full h-28 object-cover"
@@ -667,6 +686,8 @@ export function BlogPublishSettings({
                           <CheckCircleIcon className="w-4 h-4" />
                         </div>
                       )}
+
+                      
                     </button>
                   );
                 })}
@@ -705,6 +726,75 @@ export function BlogPublishSettings({
           </div>
         )}
       </div>
+
+      {/* Gallery Modal (uses shared Modal pattern) */}
+      <Modal isOpen={showGalleryModal} onClose={() => setShowGalleryModal(false)} title="Select Image from Gallery" size="xl">
+        <div className="flex items-center justify-between mb-4 gap-4">
+          <div>
+            <p className="text-sm text-neutral-500">Search and pick an image to use in your blog post.</p>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <input
+              type="text"
+              value={gallerySearch}
+              onChange={(e) => setGallerySearch(e.target.value)}
+              placeholder="Search by user or filename..."
+              className={`rounded-lg border px-3 py-2 text-xs shadow-sm ${isDark ? 'border-neutral-700 bg-neutral-800 text-neutral-50' : 'border-neutral-300 bg-white text-neutral-900'}`}
+            />
+
+            <button onClick={() => setGallerySearch("")} className="text-xs text-neutral-500 hover:text-neutral-700">Clear</button>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+          {((galleryImages || []).filter((img) => {
+            if (!gallerySearch.trim()) return true;
+            const q = gallerySearch.toLowerCase();
+            return (img.title || "").toLowerCase().includes(q) || (img.url || "").toLowerCase().includes(q) || (img.owner || "").toLowerCase().includes(q);
+          })).length === 0 ? (
+            <div className="col-span-full py-16 text-center">
+              <p className="text-sm text-neutral-500">No images match your search.</p>
+            </div>
+          ) : (
+            (galleryImages || []).filter((img) => {
+              if (!gallerySearch.trim()) return true;
+              const q = gallerySearch.toLowerCase();
+              return (img.title || "").toLowerCase().includes(q) || (img.url || "").toLowerCase().includes(q) || (img.owner || "").toLowerCase().includes(q);
+            }).map((image) => {
+              const isSelected = selectedGalleryImage?.id === image.id;
+
+              return (
+                <button
+                  key={image.id}
+                  type="button"
+                  onClick={() => {
+                    handleGalleryImageSelect(image);
+                    setShowGalleryModal(false);
+                  }}
+                  className={`relative overflow-hidden rounded-xl border-2 text-left transition-all ${isSelected ? 'border-primary-500 ring-2 ring-primary-500/20' : (isDark ? 'border-neutral-700 hover:border-primary-400' : 'border-neutral-200 hover:border-primary-400')}`}
+                >
+                                  <Image src={image.url} alt={image.title || 'Gallery image'} width={800} height={450} className="w-full h-40 object-cover" />
+
+                  <div className={`px-2 py-1.5 text-[11px] ${isDark ? 'bg-neutral-900 text-neutral-200' : 'bg-white text-neutral-700'}`}>{image.title}</div>
+
+                  {image.owner && (
+                    <div className="px-2 py-0.5 text-[10px] text-neutral-500">
+                      Uploaded by: <span className="font-medium">{image.owner}</span>
+                    </div>
+                  )}
+
+                  {isSelected && (
+                    <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-primary-500 text-white flex items-center justify-center">
+                      <CheckCircleIcon className="w-4 h-4" />
+                    </div>
+                  )}
+                </button>
+              );
+            })
+          )}
+        </div>
+      </Modal>
     </Card>
   );
 }

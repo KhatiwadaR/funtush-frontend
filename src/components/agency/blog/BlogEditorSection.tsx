@@ -98,7 +98,6 @@ export function BlogEditorSection({
             ${errors.title ? errorInputClass : inputClass}
           `}
         />
-
         {errors.title && (
           <p className="text-xs text-danger-500">
             {errors.title}
@@ -110,7 +109,7 @@ export function BlogEditorSection({
           SUB TITLE
           ===================================================== */}
 
-      <div className="mt-5 space-y-1.5">
+      <div className="mt-4 space-y-1.5">
         <label className="block text-xs font-bold">
           Sub title{" "}
           <span className="text-danger-500">*</span>
@@ -135,7 +134,6 @@ export function BlogEditorSection({
             ${errors.subtitle ? errorInputClass : inputClass}
           `}
         />
-
         {errors.subtitle && (
           <p className="text-xs text-danger-500">
             {errors.subtitle}
@@ -147,7 +145,7 @@ export function BlogEditorSection({
           CONTENT
           ===================================================== */}
 
-      <div className="mt-5 space-y-1.5">
+      <div className="mt-4 space-y-1.5">
         <div className="flex items-center justify-between">
           <label className="block text-xs font-bold">
             Content{" "}

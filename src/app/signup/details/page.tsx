@@ -1,7 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
-import { useSearchParams } from 'next/navigation';
+import React, { useState, useEffect } from 'react';
 import { ROLE_REDIRECT } from '@/lib/auth';
 import toast from 'react-hot-toast';
 import Link from 'next/link';
@@ -14,6 +13,9 @@ import {
   Mountain,
   ChevronLeft,
 } from 'lucide-react';
+import type { UserRole } from '@/types/user';
+
+export const dynamic = 'force-dynamic';
 
 export default function DetailsPage() {
   const router = useRouter();
@@ -22,9 +24,23 @@ export default function DetailsPage() {
   const [phoneNumber, setPhoneNumber] = useState('+33 6 12 34 58 78');
   const [country, setCountry] = useState('');
 
-  const search = useSearchParams();
-  const type = search?.get('type') || 'agency';
-  const role = type === 'trekker' ? 'trekker' : 'agency_admin';
+  const [typeParam, setTypeParam] = useState<string>(() => {
+    try {
+      if (typeof window === 'undefined') return 'agency';
+      const sp = new URLSearchParams(window.location.search);
+      return sp.get('type') || 'agency';
+    } catch {
+      return 'agency';
+    }
+  });
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const sp = new URLSearchParams(window.location.search);
+    setTypeParam(sp.get('type') || 'agency');
+  }, []);
+
+  const role: UserRole = typeParam === 'trekker' ? 'trekker' : 'agency_admin';
 
   const [showSuccess, setShowSuccess] = useState(false);
   const [showTiers, setShowTiers] = useState(false);
@@ -39,7 +55,7 @@ export default function DetailsPage() {
       else {
         // For trekkers, create account and redirect to trekker area
         toast.success('Account created — redirecting...');
-        const dest = ROLE_REDIRECT[role as any] ?? '/';
+        const dest = ROLE_REDIRECT[role] ?? '/';
         router.push(dest);
       }
     }, 900);
@@ -48,7 +64,7 @@ export default function DetailsPage() {
   const finishTiers = () => {
     setShowTiers(false);
     toast.success(`Selected tier: ${selectedTier ?? 'Free'}`);
-    const dest = ROLE_REDIRECT[role as any] ?? '/';
+    const dest = ROLE_REDIRECT[role] ?? '/';
     router.push(dest);
   };
 
