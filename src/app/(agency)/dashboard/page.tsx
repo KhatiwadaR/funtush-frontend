@@ -18,7 +18,7 @@ const agencyId = 'ag-001';
 
 export default function AgencyDashboardPage() {
   return (
-    <div className="space-y-4 text-neutral-900">
+    <div className="space-y-2 md:space-y-4 text-neutral-900">
       <LargeScreenOnly />
       <ActiveSos />
 
@@ -32,7 +32,7 @@ export default function AgencyDashboardPage() {
         <UpcomingTreks agencyId={agencyId} />
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-[1.55fr_1fr_1fr_1fr]">
+      <div className="grid gap-2 md:gap-4 md:grid-cols-2 xl:grid-cols-[1.55fr_1fr_1fr_1fr]">
         <RecentBookings agencyId={agencyId} />
         <ActiveGuides />
         <TopDestinations /> {/* Placeholder */}
